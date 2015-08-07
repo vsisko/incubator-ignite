@@ -34,7 +34,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
     /** */
     private static TcpDiscoveryIpFinder ipFinder = new TcpDiscoveryVmIpFinder(true);
 
-    private static int TEST_SIZE = 1_024_000;
+    private static int TEST_SIZE = 10_024_000;
 
     /** cache name. */
     protected static String CACHE_NAME_DHT = "cache";
@@ -58,7 +58,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
 
         cacheCfg.setName(CACHE_NAME_DHT);
         cacheCfg.setCacheMode(CacheMode.PARTITIONED);
-        cacheCfg.setRebalanceBatchSize(100 * 1024);
+        //cacheCfg.setRebalanceBatchSize(1024);
         cacheCfg.setRebalanceMode(CacheRebalanceMode.SYNC);
         cacheCfg.setRebalanceThreadPoolSize(4);
         //cacheCfg.setRebalanceTimeout(1000000);
@@ -107,7 +107,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
 
         long start = System.currentTimeMillis();
 
-        //startGrid(1);
+        startGrid(1);
 
         startGrid(2);
 
@@ -115,9 +115,9 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
 
         stopGrid(0);
 
-        //Thread.sleep(20000);
+        Thread.sleep(20000);
 
-        //stopGrid(1);
+        stopGrid(1);
 
         checkData(grid(2));
 

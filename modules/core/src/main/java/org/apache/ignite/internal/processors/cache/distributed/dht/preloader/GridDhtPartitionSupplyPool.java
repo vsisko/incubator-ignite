@@ -76,25 +76,32 @@ class GridDhtPartitionSupplyPool {
 
         top = cctx.dht().topology();
 
+        int cnt = 0;
+
         if (!cctx.kernalContext().clientNode()) {
-            for (int p = 0; p <= cctx.affinity().partitions(); p++)
-                cctx.io().addOrderedHandler(topic(p, cctx.cacheId()), new CI2<UUID, GridDhtPartitionDemandMessage>() {
+            while (cnt < cctx.config().getRebalanceThreadPoolSize()) {
+                final int idx = cnt;
+
+                cctx.io().addOrderedHandler(topic(cnt, cctx.cacheId()), new CI2<UUID, GridDhtPartitionDemandMessage>() {
                     @Override public void apply(UUID id, GridDhtPartitionDemandMessage m) {
-                        processMessage(m, id);
+                        processMessage(m, id, idx);
                     }
                 });
+
+                cnt++;
+            }
         }
 
         depEnabled = cctx.gridDeploy().enabled();
     }
 
     /**
-     * @param p Partition.
+     * @param idx Index.
      * @param id Node id.
      * @return topic
      */
-    static Object topic(int p, int id) {
-        return TOPIC_CACHE.topic("SupplyPool", id, p);
+    static Object topic(int idx, int id) {
+        return TOPIC_CACHE.topic("SupplyPool", idx, id);
     }
 
     /**
@@ -119,44 +126,65 @@ class GridDhtPartitionSupplyPool {
         this.preloadPred = preloadPred;
     }
 
+    boolean logg = false;
+
     /**
      * @param d Demand message.
      * @param id Node uuid.
      */
-    private void processMessage(GridDhtPartitionDemandMessage d, UUID id) {
+    private void processMessage(GridDhtPartitionDemandMessage d, UUID id, int idx) {
         assert d != null;
         assert id != null;
+
+        if (!cctx.affinity().affinityTopologyVersion().equals(d.topologyVersion()))
+            return;
+
+        if (logg && cctx.name().equals("cache"))
+            System.out.println("S " + idx + " process message " + cctx.localNode().id());
 
         GridDhtPartitionSupplyMessage s = new GridDhtPartitionSupplyMessage(d.workerId(),
             d.updateSequence(), cctx.cacheId());
 
         long preloadThrottle = cctx.config().getRebalanceThrottle();
 
-        long maxBatchesCnt = 3;//Todo: param
-
         ClusterNode node = cctx.discovery().node(id);
-
-        boolean ack = false;
 
         T2<UUID, Object> scId = new T2<>(id, d.topic());
 
         try {
             SupplyContext sctx = scMap.remove(scId);
 
-            if (doneMap.get(scId) != null)//Todo: refactor
+            if (!d.partitions().isEmpty()) {//Only first request contains partitions.
+                doneMap.remove(scId);
+            }
+
+            if (doneMap.get(scId) != null) {
+                if (logg && cctx.name().equals("cache"))
+                    System.out.println("S " + idx + " exit " + cctx.localNode().id());
+
                 return;
+            }
 
             long bCnt = 0;
 
             int phase = 0;
 
-            if (sctx != null)
+            boolean newReq = true;
+
+            long maxBatchesCnt = 3;//Todo: param
+
+            if (sctx != null) {
                 phase = sctx.phase;
+
+                maxBatchesCnt = 1;
+            }
 
             Iterator<Integer> partIt = sctx != null ? sctx.partIt : d.partitions().iterator();
 
-            while (sctx != null || partIt.hasNext()) {
-                int part = sctx != null ? sctx.part : partIt.next();
+            while ((sctx != null && newReq) || partIt.hasNext()) {
+                int part = sctx != null && newReq ? sctx.part : partIt.next();
+
+                newReq = false;
 
                 GridDhtLocalPartition loc = top.localPartition(part, d.topologyVersion(), false);
 
@@ -206,8 +234,6 @@ class GridDhtPartitionSupplyPool {
                             }
 
                             if (s.messageSize() >= cctx.config().getRebalanceBatchSize()) {
-                                ack = true;
-
                                 if (!reply(node, d, s))
                                     return;
 
@@ -223,6 +249,9 @@ class GridDhtPartitionSupplyPool {
                                     return;
                                 }
                                 else {
+                                    if (logg && cctx.name().equals("cache"))
+                                        System.out.println("S " + idx + " renew " + part + " " + cctx.localNode().id());
+
                                     s = new GridDhtPartitionSupplyMessage(d.workerId(), d.updateSequence(),
                                         cctx.cacheId());
                                 }
@@ -275,8 +304,6 @@ class GridDhtPartitionSupplyPool {
                                     }
 
                                     if (s.messageSize() >= cctx.config().getRebalanceBatchSize()) {
-                                        ack = true;
-
                                         if (!reply(node, d, s))
                                             return;
 
@@ -382,8 +409,6 @@ class GridDhtPartitionSupplyPool {
                             }
 
                             if (s.messageSize() >= cctx.config().getRebalanceBatchSize()) {
-                                ack = true;
-
                                 if (!reply(node, d, s))
                                     return;
 
@@ -415,11 +440,12 @@ class GridDhtPartitionSupplyPool {
                     // Mark as last supply message.
                     s.last(part);
 
-                    if (ack) {
-                        s.markAck();
+//                    if (logg && cctx.name().equals("cache"))
+//                        System.out.println("S " + idx + " last " + part + " " + cctx.localNode().id());
 
-                        break; // Partition for loop.
-                    }
+                    phase = 0;
+
+                    sctx = null;
                 }
                 finally {
                     loc.release();
@@ -442,13 +468,15 @@ class GridDhtPartitionSupplyPool {
 
     /**
      * @param n Node.
-     * @param d Demand message.
      * @param s Supply message.
      * @return {@code True} if message was sent, {@code false} if recipient left grid.
      * @throws IgniteCheckedException If failed.
      */
     private boolean reply(ClusterNode n, GridDhtPartitionDemandMessage d, GridDhtPartitionSupplyMessage s)
         throws IgniteCheckedException {
+        if (logg && cctx.name().equals("cache"))
+            System.out.println("S sent "+ cctx.localNode().id());
+
         try {
             if (log.isDebugEnabled())
                 log.debug("Replying to partition demand [node=" + n.id() + ", demand=" + d + ", supply=" + s + ']');
