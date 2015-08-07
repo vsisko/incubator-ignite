@@ -105,7 +105,8 @@ public abstract class GridCacheExpiredEntriesPreloadAbstractSelfTest extends Gri
 
         Collection<Event> evts = g1.events().localQuery(F.<Event>alwaysTrue(), EVT_CACHE_REBALANCE_OBJECT_LOADED);
 
-        assertEquals("Expected all entries are preloaded.", KEYS_NUM, evts.size());
+        assertEquals("Expected all entries are preloaded.", cache1.context().deferredDelete() ? KEYS_NUM : 0,
+            evts.size());
 
         boolean rmv = GridTestUtils.waitForCondition(new PAX() {
             @Override public boolean applyx() {

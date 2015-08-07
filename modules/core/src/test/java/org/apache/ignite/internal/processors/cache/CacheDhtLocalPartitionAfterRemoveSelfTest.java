@@ -27,6 +27,9 @@ import org.apache.ignite.testframework.junits.common.*;
  * Test for remove operation.
  */
 public class CacheDhtLocalPartitionAfterRemoveSelfTest extends GridCommonAbstractTest {
+    /** Grid count. */
+    private static final int GRID_CNT = 3;
+
     /** {@inheritDoc} */
     @Override protected IgniteConfiguration getConfiguration(String gridName) throws Exception {
         IgniteConfiguration cfg = super.getConfiguration(gridName);
@@ -44,7 +47,7 @@ public class CacheDhtLocalPartitionAfterRemoveSelfTest extends GridCommonAbstrac
 
     /** {@inheritDoc} */
     @Override protected void beforeTestsStarted() throws Exception {
-        startGrids(1);
+        startGrids(GRID_CNT);
     }
 
     /** {@inheritDoc} */
@@ -66,15 +69,19 @@ public class CacheDhtLocalPartitionAfterRemoveSelfTest extends GridCommonAbstrac
 
         assertEquals(0, cache.size());
 
-        int size = 0;
+        for (int g = 0; g < GRID_CNT; g++) {
+            cache = grid(g).cache(null);
 
-        for (GridDhtLocalPartition p : dht(cache).topology().localPartitions()) {
-            int pSize = p.size();
+            int size = 0;
 
-            size += pSize;
+            for (GridDhtLocalPartition p : dht(cache).topology().localPartitions()) {
+                int pSize = p.size();
+
+                size += pSize;
+            }
+
+            assertEquals(0, size);
         }
-
-        System.out.println("All size: " + size);
     }
 
     /**

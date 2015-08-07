@@ -412,10 +412,12 @@ public class GridCacheNearOnlyMultiNodeFullApiSelfTest extends GridCachePartitio
 
             GridCacheEntryEx entry = dht.peekEx(key);
 
-            assert entry != null;
-
-            assertEquals(0, entry.ttl());
-            assertEquals(0, entry.expireTime());
+            if (dht.context().deferredDelete()) {
+                assertEquals(0, entry.ttl());
+                assertEquals(0, entry.expireTime());
+            }
+            else
+                assertNull(entry);
         }
 
         // Ensure that next update will not pick old expire time.
