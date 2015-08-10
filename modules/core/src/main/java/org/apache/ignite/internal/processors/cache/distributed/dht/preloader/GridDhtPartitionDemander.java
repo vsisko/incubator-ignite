@@ -53,7 +53,7 @@ import static org.apache.ignite.internal.processors.dr.GridDrType.*;
  * and populating local cache.
  */
 @SuppressWarnings("NonConstantFieldWithUpperCaseName")
-public class GridDhtPartitionDemandPool {
+public class GridDhtPartitionDemander {
     /** Dummy message to wake up a blocking queue if a node leaves. */
     private final SupplyMessage DUMMY_TOP = new SupplyMessage();
 
@@ -99,7 +99,7 @@ public class GridDhtPartitionDemandPool {
      * @param cctx Cache context.
      * @param busyLock Shutdown lock.
      */
-    public GridDhtPartitionDemandPool(GridCacheContext<?, ?> cctx, ReadWriteLock busyLock) {
+    public GridDhtPartitionDemander(GridCacheContext<?, ?> cctx, ReadWriteLock busyLock) {
         assert cctx != null;
         assert busyLock != null;
 
@@ -385,7 +385,7 @@ public class GridDhtPartitionDemandPool {
 
     /** {@inheritDoc} */
     @Override public String toString() {
-        return S.toString(GridDhtPartitionDemandPool.class, this);
+        return S.toString(GridDhtPartitionDemander.class, this);
     }
 
     /**
@@ -399,13 +399,13 @@ public class GridDhtPartitionDemandPool {
         private final LinkedBlockingDeque<GridDhtPreloaderAssignments> assignQ = new LinkedBlockingDeque<>();
 
         /** Hide worker logger and use cache logger instead. */
-        private IgniteLogger log = GridDhtPartitionDemandPool.this.log;
+        private IgniteLogger log = GridDhtPartitionDemander.this.log;
 
         /**
          * @param id Worker ID.
          */
         private DemandWorker(int id) {
-            super(cctx.gridName(), "preloader-demand-worker", GridDhtPartitionDemandPool.this.log);
+            super(cctx.gridName(), "preloader-demand-worker", GridDhtPartitionDemander.this.log);
 
             assert id >= 0;
 
@@ -530,7 +530,7 @@ public class GridDhtPartitionDemandPool {
         ) throws InterruptedException, IgniteCheckedException {
             final GridDhtPartitionTopology top = cctx.dht().topology();
 
-            long timeout = GridDhtPartitionDemandPool.this.timeout.get();
+            long timeout = GridDhtPartitionDemander.this.timeout.get();
 
             d.timeout(timeout);
             d.workerId(id);
@@ -590,7 +590,7 @@ public class GridDhtPartitionDemandPool {
                         if (logg && cctx.name().equals("cache"))
                         System.out.println("D "+cnt + " initial Demand "+" "+cctx.localNode().id());
 
-                        cctx.io().sendOrderedMessage(node, GridDhtPartitionSupplyPool.topic(cnt, cctx.cacheId()), initD, cctx.ioPolicy(), d.timeout());
+                        cctx.io().sendOrderedMessage(node, GridDhtPartitionSupplier.topic(cnt, cctx.cacheId()), initD, cctx.ioPolicy(), d.timeout());
                     }
                     catch (IgniteCheckedException e) {
                         U.error(log, "Failed to send partition demand message to local node", e);
@@ -767,7 +767,7 @@ public class GridDhtPartitionDemandPool {
                     nextD.topic(topic(idx, cctx.cacheId(), node.id()));
 
                     // Send demand message.
-                    cctx.io().sendOrderedMessage(node, GridDhtPartitionSupplyPool.topic(idx, cctx.cacheId()),
+                    cctx.io().sendOrderedMessage(node, GridDhtPartitionSupplier.topic(idx, cctx.cacheId()),
                         nextD, cctx.ioPolicy(), d.timeout());
 
                     if (logg && cctx.name().equals("cache"))

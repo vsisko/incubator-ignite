@@ -34,7 +34,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
     /** */
     private static TcpDiscoveryIpFinder ipFinder = new TcpDiscoveryVmIpFinder(true);
 
-    private static int TEST_SIZE = 10_024_000;
+    private static int TEST_SIZE = 1_024_000;
 
     /** cache name. */
     protected static String CACHE_NAME_DHT = "cache";

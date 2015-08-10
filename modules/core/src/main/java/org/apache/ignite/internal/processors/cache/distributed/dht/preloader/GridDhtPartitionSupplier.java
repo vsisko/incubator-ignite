@@ -30,7 +30,6 @@ import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.lang.*;
 import org.jsr166.*;
 
-import java.io.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
 
@@ -40,12 +39,15 @@ import static org.apache.ignite.internal.processors.cache.distributed.dht.GridDh
 /**
  * Thread pool for supplying partitions to demanding nodes.
  */
-class GridDhtPartitionSupplyPool {
+class GridDhtPartitionSupplier {
     /** */
     private final GridCacheContext<?, ?> cctx;
 
     /** */
     private final IgniteLogger log;
+
+    /** */
+    private final ReadWriteLock busyLock;
 
     /** */
     private GridDhtPartitionTopology top;
@@ -60,35 +62,40 @@ class GridDhtPartitionSupplyPool {
     private ConcurrentHashMap8<T2, SupplyContext> scMap = new ConcurrentHashMap8<>();
 
     /** Done map. */
-    private ConcurrentHashMap8<T2, Boolean> doneMap = new ConcurrentHashMap8<>();//Todo: refactor
+    private ConcurrentHashMap8<T2, Boolean> doneMap = new ConcurrentHashMap8<>();
 
     /**
      * @param cctx Cache context.
      * @param busyLock Shutdown lock.
      */
-    GridDhtPartitionSupplyPool(GridCacheContext<?, ?> cctx, ReadWriteLock busyLock) {
+    GridDhtPartitionSupplier(GridCacheContext<?, ?> cctx, ReadWriteLock busyLock) {
         assert cctx != null;
         assert busyLock != null;
 
         this.cctx = cctx;
+        this.busyLock = busyLock;
 
         log = cctx.logger(getClass());
 
         top = cctx.dht().topology();
 
-        int cnt = 0;
-
         if (!cctx.kernalContext().clientNode()) {
-            while (cnt < cctx.config().getRebalanceThreadPoolSize()) {
+            for (int cnt = 0; cnt < cctx.config().getRebalanceThreadPoolSize(); cnt++) {
                 final int idx = cnt;
 
                 cctx.io().addOrderedHandler(topic(cnt, cctx.cacheId()), new CI2<UUID, GridDhtPartitionDemandMessage>() {
                     @Override public void apply(UUID id, GridDhtPartitionDemandMessage m) {
-                        processMessage(m, id, idx);
+                        if (!enterBusy())
+                            return;
+
+                        try {
+                            processMessage(m, id, idx);
+                        }
+                        finally {
+                            leaveBusy();
+                        }
                     }
                 });
-
-                cnt++;
             }
         }
 
@@ -115,6 +122,11 @@ class GridDhtPartitionSupplyPool {
      */
     void stop() {
         top = null;
+
+        if (!cctx.kernalContext().clientNode()) {
+            for (int cnt = 0; cnt < cctx.config().getRebalanceThreadPoolSize(); cnt++)
+                cctx.io().removeOrderedHandler(topic(cnt, cctx.cacheId()));
+        }
     }
 
     /**
@@ -129,8 +141,29 @@ class GridDhtPartitionSupplyPool {
     boolean logg = false;
 
     /**
+     * @return {@code true} if entered to busy state.
+     */
+    private boolean enterBusy() {
+        if (busyLock.readLock().tryLock())
+            return true;
+
+        if (log.isDebugEnabled())
+            log.debug("Failed to enter to busy state (supplier is stopping): " + cctx.nodeId());
+
+        return false;
+    }
+
+    /**
+     *
+     */
+    private void leaveBusy() {
+        busyLock.readLock().unlock();
+    }
+
+    /**
      * @param d Demand message.
      * @param id Node uuid.
+     * @param idx Index.
      */
     private void processMessage(GridDhtPartitionDemandMessage d, UUID id, int idx) {
         assert d != null;
@@ -154,7 +187,7 @@ class GridDhtPartitionSupplyPool {
         try {
             SupplyContext sctx = scMap.remove(scId);
 
-            if (!d.partitions().isEmpty()) {//Only first request contains partitions.
+            if (!d.partitions().isEmpty()) {//Only initial request contains partitions.
                 doneMap.remove(scId);
             }
 
@@ -468,6 +501,7 @@ class GridDhtPartitionSupplyPool {
 
     /**
      * @param n Node.
+     * @param d DemandMessage
      * @param s Supply message.
      * @return {@code True} if message was sent, {@code false} if recipient left grid.
      * @throws IgniteCheckedException If failed.
@@ -493,54 +527,11 @@ class GridDhtPartitionSupplyPool {
         }
     }
 
-
     /**
-     * Demand message wrapper.
-     */
-    private static class DemandMessage extends IgniteBiTuple<UUID, GridDhtPartitionDemandMessage> {
-        /** */
-        private static final long serialVersionUID = 0L;
-
-        /**
-         * @param sndId Sender ID.
-         * @param msg Message.
-         */
-        DemandMessage(UUID sndId, GridDhtPartitionDemandMessage msg) {
-            super(sndId, msg);
-        }
-
-        /**
-         * Empty constructor required for {@link Externalizable}.
-         */
-        public DemandMessage() {
-            // No-op.
-        }
-
-        /**
-         * @return Sender ID.
-         */
-        UUID senderId() {
-            return get1();
-        }
-
-        /**
-         * @return Message.
-         */
-        public GridDhtPartitionDemandMessage message() {
-            return get2();
-        }
-
-        /** {@inheritDoc} */
-        @Override public String toString() {
-            return "DemandMessage [senderId=" + senderId() + ", msg=" + message() + ']';
-        }
-    }
-
-
-    /**
-     * @param t T.
+     * @param t Tuple.
      * @param phase Phase.
      * @param partIt Partition it.
+     * @param part Partition.
      * @param entryIt Entry it.
      * @param swapLsnr Swap listener.
      */
@@ -553,17 +544,32 @@ class GridDhtPartitionSupplyPool {
         scMap.put(t, new SupplyContext(phase, partIt, entryIt, swapLsnr, part));
     }
 
+    /**
+     * Supply context.
+     */
     private static class SupplyContext{
+        /** Phase. */
         private int phase;
 
+        /** Partition iterator. */
         private Iterator<Integer> partIt;
 
+        /** Entry iterator. */
         private Iterator<?> entryIt;
 
+        /** Swap listener. */
         private GridCacheEntryInfoCollectSwapListener swapLsnr;
 
+        /** Partition. */
         int part;
 
+        /**
+         * @param phase Phase.
+         * @param partIt Partition iterator.
+         * @param entryIt Entry iterator.
+         * @param swapLsnr Swap listener.
+         * @param part Partition.
+         */
         public SupplyContext(int phase, Iterator<Integer> partIt, Iterator<?> entryIt,
             GridCacheEntryInfoCollectSwapListener swapLsnr, int part) {
             this.phase = phase;
