@@ -54,9 +54,6 @@ import static org.apache.ignite.internal.processors.dr.GridDrType.*;
  */
 @SuppressWarnings("NonConstantFieldWithUpperCaseName")
 public class GridDhtPartitionDemander {
-    /** Dummy message to wake up a blocking queue if a node leaves. */
-    private final SupplyMessage DUMMY_TOP = new SupplyMessage();
-
     /** */
     private final GridCacheContext<?, ?> cctx;
 
@@ -256,14 +253,6 @@ public class GridDhtPartitionDemander {
         assert discoEvt != null;
 
         cctx.events().addPreloadEvent(part, type, discoEvt.eventNode(), discoEvt.type(), discoEvt.timestamp());
-    }
-
-    /**
-     * @param msg Message to check.
-     * @return {@code True} if dummy message.
-     */
-    private boolean dummyTopology(SupplyMessage msg) {
-        return msg == DUMMY_TOP;
     }
 
     /**
@@ -558,8 +547,14 @@ public class GridDhtPartitionDemander {
 
                 cctx.io().addOrderedHandler(topic(cnt, cctx.cacheId(), node.id()), new CI2<UUID, GridDhtPartitionSupplyMessage>() {
                     @Override public void apply(UUID id, GridDhtPartitionSupplyMessage m) {
-                        handleSupplyMessage(idx, new SupplyMessage(id, m), node, topVer, top,
-                            exchFut, missed, d, remaining);
+                        enterBusy();
+
+                        try {
+                            handleSupplyMessage(idx, new SupplyMessage(id, m), node, topVer, top,
+                                exchFut, missed, d, remaining);
+                        }finally{
+                            leaveBusy();
+                        }
                     }
                 });
 
