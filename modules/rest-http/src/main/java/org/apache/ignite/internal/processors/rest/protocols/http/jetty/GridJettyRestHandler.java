@@ -17,11 +17,9 @@
 
 package org.apache.ignite.internal.processors.rest.protocols.http.jetty;
 
-import net.sf.json.*;
-import net.sf.json.processors.*;
+import com.google.gson.*;
 import org.apache.ignite.*;
 import org.apache.ignite.internal.processors.rest.*;
-import org.apache.ignite.internal.processors.rest.client.message.*;
 import org.apache.ignite.internal.processors.rest.request.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
@@ -45,17 +43,6 @@ import static org.apache.ignite.internal.processors.rest.GridRestResponse.*;
  * {@code /ignite?cmd=cmdName&param1=abc&param2=123}
  */
 public class GridJettyRestHandler extends AbstractHandler {
-    /** JSON value processor that does not transform input object. */
-    private static final JsonValueProcessor SKIP_STR_VAL_PROC = new JsonValueProcessor() {
-        @Override public Object processArrayValue(Object o, JsonConfig jsonConfig) {
-            return o;
-        }
-
-        @Override public Object processObjectValue(String s, Object o, JsonConfig jsonConfig) {
-            return o;
-        }
-    };
-
     /** Logger. */
     private final IgniteLogger log;
 
@@ -71,6 +58,9 @@ public class GridJettyRestHandler extends AbstractHandler {
     /** Authentication checker. */
     private final IgniteClosure<String, Boolean> authChecker;
 
+    /** */
+    private final Gson gson;
+
     /**
      * Creates new HTTP requests handler.
      *
@@ -85,6 +75,8 @@ public class GridJettyRestHandler extends AbstractHandler {
         this.hnd = hnd;
         this.log = log;
         this.authChecker = authChecker;
+
+        gson = new GsonBuilder().setFieldNamingStrategy(new IgniteFieldNamingStrategy()).create();
 
         // Init default page and favicon.
         try {
@@ -277,39 +269,16 @@ public class GridJettyRestHandler extends AbstractHandler {
                 throw (Error)e;
         }
 
-        JsonConfig cfg = new GridJettyJsonConfig();
-
-        // Workaround for not needed transformation of string into JSON object.
-        if (cmdRes.getResponse() instanceof String)
-            cfg.registerJsonValueProcessor(cmdRes.getClass(), "response", SKIP_STR_VAL_PROC);
-
-        // Workaround for not needed transformation of result field string into JSON object at GridClientTaskResultBean.
-        if (cmdRes.getResponse() instanceof GridClientTaskResultBean
-            && ((GridClientTaskResultBean)cmdRes.getResponse()).getResult() instanceof String)
-            cfg.registerJsonValueProcessor(cmdRes.getResponse().getClass(), "result", SKIP_STR_VAL_PROC);
-
-        JSON json;
+        Gson gson = new Gson();
 
         try {
-            json = JSONSerializer.toJSON(cmdRes, cfg);
-        }
-        catch (JSONException e) {
-            U.error(log, "Failed to convert response to JSON: " + cmdRes, e);
-
-            json = JSONSerializer.toJSON(new GridRestResponse(STATUS_FAILED, e.getMessage()), cfg);
-        }
-
-        try {
-            if (log.isDebugEnabled())
-                log.debug("Parsed command response into JSON object: " + json.toString(2));
-
-            res.getWriter().write(json.toString());
+            gson.toJson(cmdRes, res.getWriter());
 
             if (log.isDebugEnabled())
                 log.debug("Processed HTTP request [action=" + act + ", jsonRes=" + cmdRes + ", req=" + req + ']');
         }
         catch (IOException e) {
-            U.error(log, "Failed to send HTTP response: " + json.toString(2), e);
+            U.error(log, "Failed to send HTTP response", e);
         }
     }
 
