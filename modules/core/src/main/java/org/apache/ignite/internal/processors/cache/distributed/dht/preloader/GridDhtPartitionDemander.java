@@ -120,6 +120,50 @@ public class GridDhtPartitionDemander {
      *
      */
     void start() {
+        int rebalanceOrder = cctx.config().getRebalanceOrder();
+
+        if (!CU.isMarshallerCache(cctx.name())) {
+            if (log.isDebugEnabled())
+                log.debug("Waiting for marshaller cache preload [cacheName=" + cctx.name() + ']');
+
+            try {
+                cctx.kernalContext().cache().marshallerCache().preloader().syncFuture().get();
+            }
+            catch (IgniteInterruptedCheckedException ignored) {
+                if (log.isDebugEnabled())
+                    log.debug("Failed to wait for marshaller cache preload future (grid is stopping): " +
+                        "[cacheName=" + cctx.name() + ']');
+
+                return;
+            }
+            catch (IgniteCheckedException e) {
+                throw new Error("Ordered preload future should never fail: " + e.getMessage(), e);
+            }
+        }
+
+        if (rebalanceOrder > 0) {
+            IgniteInternalFuture<?> fut = cctx.kernalContext().cache().orderedPreloadFuture(rebalanceOrder);
+
+            try {
+                if (fut != null) {
+                    if (log.isDebugEnabled())
+                        log.debug("Waiting for dependant caches rebalance [cacheName=" + cctx.name() +
+                            ", rebalanceOrder=" + rebalanceOrder + ']');
+
+                    fut.get();
+                }
+            }
+            catch (IgniteInterruptedCheckedException ignored) {
+                if (log.isDebugEnabled())
+                    log.debug("Failed to wait for ordered rebalance future (grid is stopping): " +
+                        "[cacheName=" + cctx.name() + ", rebalanceOrder=" + rebalanceOrder + ']');
+
+                return;
+            }
+            catch (IgniteCheckedException e) {
+                throw new Error("Ordered rebalance future should never fail: " + e.getMessage(), e);
+            }
+        }
     }
 
     /**
