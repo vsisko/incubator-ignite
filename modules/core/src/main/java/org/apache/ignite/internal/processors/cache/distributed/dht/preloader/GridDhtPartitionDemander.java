@@ -731,6 +731,8 @@ private class SyncFuture extends GridFutureAdapter<Object> {
 
             missed.clear();
 
+            cctx.shared().exchange().scheduleResendPartitions();//TODO: Is in necessary?
+
             onDone();
         }
     }
