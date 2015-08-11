@@ -17,7 +17,7 @@
 
 package org.apache.ignite.internal.processors.rest;
 
-import net.sf.json.*;
+import com.google.gson.*;
 import org.apache.ignite.*;
 import org.apache.ignite.cache.*;
 import org.apache.ignite.cache.query.*;
@@ -1029,9 +1029,9 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
 
-        JSONObject json = JSONObject.fromObject(ret);
+        JsonObject resp = parseResponse(ret);
 
-        List items = (List)((Map)json.get("response")).get("items");
+        JsonArray items = (JsonArray)resp.get("items");
 
         assertEquals(2, items.size());
 
@@ -1057,20 +1057,18 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
 
-        JSONObject json = JSONObject.fromObject(ret);
+        JsonObject resp = parseResponse(ret);
 
-        Integer qryId = (Integer)((Map)json.get("response")).get("queryId");
-
-        assertNotNull(qryId);
+        int qryId = resp.getAsJsonPrimitive("queryId").getAsInt();
 
         ret = content(F.asMap("cmd", GridRestCommand.FETCH_SQL_QUERY.key(),
             "pageSize", "1", "qryId", String.valueOf(qryId)));
 
-        json = JSONObject.fromObject(ret);
+        resp = parseResponse(ret);
 
-        Integer qryId0 = (Integer)((Map)json.get("response")).get("queryId");
+        int qryId0 = resp.getAsJsonPrimitive("queryId").getAsInt();
 
-        Boolean last = (Boolean)((Map)json.get("response")).get("last");
+        Boolean last = resp.getAsJsonPrimitive("last").getAsBoolean();
 
         assertEquals(qryId0, qryId);
         assertFalse(last);
@@ -1078,11 +1076,11 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         ret = content(F.asMap("cmd", GridRestCommand.FETCH_SQL_QUERY.key(),
             "pageSize", "1", "qryId", String.valueOf(qryId)));
 
-        json = JSONObject.fromObject(ret);
+        resp = parseResponse(ret);
 
-        qryId0 = (Integer)((Map)json.get("response")).get("queryId");
+        qryId0 = resp.getAsJsonPrimitive("queryId").getAsInt();
 
-        last = (Boolean)((Map)json.get("response")).get("last");
+        last = resp.getAsJsonPrimitive("last").getAsBoolean();
 
         assertEquals(qryId0, qryId);
         assertTrue(last);
@@ -1107,9 +1105,9 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
 
-        JSONObject json = JSONObject.fromObject(ret);
+        JsonObject resp = parseResponse(ret);
 
-        List items = (List)((Map)json.get("response")).get("items");
+        JsonArray items = (JsonArray)resp.get("items");
 
         assertEquals(4, items.size());
 
@@ -1133,22 +1131,22 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
 
-        JSONObject json = JSONObject.fromObject(ret);
+        JsonObject resp = parseResponse(ret);
 
-        List items = (List)((Map)json.get("response")).get("items");
+        JsonArray items = (JsonArray)resp.get("items");
 
-        List meta = (List)((Map)json.get("response")).get("fieldsMetadata");
+        JsonArray meta = (JsonArray)resp.get("fieldsMetadata");
 
         assertEquals(4, items.size());
 
         assertEquals(2, meta.size());
 
-        JSONObject o = (JSONObject)meta.get(0);
+        JsonObject o = (JsonObject)meta.get(0);
 
-        assertEquals("FIRSTNAME", o.get("fieldName"));
-        assertEquals("java.lang.String", o.get("fieldTypeName"));
-        assertEquals("person", o.get("schemaName"));
-        assertEquals("PERSON", o.get("typeName"));
+        assertEquals("FIRSTNAME", o.get("fieldName").getAsString());
+        assertEquals("java.lang.String", o.get("fieldTypeName").getAsString());
+        assertEquals("person", o.get("schemaName").getAsString());
+        assertEquals("PERSON", o.get("typeName").getAsString());
 
         assertFalse(queryCursorFound());
     }
@@ -1173,17 +1171,15 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
 
-        JSONObject json = JSONObject.fromObject(ret);
+        JsonObject resp = parseResponse(ret);
 
-        List items = (List)((Map)json.get("response")).get("items");
+        JsonArray items = (JsonArray)resp.get("items");
 
         assertEquals(1, items.size());
 
         assertTrue(queryCursorFound());
 
-        Integer qryId = (Integer)((Map)json.get("response")).get("queryId");
-
-        assertNotNull(qryId);
+        int qryId = resp.getAsJsonPrimitive("queryId").getAsInt();
 
         ret = content(F.asMap("cmd", GridRestCommand.CLOSE_SQL_QUERY.key(),
             "cacheName", "person", "qryId", String.valueOf(qryId)));
@@ -1194,6 +1190,9 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         assertFalse(queryCursorFound());
     }
 
+    /**
+     *
+     */
     protected abstract String signature() throws Exception;
 
     /**
@@ -1242,6 +1241,15 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         qry.setArgs(1000, 2000);
 
         assertEquals(2, personCache.query(qry).getAll().size());
+    }
+
+    /**
+     * @param text Text.
+     */
+    private JsonObject parseResponse(String text) {
+        JsonObject json = (JsonObject)new JsonParser().parse(text);
+
+        return (JsonObject)json.get("response");
     }
 
     /**
