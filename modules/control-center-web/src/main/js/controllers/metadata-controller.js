@@ -109,143 +109,6 @@ controlCenterModule.controller('metadataController', [
                 {value: true, label: 'DESC'}
             ];
 
-            $scope.tables = [
-                {
-                    schemaName: 'Schema1',
-                    use: true,
-                    tableName: 'Table1',
-                    keyClass: 'KeyClass1',
-                    valueClass: 'ValueClass1',
-                    fields: [
-                        {
-                            use: true,
-                            key: true,
-                            ak: true,
-                            databaseName: 'name1',
-                            databaseType: 'dbType1',
-                            javaName: 'javaName1',
-                            javaType: 'javaType1'
-                        },
-                        {
-                            use: true,
-                            key: false,
-                            ak: false,
-                            databaseName: 'name2',
-                            databaseType: 'dbType2',
-                            javaName: 'javaName2',
-                            javaType: 'javaType2'
-                        },
-                        {
-                            use: false,
-                            key: false,
-                            ak: false,
-                            databaseName: 'name3',
-                            databaseType: 'dbType3',
-                            javaName: 'javaName3',
-                            javaType: 'javaType3'
-                        }
-                    ]
-                },
-                {
-                    schemaName: 'Schema with very long name',
-                    use: false,
-                    tableName: 'Table2',
-                    keyClass: 'KeyClass2',
-                    valueClass: 'ValueClass2',
-                    fields: [
-                        {
-                            use: true,
-                            key: true,
-                            ak: true,
-                            databaseName: 'name4',
-                            databaseType: 'dbType4',
-                            javaName: 'javaName4',
-                            javaType: 'javaType4'
-                        },
-                        {
-                            use: true,
-                            key: false,
-                            ak: false,
-                            databaseName: 'name5',
-                            databaseType: 'dbType5',
-                            javaName: 'javaName5',
-                            javaType: 'javaType5'
-                        },
-                        {
-                            use: false,
-                            key: false,
-                            ak: false,
-                            databaseName: 'name6',
-                            databaseType: 'dbType6',
-                            javaName: 'javaName6',
-                            javaType: 'javaType6'
-                        }
-                    ]
-                },
-                {
-                    schemaName: 'Schema3',
-                    use: false,
-                    tableName: 'Table3',
-                    keyClass: 'KeyClass3',
-                    valueClass: 'ValueClass3',
-                    fields: [
-                        {
-                            use: true,
-                            key: true,
-                            ak: true,
-                            databaseName: 'name7',
-                            databaseType: 'dbType7',
-                            javaName: 'javaName7',
-                            javaType: 'javaType7'
-                        },
-                        {
-                            use: true,
-                            key: false,
-                            ak: false,
-                            databaseName: 'name8',
-                            databaseType: 'dbType8',
-                            javaName: 'javaName8',
-                            javaType: 'javaType8'
-                        },
-                        {
-                            use: false,
-                            key: false,
-                            ak: false,
-                            databaseName: 'name9',
-                            databaseType: 'dbType9',
-                            javaName: 'javaName9',
-                            javaType: 'javaType9'
-                        },
-                        {
-                            use: false,
-                            key: false,
-                            ak: false,
-                            databaseName: 'name10',
-                            databaseType: 'dbType10',
-                            javaName: 'javaName10',
-                            javaType: 'javaType10'
-                        },
-                        {
-                            use: false,
-                            key: false,
-                            ak: false,
-                            databaseName: 'name11',
-                            databaseType: 'dbType11',
-                            javaName: 'javaName11',
-                            javaType: 'javaType11'
-                        },
-                        {
-                            use: false,
-                            key: false,
-                            ak: false,
-                            databaseName: 'name12',
-                            databaseType: 'dbType12',
-                            javaName: 'javaName12',
-                            javaType: 'javaType12'
-                        }
-                    ]
-                }];
-
             $scope.panels = {activePanels: [0, 1]};
 
             $scope.metadatas = [];
@@ -282,11 +145,27 @@ controlCenterModule.controller('metadataController', [
                 $scope.backupItem = bak;
             }
 
+            $scope.loadMeta = {action: 'connect'};
+            $scope.loadMeta.tables = [];
+
+            $scope.loadMeta.selectAll = function() {
+                var allSelected = $scope.loadMeta.allSelected;
+
+                _.forEach($scope.loadMeta.tables, function (table) {
+                    table.use = allSelected;
+                });
+            };
+
+            $scope.loadMeta.select = function () {
+                $scope.loadMeta.allSelected = _.every($scope.loadMeta.tables, 'use', true);
+            };
+
+
             // Pre-fetch modal dialogs.
             var loadMetaModal = $modal({scope: $scope, templateUrl: 'metadata/metadata-load', show: false});
 
             // Show load metadata modal.
-            $scope.loadFromDb = function () {
+            $scope.showLoadMetadataModal = function () {
                 $http.post('/agent/drivers')
                     .success(function (drivers) {
                         if (drivers && drivers.length > 0) {
@@ -297,6 +176,9 @@ controlCenterModule.controller('metadataController', [
                             $scope.preset.drvJar = drivers[0];
 
                             loadMetaModal.$promise.then(function () {
+                                $scope.loadMeta.action = 'connect';
+                                $scope.loadMeta.tables = [];
+
                                 loadMetaModal.show();
 
                                 $focus('db');
@@ -310,10 +192,21 @@ controlCenterModule.controller('metadataController', [
                     });
             };
 
-            $scope.saveMetadataLoadedFromDb = function (preset) {
+            $scope.loadMetadataFromDb = function () {
+                $http.post('/agent/metadata')
+                    .success(function (tables) {
+                        $scope.loadMeta.tables = tables;
+                        $scope.loadMeta.action = 'tables';
+                    })
+                    .error(function (errMsg) {
+                        $common.showError(errMsg);
+                    });
+            };
+
+            $scope.saveSelectedMetadata = function (preset) {
                 loadMetaModal.hide();
 
-                $common.showError("Load metadata from DB not ready yet!");
+                $common.showError("Saving selected metadatanot ready yet!");
             };
 
             // When landing on the page, get metadatas and show them.

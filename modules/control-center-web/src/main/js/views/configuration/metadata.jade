@@ -37,7 +37,7 @@ block content
                                 a(event-focus='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
         .padding-top-dflt
             button.btn.btn-primary(ng-click='createItem()' event-focus='defaultFocusId') Add metadata
-            button.btn.btn-primary(ng-click='loadFromDb()') Load from database
+            button.btn.btn-primary(ng-click='showLoadMetadataModal()') Load from database
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true' ng-click='triggerDigest = true')

@@ -22,7 +22,7 @@ var apacheIgnite = require('apache-ignite');
 var SqlFieldsQuery = apacheIgnite.SqlFieldsQuery;
 
 /* Get grid topology. */
-router.post('/topology', function(req, res) {
+router.post('/topology', function (req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
     if (!client)
@@ -30,11 +30,11 @@ router.post('/topology', function(req, res) {
 
     client.ignite().cluster().then(function (clusters) {
         res.json(clusters.map(function (cluster) {
-            var caches = Object.keys(cluster._caches).map(function(key) {
-                return {"name" : key, "mode" : cluster._caches[key] }
+            var caches = Object.keys(cluster._caches).map(function (key) {
+                return {"name": key, "mode": cluster._caches[key]}
             });
 
-            return { nodeId: cluster._nodeId, caches: caches };
+            return {nodeId: cluster._nodeId, caches: caches};
         }));
     }, function (err) {
         res.status(500).send(err);
@@ -42,7 +42,7 @@ router.post('/topology', function(req, res) {
 });
 
 /* Execute query. */
-router.post('/query', function(req, res) {
+router.post('/query', function (req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
     if (!client)
@@ -63,7 +63,7 @@ router.post('/query', function(req, res) {
 });
 
 /* Get next query page. */
-router.post('/next_page', function(req, res) {
+router.post('/next_page', function (req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
     if (!client)
@@ -82,7 +82,7 @@ router.post('/next_page', function(req, res) {
 });
 
 /* Get JDBC drivers list. */
-router.post('/drivers', function(req, res) {
+router.post('/drivers', function (req, res) {
     res.json(['ojdbc6.jar', 'db2jcc4.jar', 'h2.jar']);
 
     //var client = agentManager.getAgentManager().findClient(req.currentUserId());
@@ -93,8 +93,20 @@ router.post('/drivers', function(req, res) {
 });
 
 /** Get database metadata. */
-router.post('/metadata', function(req, res) {
-    res.json(['TODO']);
+router.post('/metadata', function (req, res) {
+    var tables = [];
+
+    for (var i = 1; i < 17; i++) {
+        tables.push({
+            schemaName: 'Schema' + ((i / 5) + 1),
+            use: true,
+            tableName: 'Table' + i,
+            keyClass: 'KeyClass' + i,
+            valueClass: 'ValueClass' + i
+        })
+    }
+
+    res.json(tables);
 
     //var client = agentManager.getAgentManager().findClient(req.currentUserId());
     //
