@@ -108,7 +108,7 @@ class GridDhtPartitionSupplier {
      * @return topic
      */
     static Object topic(int idx, int id) {
-        return TOPIC_CACHE.topic("SupplyPool", idx, id);
+        return TOPIC_CACHE.topic("Supplier", idx, id);
     }
 
     /**
@@ -137,8 +137,6 @@ class GridDhtPartitionSupplier {
     void preloadPredicate(IgnitePredicate<GridCacheEntryInfo> preloadPred) {
         this.preloadPred = preloadPred;
     }
-
-    boolean logg = false;
 
     /**
      * @return {@code true} if entered to busy state.
@@ -172,9 +170,6 @@ class GridDhtPartitionSupplier {
         if (!cctx.affinity().affinityTopologyVersion().equals(d.topologyVersion()))
             return;
 
-        if (logg && cctx.name().equals("cache"))
-            System.out.println("S " + idx + " process message " + cctx.localNode().id());
-
         GridDhtPartitionSupplyMessage s = new GridDhtPartitionSupplyMessage(d.workerId(),
             d.updateSequence(), cctx.cacheId());
 
@@ -191,12 +186,8 @@ class GridDhtPartitionSupplier {
                 doneMap.remove(scId);
             }
 
-            if (doneMap.get(scId) != null) {
-                if (logg && cctx.name().equals("cache"))
-                    System.out.println("S " + idx + " exit " + cctx.localNode().id());
-
+            if (doneMap.get(scId) != null)
                 return;
-            }
 
             long bCnt = 0;
 
@@ -282,9 +273,6 @@ class GridDhtPartitionSupplier {
                                     return;
                                 }
                                 else {
-                                    if (logg && cctx.name().equals("cache"))
-                                        System.out.println("S " + idx + " renew " + part + " " + cctx.localNode().id());
-
                                     s = new GridDhtPartitionSupplyMessage(d.workerId(), d.updateSequence(),
                                         cctx.cacheId());
                                 }
@@ -473,9 +461,6 @@ class GridDhtPartitionSupplier {
                     // Mark as last supply message.
                     s.last(part);
 
-//                    if (logg && cctx.name().equals("cache"))
-//                        System.out.println("S " + idx + " last " + part + " " + cctx.localNode().id());
-
                     phase = 0;
 
                     sctx = null;
@@ -508,8 +493,6 @@ class GridDhtPartitionSupplier {
      */
     private boolean reply(ClusterNode n, GridDhtPartitionDemandMessage d, GridDhtPartitionSupplyMessage s)
         throws IgniteCheckedException {
-        if (logg && cctx.name().equals("cache"))
-            System.out.println("S sent "+ cctx.localNode().id());
 
         try {
             if (log.isDebugEnabled())
