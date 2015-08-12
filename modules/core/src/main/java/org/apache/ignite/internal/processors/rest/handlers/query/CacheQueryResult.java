@@ -17,6 +17,7 @@
 
 package org.apache.ignite.internal.processors.rest.handlers.query;
 
+import org.apache.ignite.internal.processors.rest.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 
 import java.io.*;
@@ -30,12 +31,14 @@ public class CacheQueryResult implements Externalizable {
     private static final long serialVersionUID = 0L;
 
     /** Query ID. */
+    @JsonName("queryId")
     private long qryId;
 
     /** Result items. */
     private Collection<?> items;
 
     /** Fields metadata. */
+    @JsonName("fieldsMetadata")
     private Collection<?> fieldsMeta;
 
     /** Last flag. */

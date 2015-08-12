@@ -47,16 +47,20 @@ public class GridRestResponse implements Externalizable {
     private int successStatus = STATUS_SUCCESS;
 
     /** Session token. */
+    @JsonIgnore
     private byte[] sesTokBytes;
 
     /** Session token string representation. */
+    @JsonName("sessionToken")
     private String sesTokStr;
 
     /** Error. */
+    @JsonName("error")
     private String err;
 
     /** Response object. */
     @GridToStringInclude
+    @JsonName("response")
     private Object obj;
 
     /**

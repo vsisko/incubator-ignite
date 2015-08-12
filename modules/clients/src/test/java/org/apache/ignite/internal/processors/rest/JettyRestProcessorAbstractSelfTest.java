@@ -122,11 +122,10 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
      * @return Regex pattern for JSON.
      */
     private String cachePattern(String res, boolean success) {
-        return "\\{\\\"affinityNodeId\\\":\\\"\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}\\\"\\," +
-            "\\\"error\\\":\\\"\\\"\\," +
-            "\\\"response\\\":\\\"" + res + "\\\"\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
+        return "\\{\"affinityNodeId\":\"\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}\"" +
+            ",\"successStatus\":" + (success ? 0 : 1) +
+            "(,\"sessionToken\":\"\")?" +
+            ",\"response\":\"" + res + "\"\\}";
     }
 
     /**
@@ -134,11 +133,9 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
      * @return Regex pattern for JSON.
      */
     private String errorPattern(String err) {
-        return "\\{" +
-            "\\\"error\\\":\\\"" + err + "\\\"\\," +
-            "\\\"response\\\":null\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + 1 + "\\}";
+        return "\\{\"successStatus\":" + 1 +
+            "(,\"sessionToken\":\"\")?" +
+            ",\"error\":\"" + err + "\"\\}";
     }
 
     /**
@@ -147,10 +144,11 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
      * @return Regex pattern for JSON.
      */
     private String integerPattern(int res, boolean success) {
-        return "\\{\\\"error\\\":\\\"\\\"\\," +
-            "\\\"response\\\":" + res + "\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
+        return "\\{" + "\"successStatus\":" + (success ? 0 : 1) +
+            "(,\"sessionToken\":\"\")?" +
+            ",\"response\":" + res +
+            (success ? "" : "\"error\":\"\"")
+            + "\\}";
     }
 
     /**
@@ -158,25 +156,10 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
      * @param success Success flag.
      * @return Regex pattern for JSON.
      */
-    private String cacheBulkPattern(String res, boolean success) {
-        return "\\{\\\"affinityNodeId\\\":\\\"\\\"\\," +
-            "\\\"error\\\":\\\"\\\"\\," +
-            "\\\"response\\\":" + res + "\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
-    }
-
-    /**
-     * @param res Response.
-     * @param success Success flag.
-     * @return Regex pattern for JSON.
-     */
-    private String cacheBulkPattern(int res, boolean success) {
-        return "\\{\\\"affinityNodeId\\\":\\\"\\\"\\," +
-            "\\\"error\\\":\\\"\\\"\\," +
-            "\\\"response\\\":" + res + "\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
+    private String cacheBulkPattern(Object res, boolean success) {
+        return "\\{\"successStatus\":" + (success ? 0 : 1) +
+            "(,\"sessionToken\":\"\")?" +
+            ",\"response\":" + res + "\\}";
     }
 
     /**
@@ -185,24 +168,10 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
      * @return Regex pattern for JSON.
      */
     private String cachePattern(boolean res, boolean success) {
-        return "\\{\\\"affinityNodeId\\\":\\\"\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}\\\"\\," +
-            "\\\"error\\\":\\\"\\\"\\," +
-            "\\\"response\\\":" + res + "\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
-    }
-
-    /**
-     * @param res Response.
-     * @param success Success flag.
-     * @return Regex pattern for JSON.
-     */
-    private String cacheBulkPattern(boolean res, boolean success) {
-        return "\\{\\\"affinityNodeId\\\":\\\"\\\"\\," +
-            "\\\"error\\\":\\\"\\\"\\," +
-            "\\\"response\\\":" + res + "\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
+        return "\\{\"affinityNodeId\":\"\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}\"" +
+            ",\"successStatus\":" + (success ? 0 : 1) +
+            "(,\"sessionToken\":\"\")?" +
+            ",\"response\":" + res + "\\}";
     }
 
     /**
@@ -211,11 +180,10 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
      * @return Regex pattern for JSON.
      */
     private String cacheMetricsPattern(String res, boolean success) {
-        return "\\{\\\"affinityNodeId\\\":\\\"(\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})?\\\"\\," +
-            "\\\"error\\\":\\\"\\\"\\," +
-            "\\\"response\\\":" + res + "\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
+        return "\\{\"successStatus\":" + (success ? 0 : 1) +
+            "(,\"sessionToken\":\"\")?" +
+            ",\"response\":" + res +
+            "(,\"affinityNodeId\":\"\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}\")?" + "\\}";
     }
 
     /**
@@ -224,22 +192,10 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
      * @return Regex pattern for JSON.
      */
     private String pattern(String res, boolean success) {
-        return "\\{\\\"error\\\":\\\"" + (!success ? ".+" : "") + "\\\"\\," +
-            "\\\"response\\\":" + res + "\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
-    }
-
-    /**
-     * @param res Response.
-     * @param success Success flag.
-     * @return Regex pattern for JSON.
-     */
-    private String stringPattern(String res, boolean success) {
-        return "\\{\\\"error\\\":\\\"" + (!success ? ".+" : "") + "\\\"\\," +
-            "\\\"response\\\":\\\"" + res + "\\\"\\," +
-            "\\\"sessionToken\\\":\\\"\\\"," +
-            "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
+        return "\\{\"successStatus\":" + (success ? 0 : 1) +
+            "(,\"sessionToken\":\"\")?" +
+            (success ? "" : ",\"error\":\".+\"") +
+            (res == null ? "" : ",\"response\":" + res) + "\\}";
     }
 
     /**
@@ -287,7 +243,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
 
         info("Name command result: " + ret);
 
-        jsonEquals(ret, stringPattern(getTestGridName(0), true));
+        jsonEquals(ret, pattern('"' + getTestGridName(0) + '"', true));
     }
 
     /**
@@ -327,7 +283,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
 
         jsonEquals(ret,
             // getKey[12] is used since the order is not determined.
-            cacheBulkPattern("\\{\\\"getKey[12]\\\":\\\"getVal[12]\\\"\\,\\\"getKey[12]\\\":\\\"getVal[12]\\\"\\}",
+            cacheBulkPattern("\\{\"getKey[12]\":\"getVal[12]\",\"getKey[12]\":\"getVal[12]\"\\}",
                 true));
     }
 
@@ -936,7 +892,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
 
         info("Topology command result: " + ret);
 
-        jsonEquals(ret, pattern("null", true));
+        jsonEquals(ret, pattern(null, true));
     }
 
     /**
@@ -954,7 +910,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
 
         info("Exe command result: " + ret);
 
-        jsonEquals(ret, pattern("null", false));
+        jsonEquals(ret, pattern(null, false));
 
         // Attempt to execute unknown task (UNKNOWN_TASK) will result in exception on server.
         ret = content(F.asMap("cmd", GridRestCommand.EXE.key(), "name", "UNKNOWN_TASK"));
@@ -964,7 +920,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
 
         info("Exe command result: " + ret);
 
-        jsonEquals(ret, pattern("null", false));
+        jsonEquals(ret, pattern(null, false));
 
         grid(0).compute().localDeployTask(TestTask1.class, TestTask1.class.getClassLoader());
         grid(0).compute().localDeployTask(TestTask2.class, TestTask2.class.getClassLoader());
@@ -994,7 +950,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
 
         info("Exe command result: " + ret);
 
-        jsonEquals(ret, pattern("null", false));
+        jsonEquals(ret, pattern(null, false));
     }
 
     /**
@@ -1006,7 +962,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
 
-        jsonEquals(ret, stringPattern(".+", true));
+        jsonEquals(ret, pattern("\".+\"", true));
     }
 
     /**

@@ -21,46 +21,15 @@ import com.google.gson.*;
 import org.apache.ignite.internal.processors.rest.*;
 
 import java.lang.reflect.*;
-import java.util.*;
 
 /**
  * Ignite field name strategy.
  */
-public class IgniteFieldNamingStrategy implements FieldNamingStrategy {
-    /** */
-    private static final Map<Field, String> FIELD_NAMES = new HashMap<>();
-
-    static {
-        addField(GridRestResponse.class, "obj", "response");
-        addField(GridRestResponse.class, "err", "error");
-        addField(GridRestResponse.class, "sesTokStr", "sessionToken");
-    }
-
-    /**
-     * @param cls Class.
-     * @param fldName Fld name.
-     * @param propName Property name.
-     */
-    private static void addField(Class<?> cls, String fldName, String propName) {
-        try {
-            Field field = cls.getDeclaredField(fldName);
-
-            // assert method exists.
-            cls.getDeclaredMethod("get" + Character.toUpperCase(propName.charAt(0)) + propName.substring(1));
-
-            String old = FIELD_NAMES.put(field, propName);
-
-            assert old == null;
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+public class GsonFieldNamingStrategy implements FieldNamingStrategy {
     /** {@inheritDoc} */
     @Override public String translateName(Field f) {
-        String name = FIELD_NAMES.get(f);
+        JsonName ann = f.getAnnotation(JsonName.class);
 
-        return name == null ? f.getName() : name;
+        return ann == null ? f.getName() : ann.value();
     }
 }

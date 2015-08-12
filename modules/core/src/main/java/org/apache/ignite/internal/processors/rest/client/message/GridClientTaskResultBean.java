@@ -17,6 +17,7 @@
 
 package org.apache.ignite.internal.processors.rest.client.message;
 
+import org.apache.ignite.internal.processors.rest.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 
 import java.io.*;
@@ -35,6 +36,7 @@ public class GridClientTaskResultBean implements Externalizable {
     private boolean finished;
 
     /** Result. */
+    @JsonName("result")
     private Object res;
 
     /** Error if any occurs while execution. */

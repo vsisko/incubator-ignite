@@ -76,7 +76,10 @@ public class GridJettyRestHandler extends AbstractHandler {
         this.log = log;
         this.authChecker = authChecker;
 
-        gson = new GsonBuilder().setFieldNamingStrategy(new IgniteFieldNamingStrategy()).create();
+        gson = new GsonBuilder()
+            .setFieldNamingStrategy(new GsonFieldNamingStrategy())
+            .addSerializationExclusionStrategy(new GsonExclusionStrategy())
+            .create();
 
         // Init default page and favicon.
         try {
@@ -268,8 +271,6 @@ public class GridJettyRestHandler extends AbstractHandler {
             if (e instanceof Error)
                 throw (Error)e;
         }
-
-        Gson gson = new Gson();
 
         try {
             gson.toJson(cmdRes, res.getWriter());
