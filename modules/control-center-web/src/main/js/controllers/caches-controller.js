@@ -38,7 +38,6 @@ controlCenterModule.controller('cachesController', [
             $scope.tablePairSave = $table.tablePairSave;
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
-            $scope.availableWidth = $common.availableWidth;
             $scope.compactJavaName = $common.compactJavaName;
 
             $scope.atomicities = $common.mkOptions(['ATOMIC', 'TRANSACTIONAL']);
@@ -147,7 +146,7 @@ controlCenterModule.controller('cachesController', [
                 return true;
             };
 
-            $scope.tablePairValid = function (item, field, keyCls, valCls, index) {
+            $scope.tablePairValid = function (item, field, index) {
                 if (!$common.isValidJavaClass('Indexed type key', keyCls, true))
                     return focusInvalidField(index, 'KeyIndexedType');
 

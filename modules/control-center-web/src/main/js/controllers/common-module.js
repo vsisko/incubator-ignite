@@ -173,115 +173,212 @@ controlCenterModule.service('$common', [
         /**
          * Compact java full class name by max number of characters.
          *
-         * @param s Class name to cut.
-         * @param maxLength Max available width in characters.
-         * @returns {*} Compacted class name.
+         * @param names Array of class names to compact.
+         * @param nameLength Max available width in characters for simple name.
+         * @returns {*} Array of compacted class names.
          */
-        function compactByMaxCharts(s, maxLength) {
-            if (s.length <= maxLength)
-                return s;
+        function compactByMaxCharts(names, nameLength) {
+            for (var nameIx = 0; nameIx < names.length; nameIx ++) {
+                var s = names[nameIx];
 
-            var totalLength = s.length;
+                if (s.length > nameLength) {
+                    var totalLength = s.length;
 
-            var packages = s.split('.');
+                    var packages = s.split('.');
 
-            var packageCnt = packages.length - 1;
+                    var packageCnt = packages.length - 1;
 
-            for (var i = 0; i < packageCnt && totalLength > maxLength; i++) {
-                if (packages[i].length > 0) {
-                    totalLength -= packages[i].length - 1;
+                    for (var i = 0; i < packageCnt && totalLength > nameLength; i++) {
+                        if (packages[i].length > 0) {
+                            totalLength -= packages[i].length - 1;
 
-                    packages[i] = packages[i][0];
+                            packages[i] = packages[i][0];
+                        }
+                    }
+
+                    if (totalLength > nameLength) {
+                        var className = packages[packageCnt];
+
+                        var classNameLen = className.length;
+
+                        var remains = Math.min(nameLength - totalLength + classNameLen, classNameLen);
+
+                        if (remains < 3)
+                            remains = Math.min(3, classNameLen);
+
+                        packages[packageCnt] = className.substring(0, remains) + '...';
+                    }
+
+                    var result = packages[0];
+
+                    for (i = 1; i < packages.length; i++)
+                        result += '.' + packages[i];
+
+                    names[nameIx] = result;
                 }
             }
 
-            if (totalLength > maxLength) {
-                var className = packages[packageCnt];
-
-                var classNameLen = className.length;
-
-                var remains = Math.min(maxLength - totalLength + classNameLen, classNameLen);
-
-                if (remains < 3)
-                    remains = Math.min(3, classNameLen);
-
-                packages[packageCnt] = className.substring(0, remains) + '...';
-            }
-
-            var result = packages[0];
-
-            for (i = 1; i < packages.length; i++)
-                result += '.' + packages[i];
-
-            return result
+            return names
         }
 
         /**
          * Compact java full class name by max number of pixels.
          *
-         * @param s Class name to cut.
-         * @param maxWidth Maximum available width in pixels.
-         * @returns {*} Compacted class name.
+         * @param names Array of class names to compact.
+         * @param nameLength Max available width in characters for simple name. Used for calculation optimization.
+         * @param nameWidth Maximum available width in pixels for simple name.
+         * @returns {*} Array of compacted class names.
          */
-        function compactByMaxPixels(s, maxWidth) {
-            var totalLength = measureText(s);
+        function compactByMaxPixels(names, nameLength, nameWidth) {
+            if (nameWidth <= 0)
+                return names;
 
-            if (totalLength <= maxWidth)
-                return s;
+            var fitted = [];
 
-            var packages = s.split('.');
+            var widthByName = [];
 
-            var packageCnt = packages.length - 1;
+            var len = names.length;
 
-            for (var i = 0; i < packageCnt && totalLength > maxWidth; i++) {
-                if (packages[i].length > 1) {
-                    totalLength -= measureText(packages[i].substring(2, packages[i].length));
+            var divideTo = len;
 
-                    packages[i] = packages[i][0];
+            for (var nameIx = 0; nameIx < len; nameIx ++) {
+                fitted[nameIx] = false;
+
+                widthByName[nameIx] = nameWidth;
+            }
+
+            // Try to distribute space from short class names to long class names.
+            do {
+                var remains = 0;
+
+                for (nameIx = 0; nameIx < len; nameIx++) {
+                    if (!fitted[nameIx]) {
+                        var curNameWidth = measureText(names[nameIx]);
+
+                        if (widthByName[nameIx] > curNameWidth) {
+                            fitted[nameIx] = true;
+
+                            remains += widthByName[nameIx] - curNameWidth;
+
+                            divideTo -= 1;
+
+                            widthByName[nameIx] = curNameWidth;
+                        }
+                    }
+                }
+
+                var remainsByName = remains / divideTo;
+
+                for (nameIx = 0; nameIx < len; nameIx++) {
+                    if (!fitted[nameIx]) {
+                        widthByName[nameIx] += remainsByName;
+                    }
+                }
+            }
+            while(remains > 0);
+
+            // Compact class names to available for each space.
+            for (nameIx = 0; nameIx < len; nameIx ++) {
+                var s = names[nameIx];
+
+                if (s.length > (nameLength / 2) | 0) {
+                    var totalWidth = measureText(s);
+
+                    if (totalWidth > widthByName[nameIx]) {
+                        var packages = s.split('.');
+
+                        var packageCnt = packages.length - 1;
+
+                        for (var i = 0; i < packageCnt && totalWidth > widthByName[nameIx]; i++) {
+                            if (packages[i].length > 1) {
+                                totalWidth -= measureText(packages[i].substring(1, packages[i].length));
+
+                                packages[i] = packages[i][0];
+                            }
+                        }
+
+                        var shortPackage = '';
+
+                        for (i = 0; i < packageCnt; i++)
+                            shortPackage += packages[i] + '.';
+
+                        var className = packages[packageCnt];
+
+                        var classLen = className.length;
+
+                        var minLen = Math.min(classLen, 3);
+
+                        totalWidth = measureText(shortPackage + className);
+
+                        // Compact class name if shorten package path is very long.
+                        if (totalWidth > widthByName[nameIx]) {
+                            var maxLen = classLen;
+
+                            var middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
+
+                            var minLenPx = measureText(shortPackage + className.substr(0, minLen) + '...');
+                            var maxLenPx = totalWidth;
+
+                            while (middleLen != minLen && middleLen != maxLen) {
+                                var middleLenPx = measureText(shortPackage + className.substr(0, middleLen) + '...');
+
+                                if (middleLenPx > widthByName[nameIx]) {
+                                    maxLen = middleLen;
+                                    maxLenPx = middleLenPx;
+                                }
+                                else {
+                                    minLen = middleLen;
+                                    minLenPx = middleLenPx;
+                                }
+
+                                middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
+                            }
+
+                            names[nameIx] = shortPackage + className.substring(0, middleLen) + '...';
+                        }
+                        else
+                            names[nameIx] = shortPackage + className;
+                    }
                 }
             }
 
-            var shortPackage = '';
+            return names;
+        }
 
-            for (i = 0; i < packageCnt; i++)
-                shortPackage += packages[i] + '.';
+        /**
+         * Calculate available width for text in link to edit element.
+         *
+         * @param index Showed index of element for calcuraion maximal width in pixel.
+         * @param id Id of contains link table.
+         * @returns {*[]} First element is length of class for single value, second element is length for pair vlaue.
+         */
+        function availableWidth(index, id) {
+            var divs = $($('#' + id).find('tr')[index - 1]).find('div');
 
-            var className = packages[packageCnt];
+            var div = null;
 
-            var classLen = className.length;
+            var width = 0;
 
-            var minLen = Math.min(classLen, 3);
+            for (var divIx = 0; divIx < divs.length; divIx ++)
+                if (divs[divIx].className.length == 0 && (div == null ||  divs[divIx].childNodes.length > div.childNodes.length))
+                    div = divs[divIx];
 
-            totalLength = measureText(shortPackage + className);
+            if (div != null) {
+                width = div.clientWidth;
 
-            // Compact class name if shorten package path is very long.
-            if (totalLength > maxWidth) {
-                var maxLen = classLen;
+                if (width > 0) {
+                    var children = div.childNodes;
 
-                var middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
+                    for (var i = 1; i < children.length; i++) {
+                        var child = children[i];
 
-                var minLenPx = measureText(shortPackage + className.substr(0, minLen) + '...');
-                var maxLenPx = totalLength;
-
-                while (middleLen != minLen && middleLen != maxLen) {
-                    var middleLenPx = measureText(shortPackage + className.substr(0, middleLen) + '...');
-
-                    if (middleLenPx > maxWidth) {
-                        maxLen = middleLen;
-                        maxLenPx = middleLenPx;
+                        if ('offsetWidth' in child)
+                            width -= $(children[i]).outerWidth(true);
                     }
-                    else {
-                        minLen = middleLen;
-                        minLenPx = middleLenPx;
-                    }
-
-                    middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
                 }
-
-                return shortPackage + className.substring(0, middleLen) + '...';
             }
 
-            return shortPackage + className;
+            return width | 0;
         }
 
         return {
@@ -373,46 +470,38 @@ controlCenterModule.service('$common', [
                 return true;
             },
             /**
-             * Calculate available width for text in link to edit element.
-             *
-             * @param id Id of contains link table.
-             * @returns {*[]} First element is length of class for single value, second element is length for pair vlaue.
-             */
-            availableWidth: function (id) {
-                var div = $('#' + id).find('tr')[0];
-                var width = div.clientWidth;
-
-                if (width > 0) {
-                    var children = div.childNodes;
-
-                    for (var i = 1; i < children.length; i++) {
-                        var child = children[i];
-
-                        if ('offsetWidth' in child)
-                            width -= children[i].offsetWidth;
-                    }
-
-                    width -= measureText('99) ');
-                }
-
-                return [width | 0, (width > 0 ? (width - measureText(' / ')) / 2 | 0 : width) | 0];
-            },
-            /**
              * Cut class name by width in pixel or width in symbol count.
              *
-             * @param s Class name to cut.
-             * @param maxLength Maximum length in symbols.
-             * @param maxWidth Maximum length in pixels.
-             * @returns Cutted class name.
+             * @param id Id of contains link table.
+             * @param index Showed index of element.
+             * @param maxLength Maximum length in symbols for all names.
+             * @param names Array of class names to compact.
+             * @returns {*} Array of compacted class names.
              */
-            compactJavaName: function (s, maxLength, maxWidth) {
+            compactJavaName: function (id, index, maxLength, names) {
+                var prefix = index + ') ';
+
+                var nameCnt = names.length;
+
+                var nameLength = ((maxLength - 3 * (nameCnt - 1)) / nameCnt) | 0;
+
                 try {
+                    var nameWidth = (availableWidth(index, id) - measureText(prefix) - (nameCnt - 1) * measureText(' / ')) /
+                        nameCnt | 0;
+
                     // HTML5 calculation of showed message width.
-                    return compactByMaxPixels(s, maxWidth)
+                    names = compactByMaxPixels(names, nameLength, nameWidth);
                 }
                 catch (err) {
-                    return compactByMaxCharts(s, maxLength)
+                    names = compactByMaxCharts(names, nameLength);
                 }
+
+                var result = prefix + names[0];
+
+                for (var nameIx = 1; nameIx < names.length; nameIx ++)
+                    result += ' / ' + names[nameIx];
+
+                return result;
             },
             ensureActivePanel: function (panels, pnlIdx) {
                 if (panels) {
@@ -526,6 +615,14 @@ controlCenterModule.service('$table', [
             $focus((index < 0 ? 'new' : 'cur') + focusId);
         }
 
+        function _tableSimpleValue(filed, index) {
+            return index < 0 ? filed.newValue : filed.curValue;
+        }
+
+        function _tablePairValue(filed, index) {
+            return index < 0 ? {key: filed.newKey, value: filed.newValue} : {key: filed.curKey, value: filed.curValue};
+        }
+
         function _tableStartEdit(item, field, index) {
             _tableState(field.model, index);
 
@@ -596,7 +693,7 @@ controlCenterModule.service('$table', [
                 _model(item, field)[field.model].splice(index, 1);
             },
             tableSimpleSave: function (valueValid, item, field, index) {
-                var simpleValue = index < 0 ? field.newValue : field.curValue;
+                var simpleValue = _tableSimpleValue(field, index);
 
                 if (valueValid(item, field, simpleValue, index)) {
                     _tableReset();
@@ -621,8 +718,8 @@ controlCenterModule.service('$table', [
                     }
                 }
             },
-            tableSimpleSaveVisible: function (newValue) {
-                return !$common.isEmptyString(newValue);
+            tableSimpleSaveVisible: function (field, index) {
+                return !$common.isEmptyString(_tableSimpleValue(field, index));
             },
             tableSimpleUp: function (item, field, index) {
                 _tableReset();
@@ -637,26 +734,29 @@ controlCenterModule.service('$table', [
             tableSimpleDownVisible: function (item, field, index) {
                 return index < _model(item, field)[field.model].length - 1;
             },
-            tablePairSave: function (pairValid, item, field, newKey, newValue, index) {
-                if (pairValid(item, field, newKey, newValue, index)) {
-                    var pair = {};
+            tablePairValue: _tablePairValue,
+            tablePairSave: function (pairValid, item, field, index) {
+                if (pairValid(item, field, index)) {
+                    var pairValue = _tablePairValue(field, index);
+
+                    var pairModel = {};
 
                     if (index < 0) {
-                        pair[field.keyName] = newKey;
-                        pair[field.valueName] = newValue;
+                        pairModel[field.keyName] = pairValue.key;
+                        pairModel[field.valueName] = pairValue.value;
 
                         if (item[field.model])
-                            item[field.model].push(pair);
+                            item[field.model].push(pairModel);
                         else
-                            item[field.model] = [pair];
+                            item[field.model] = [pairModel];
 
                         _tableNewItem(field);
                     }
                     else {
-                        pair = item[field.model][index];
+                        pairModel = item[field.model][index];
 
-                        pair[field.keyName] = newKey;
-                        pair[field.valueName] = newValue;
+                        pairModel[field.keyName] = pairValue.key;
+                        pairModel[field.valueName] = pairValue.value;
 
                         if (index < item[field.model].length - 1)
                             _tableStartEdit(item, field, index + 1);
@@ -665,8 +765,10 @@ controlCenterModule.service('$table', [
                     }
                 }
             },
-            tablePairSaveVisible: function (newKey, newValue) {
-                return !$common.isEmptyString(newKey) && !$common.isEmptyString(newValue);
+            tablePairSaveVisible: function (field, index) {
+                var pairValue = _tablePairValue(field, index);
+
+                return !$common.isEmptyString(pairValue.key) && !$common.isEmptyString(pairValue.value);
             }
         }
     }]);

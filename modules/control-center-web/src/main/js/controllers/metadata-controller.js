@@ -39,7 +39,6 @@ controlCenterModule.controller('metadataController', [
             $scope.tablePairSave = $table.tablePairSave;
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
-            $scope.availableWidth = $common.availableWidth;
             $scope.compactJavaName = $common.compactJavaName;
 
             $scope.databases = [
@@ -455,18 +454,20 @@ controlCenterModule.controller('metadataController', [
                 descendingFields: {msg: 'Descending field class', id: 'DescField'}
             };
 
-            $scope.tablePairValid = function (item, field, name, clsName, index) {
+            $scope.tablePairValid = function (item, field, index) {
                 var pairField = pairFields[field.model];
 
+                var pairValue = $table.tablePairValue(field, index);
+
                 if (pairField) {
-                    if (!$common.isValidJavaClass(pairField.msg, clsName, true))
+                    if (!$common.isValidJavaClass(pairField.msg, pairValue.value, true))
                         return focusInvalidField(index, 'Value' + pairField.id);
 
                     var model = item[field.model];
 
                     if ($common.isDefined(model)) {
                         var idx = _.findIndex(model, function (pair) {
-                            return pair.name == name
+                            return pair.name == pairValue.name
                         });
 
                         // Found duplicate.

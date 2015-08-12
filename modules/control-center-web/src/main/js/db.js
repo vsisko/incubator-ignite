@@ -23,7 +23,7 @@ var mongoose = require('mongoose'),
     ObjectId = mongoose.Schema.Types.ObjectId,
     passportLocalMongoose = require('passport-local-mongoose');
 
-var deepPopulate = require('mongoose-deep-populate');
+var deepPopulate = require('mongoose-deep-populate')( mongoose);
 
 // Connect to mongoDB database.
 mongoose.connect(config.get('mongoDB:url'), {server: {poolSize: 4}});
