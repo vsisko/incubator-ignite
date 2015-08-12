@@ -20,6 +20,7 @@ package org.apache.ignite.internal.processors.cache.distributed.dht.preloader;
 import org.apache.ignite.*;
 import org.apache.ignite.cache.*;
 import org.apache.ignite.cluster.*;
+import org.apache.ignite.configuration.*;
 import org.apache.ignite.events.*;
 import org.apache.ignite.internal.*;
 import org.apache.ignite.internal.cluster.*;
@@ -305,6 +306,22 @@ public class GridDhtPartitionDemander {
 
                 ClusterNode node = e.getKey();
 
+                final long start = U.currentTimeMillis();
+
+                final CacheConfiguration cfg = cctx.config();
+
+                if (cfg.getRebalanceDelay() >= 0 && !cctx.kernalContext().clientNode()) {
+                    U.log(log, "Starting rebalancing [cache=" + cctx.name() + ", mode=" + cfg.getRebalanceMode() +
+                        ", from node=" + node.id() + ", partitions count=" + d.partitions().size() + "]");
+
+                    syncFut.listen(new CI1<Object>() {
+                        @Override public void apply(Object t) {
+                            U.log(log, "Completed rebalancing [cache=" + cctx.name() + ", mode="
+                                + cfg.getRebalanceMode() + ", time=" + (U.currentTimeMillis() - start) + " ms]");
+                        }
+                    });
+                }
+
                 GridConcurrentHashSet<Integer> remainings = new GridConcurrentHashSet<>();
 
                 remainings.addAll(d.partitions());
@@ -341,50 +358,6 @@ public class GridDhtPartitionDemander {
                             U.error(log, "Failed to send partition demand message to local node", ex);
                         }
                     }
-                }
-
-                if (log.isInfoEnabled() && !d.partitions().isEmpty()) {
-                    LinkedList<Integer> s = new LinkedList<>(d.partitions());
-
-                    Collections.sort(s);
-
-                    StringBuilder sb = new StringBuilder();
-
-                    int start = -1;
-
-                    int prev = -1;
-
-                    Iterator<Integer> sit = s.iterator();
-
-                    while (sit.hasNext()) {
-                        int p = sit.next();
-                        if (start == -1) {
-                            start = p;
-                            prev = p;
-                        }
-
-                        if (prev < p - 1) {
-                            sb.append(start);
-
-                            if (start != prev)
-                                sb.append("-").append(prev);
-
-                            sb.append(", ");
-
-                            start = p;
-                        }
-
-                        if (!sit.hasNext()) {
-                            sb.append(start);
-
-                            if (start != p)
-                                sb.append("-").append(p);
-                        }
-
-                        prev = p;
-                    }
-
-                    log.info("Requested rebalancing [from node=" + node.id() + ", partitions=" + s.size() + " (" + sb.toString() + ")]");
                 }
             }
         }
@@ -659,82 +632,83 @@ public class GridDhtPartitionDemander {
     void updateLastExchangeFuture(GridDhtPartitionsExchangeFuture lastFut) {
         lastExchangeFut = lastFut;
     }
-/**
- *
- */
-private class SyncFuture extends GridFutureAdapter<Object> {
-    /** */
-    private static final long serialVersionUID = 1L;
 
-    private ConcurrentHashMap8<UUID, Collection<Integer>> remaining = new ConcurrentHashMap8<>();
+    /**
+     *
+     */
+    private class SyncFuture extends GridFutureAdapter<Object> {
+        /** */
+        private static final long serialVersionUID = 1L;
 
-    private ConcurrentHashMap8<UUID, Collection<Integer>> missed = new ConcurrentHashMap8<>();
+        private ConcurrentHashMap8<UUID, Collection<Integer>> remaining = new ConcurrentHashMap8<>();
 
-    public void append(UUID nodeId, Collection<Integer> parts) {
-        remaining.put(nodeId, parts);
+        private ConcurrentHashMap8<UUID, Collection<Integer>> missed = new ConcurrentHashMap8<>();
 
-        missed.put(nodeId, new GridConcurrentHashSet<Integer>());
-    }
+        public void append(UUID nodeId, Collection<Integer> parts) {
+            remaining.put(nodeId, parts);
 
-    void cancel(UUID nodeId) {
-        if (isDone())
-            return;
-
-        remaining.remove(nodeId);
-
-        checkIsDone();
-    }
-
-    void onMissedPartition(UUID nodeId, int p) {
-        if (missed.get(nodeId) == null)
             missed.put(nodeId, new GridConcurrentHashSet<Integer>());
+        }
 
-        missed.get(nodeId).add(p);
-   }
+        void cancel(UUID nodeId) {
+            if (isDone())
+                return;
 
-    void onPartitionDone(UUID nodeId, int p) {
-        if (isDone())
-            return;
-
-        Collection<Integer> parts = remaining.get(nodeId);
-
-        parts.remove(p);
-
-        if (parts.isEmpty()) {
             remaining.remove(nodeId);
 
-            if (log.isDebugEnabled())
-                log.debug("Completed full partition iteration for node [nodeId=" + nodeId + ']');
+            checkIsDone();
         }
 
-        checkIsDone();
-    }
+        void onMissedPartition(UUID nodeId, int p) {
+            if (missed.get(nodeId) == null)
+                missed.put(nodeId, new GridConcurrentHashSet<Integer>());
 
-    private void checkIsDone() {
-        if (remaining.isEmpty()) {
-            if (log.isDebugEnabled())
-                log.debug("Completed sync future.");
+            missed.get(nodeId).add(p);
+        }
 
-            Collection<Integer> m = new HashSet<>();
+        void onPartitionDone(UUID nodeId, int p) {
+            if (isDone())
+                return;
 
-            for (Map.Entry<UUID, Collection<Integer>> e : missed.entrySet()) {
-                if (e.getValue() != null && !e.getValue().isEmpty())
-                    m.addAll(e.getValue());
-            }
+            Collection<Integer> parts = remaining.get(nodeId);
 
-            if (!m.isEmpty()) {
+            parts.remove(p);
+
+            if (parts.isEmpty()) {
+                remaining.remove(nodeId);
+
                 if (log.isDebugEnabled())
-                    log.debug("Reassigning partitions that were missed: " + m);
-
-                cctx.shared().exchange().forceDummyExchange(true, assigns.exchangeFuture());
+                    log.debug("Completed full partition iteration for node [nodeId=" + nodeId + ']');
             }
 
-            missed.clear();
+            checkIsDone();
+        }
 
-            cctx.shared().exchange().scheduleResendPartitions();//TODO: Is in necessary?
+        private void checkIsDone() {
+            if (remaining.isEmpty()) {
+                if (log.isDebugEnabled())
+                    log.debug("Completed sync future.");
 
-            onDone();
+                Collection<Integer> m = new HashSet<>();
+
+                for (Map.Entry<UUID, Collection<Integer>> e : missed.entrySet()) {
+                    if (e.getValue() != null && !e.getValue().isEmpty())
+                        m.addAll(e.getValue());
+                }
+
+                if (!m.isEmpty()) {
+                    if (log.isDebugEnabled())
+                        log.debug("Reassigning partitions that were missed: " + m);
+
+                    cctx.shared().exchange().forceDummyExchange(true, assigns.exchangeFuture());
+                }
+
+                missed.clear();
+
+                cctx.shared().exchange().scheduleResendPartitions();//TODO: Is in necessary?
+
+                onDone();
+            }
         }
     }
-}
 }
