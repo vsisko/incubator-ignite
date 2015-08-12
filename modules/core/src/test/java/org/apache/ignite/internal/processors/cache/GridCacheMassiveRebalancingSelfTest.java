@@ -120,6 +120,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
 
         stopGrid(0);
 
+        //TODO: refactor to get futures by topology
         while (f1 == ((GridCacheAdapter)grid(1).context().cache().internalCache(CACHE_NAME_DHT)).preloader().syncFuture() ||
             f2 == ((GridCacheAdapter)grid(2).context().cache().internalCache(CACHE_NAME_DHT)).preloader().syncFuture())
             U.sleep(100);
