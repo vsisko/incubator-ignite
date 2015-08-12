@@ -867,32 +867,44 @@ button .caret, .btn .caret {
     padding-right: 5px;
 }
 
-.fieldset {
+.group {
     border-radius: 5px;
     border: thin dotted lightgrey;
 
     text-align: left;
 }
 
-.legend {
+.group-legend {
     top: -10px;
     margin-left: 10px;
-    margin-right: 10px;
+    margin-right: 5px;
     overflow: visible;
     position: relative;
 
     label {
+        padding: 0 5px 0 5px;
         background: white;
     }
 }
 
-.legend-btn {
-    float: right;
-    line-height: 20px;
+.group-legend-tip {
+    background: white;
+    padding-right: 5px;
 }
 
-.fieldset-content {
+.group-legend-btn {
+    background: white;
+    float: right;
+    line-height: 20px;
+    padding: 0 5px 0 5px;
+}
+
+.group-content {
     margin: 0 10px 10px 10px;
+}
+
+.group-content-empty {
+    padding-top: 10px;
 }
 
 .tooltip.right .tooltip-arrow {

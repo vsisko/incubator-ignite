@@ -214,6 +214,7 @@
             },
             {
               "label": "Regions",
+              "ui": "table-simple",
               "type": "table-simple-with-border",
               "path": "discovery.Cloud",
               "model": "regions",
@@ -232,6 +233,7 @@
             },
             {
               "label": "Zones",
+              "ui": "table-simple",
               "type": "table-simple-with-border",
               "path": "discovery.Cloud",
               "model": "zones",

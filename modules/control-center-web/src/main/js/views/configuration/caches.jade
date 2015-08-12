@@ -34,9 +34,9 @@ block content
                     tbody
                         tr(ng-repeat='row in caches track by row._id')
                             td(ng-class='{active: row._id == selectedItem._id}')
-                                a(event-focus='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:'Cache mode not set'}}, {{row.atomicityMode | displayValue:atomicities:'Cache atomicity not set'}}
+                                a(on-click-focus='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:'Cache mode not set'}}, {{row.atomicityMode | displayValue:atomicities:'Cache atomicity not set'}}
         .padding-top-dflt
-            button.btn.btn-primary(event-focus='defaultFocusId' ng-click='createItem()') Add cache
+            button.btn.btn-primary(on-click-focus='defaultFocusId' ng-click='createItem()') Add cache
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true')

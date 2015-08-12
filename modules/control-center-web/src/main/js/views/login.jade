@@ -46,10 +46,10 @@ mixin lbl(txt)
                             .col-sm-9
                                 input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' ng-required='action == "register"' on-enter='loginForm.$valid && auth(action, user_info)')
             .modal-footer
-                a.labelField(ng-show='action != "request_password_reset"' ng-click='action = "request_password_reset"' event-focus='user_email') Forgot password?
-                a.labelField(ng-show='action == "request_password_reset"' ng-click='action = "login"' event-focus='user_email') Log In
-                a.labelLogin(ng-show='action == "register"' event-focus='user_email' ng-click='action = "login";') Log In
-                a.labelLogin(ng-show='action == "login"' event-focus='user_name' ng-click='action = "register"') Sign Up
+                a.labelField(ng-show='action != "request_password_reset"' ng-click='action = "request_password_reset"' on-click-focus='user_email') Forgot password?
+                a.labelField(ng-show='action == "request_password_reset"' ng-click='action = "login"' on-click-focus='user_email') Log In
+                a.labelLogin(ng-show='action == "register"' on-click-focus='user_email' ng-click='action = "login";') Log In
+                a.labelLogin(ng-show='action == "login"' on-click-focus='user_name' ng-click='action = "register"') Sign Up
                 button.btn.btn-primary(ng-show='action == "login"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Log In
                 button.btn.btn-primary(ng-show='action == "register"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Sign Up
                 button.btn.btn-primary(ng-show='action == "request_password_reset"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Reset Password

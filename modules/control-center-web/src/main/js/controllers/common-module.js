@@ -516,14 +516,63 @@ controlCenterModule.service('$table', [
             table.editIndex = editIndex;
         }
 
+        function _tableUI(field) {
+            var ui = field.ui;
+
+            return ui ? ui : field.type;
+        }
+
+        function _tableFocus(focusId, index) {
+            $focus((index < 0 ? 'new' : 'cur') + focusId);
+        }
+
         function _tableStartEdit(item, field, index) {
             _tableState(field.model, index);
 
-            return _model(item, field)[field.model][index];
+            var val = _model(item, field)[field.model][index];
+
+            var ui = _tableUI(field);
+
+            if (ui == 'table-simple') {
+                field.curValue = val;
+
+                _tableFocus(field.focusId, index);
+            }
+            else if (ui == 'table-pair') {
+                field.curKey = val[field.keyName];
+                field.curValue = val[field.valueName];
+
+                _tableFocus('Key' + field.focusId, index);
+            }
+            else if (ui == 'table-db-fields') {
+                field.curDatabaseName = val.databaseName;
+                field.curDatabaseType = val.databaseType;
+                field.curJavaName = val.javaName;
+                field.curJavaType = val.javaType;
+
+                _tableFocus('DatabaseName' + field.focusId, index);
+            }
+            else if (ui == 'table-query-groups') {
+                field.curGroupName = val.name;
+                field.curFields = val.fields;
+
+                _tableFocus('GroupName', index);
+            }
         }
 
         function _tableNewItem(field) {
             _tableState(field.model, -1);
+
+            var ui = _tableUI(field);
+
+            if (ui == 'table-simple')
+                _tableFocus(field.focusId, -1);
+            else if (ui == 'table-pair')
+                _tableFocus('Key' + field.focusId, -1);
+            else if (ui == 'table-db-fields')
+                _tableFocus('DatabaseName' + field.focusId, -1);
+            else if (ui == 'table-query-groups')
+                _tableFocus('GroupName', -1);
         }
 
         return {
@@ -546,18 +595,30 @@ controlCenterModule.service('$table', [
 
                 _model(item, field)[field.model].splice(index, 1);
             },
-            tableSimpleSave: function (valueValid, item, field, newValue, index) {
-                if (valueValid(item, field, newValue, index)) {
+            tableSimpleSave: function (valueValid, item, field, index) {
+                var simpleValue = index < 0 ? field.newValue : field.curValue;
+
+                if (valueValid(item, field, simpleValue, index)) {
                     _tableReset();
 
                     if (index < 0) {
                         if (_model(item, field)[field.model])
-                            _model(item, field)[field.model].push(newValue);
+                            _model(item, field)[field.model].push(simpleValue);
                         else
-                            _model(item, field)[field.model] = [newValue];
+                            _model(item, field)[field.model] = [simpleValue];
+
+                        _tableNewItem(field);
                     }
-                    else
-                        _model(item, field)[field.model][index] = newValue;
+                    else {
+                        var arr = _model(item, field)[field.model];
+
+                        arr[index] = simpleValue;
+
+                        if (index < arr.length - 1)
+                            _tableStartEdit(item, field, index + 1);
+                        else
+                            _tableNewItem(field);
+                    }
                 }
             },
             tableSimpleSaveVisible: function (newValue) {
@@ -590,8 +651,6 @@ controlCenterModule.service('$table', [
                             item[field.model] = [pair];
 
                         _tableNewItem(field);
-
-                        $focus('newKey' + field.focusId);
                     }
                     else {
                         pair = item[field.model][index];
@@ -599,17 +658,10 @@ controlCenterModule.service('$table', [
                         pair[field.keyName] = newKey;
                         pair[field.valueName] = newValue;
 
-                        if (index < item[field.model].length - 1) {
-                            _tableReset();
-                            //_tableStartEdit(item, field, index + 1);
-
-                            //$focus('curKey' + field.focusId);
-                        }
-                        else {
+                        if (index < item[field.model].length - 1)
+                            _tableStartEdit(item, field, index + 1);
+                        else
                             _tableNewItem(field);
-
-                            $focus('newKey' + field.focusId);
-                        }
                     }
                 }
             },
@@ -787,10 +839,10 @@ controlCenterModule.directive('enterFocusNext', function ($focus) {
 });
 
 // Directive to mark elements to focus.
-controlCenterModule.directive('eventFocus', function ($focus) {
+controlCenterModule.directive('onClickFocus', function ($focus) {
     return function (scope, elem, attr) {
         elem.on('click', function () {
-            $focus(attr.eventFocus);
+            $focus(attr.onClickFocus);
         });
 
         // Removes bound events in the element itself when the scope is destroyed

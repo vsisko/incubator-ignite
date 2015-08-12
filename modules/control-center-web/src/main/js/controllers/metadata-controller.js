@@ -35,6 +35,7 @@ controlCenterModule.controller('metadataController', [
             $scope.tableSimpleDown = $table.tableSimpleDown;
             $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
 
+            $scope.tablePairStartEdit = $table.tablePairStartEdit;
             $scope.tablePairSave = $table.tablePairSave;
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
@@ -480,7 +481,14 @@ controlCenterModule.controller('metadataController', [
                 return true;
             };
 
-            $scope.tableDbFieldSaveVisible = function (databaseName, databaseType, javaName, javaType) {
+            $scope.tableDbFieldSaveVisible = function (field, index) {
+                var isNew = index < 0;
+
+                var databaseName = isNew ? field.newDatabaseName : field.curDatabaseName;
+                var databaseType = isNew ? field.newDatabaseType : field.curDatabaseType;
+                var javaName = isNew ? field.newJavaName : field.curJavaName;
+                var javaType = isNew ? field.newJavaType : field.curJavaType;
+
                 return !$common.isEmptyString(databaseName) && $common.isDefined(databaseType) &&
                     !$common.isEmptyString(javaName) && $common.isDefined(javaType);
             };
@@ -490,7 +498,7 @@ controlCenterModule.controller('metadataController', [
                 valueFields: {msg: 'Value field', id: 'ValueField'}
             };
 
-            $scope.tableDbFieldSave = function (field, newDatabaseName, newDatabaseType, newJavaName, newJavaType, index) {
+            $scope.tableDbFieldSave = function (field, index) {
                 var dbField = dbFields[field.model];
 
                 if (dbField) {

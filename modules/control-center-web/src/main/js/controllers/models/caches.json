@@ -383,6 +383,7 @@
           }
         } ,
         {
+          "ui": "table-pair",
           "type": "indexedTypes",
           "model": "indexedTypes",
           "keyName": "keyClass",

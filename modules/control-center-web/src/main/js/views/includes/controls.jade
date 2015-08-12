@@ -40,8 +40,11 @@ mixin ico-exclamation(mdl, err, msg)
 mixin btn-save(show, click)
     i.tipField.fa.fa-floppy-o(ng-show=show ng-click=click bs-tooltip data-title='Save item' data-trigger='hover')
 
-mixin btn-add(click, tip, focusId)
-    i.legend-btn.fa.fa-plus(ng-click=click bs-tooltip=tip event-focus=focusId)
+mixin group-tip(lines)
+    i.group-legend-tip.fa.fa-question-circle(ng-if=lines bs-tooltip='joinTip(#{lines})' type='button')
+
+mixin group-btn-add(click, tip)
+    i.group-legend-btn.fa.fa-plus(ng-click=click bs-tooltip=tip)
 
 mixin btn-add2(click, tip, focusId)
     i.tipField.fa.fa-plus(ng-click=click bs-tooltip=tip event-focus=focusId)
@@ -55,50 +58,54 @@ mixin btn-up(show, click)
 mixin btn-down(show, click)
     i.tipField.fa.fa-arrow-down(ng-show=show ng-click=click bs-tooltip data-title='Move item down')
 
-mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes, focusId, index)
-    -var focusIdKey = keyModel + focusId
-    -var focusIdVal = valModel + focusId
+mixin table-pair-edit(prefix, keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes, focusId, index)
+    -var keyModel = 'field.' + prefix + 'Key'
+    -var valModel = 'field.' + prefix + 'Value'
+
+    -var keyFocusId = prefix + 'Key' + focusId
+    -var valFocusId = prefix + 'Value' + focusId
 
     .col-xs-6.col-sm-6.col-md-6
         label.fieldSep /
         .input-tip
             if keyJavaBuildInTypes
-                input.form-control(id=focusIdKey enter-focus-next=focusIdVal type='text' ng-model=keyModel placeholder=keyPlaceholder bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-escape='tableReset()')
+                input.form-control(id=keyFocusId enter-focus-next=valFocusId type='text' ng-model=keyModel placeholder=keyPlaceholder bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-escape='tableReset()')
             else
-                input.form-control(id=focusIdKey enter-focus-next=focusIdVal type='text' ng-model=keyModel placeholder=keyPlaceholder on-escape='tableReset()')
+                input.form-control(id=keyFocusId enter-focus-next=valFocusId type='text' ng-model=keyModel placeholder=keyPlaceholder on-escape='tableReset()')
     .col-xs-6.col-sm-6.col-md-6
         -var arg = keyModel + ', ' + valModel
-        -var btnVisible = 'tablePairSaveVisible(' + arg + ')'
-        -var btnSave = 'tablePairSave(tablePairValid, backupItem, field, '+ arg +', ' + index + ')'
+        -var btnVisible = 'tablePairSaveVisible(field)'
+        -var btnSave = 'tablePairSave(tablePairValid, backupItem, field, ' + index + ')'
         -var btnVisibleAndSave = btnVisible + ' && ' + btnSave
 
         +btn-save(btnVisible, btnSave)
         .input-tip
             if valueJavaBuildInTypes
-                input.form-control(id=focusIdVal type='text' ng-model=valModel placeholder=valPlaceholder bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-enter=btnVisibleAndSave on-escape='tableReset()')
+                input.form-control(id=valFocusId type='text' ng-model=valModel placeholder=valPlaceholder bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-enter=btnVisibleAndSave on-escape='tableReset()')
             else
-                input.form-control(id=focusIdVal type='text' ng-model=valModel placeholder=valPlaceholder on-enter=btnVisibleAndSave on-escape='tableReset()')
+                input.form-control(id=valFocusId type='text' ng-model=valModel placeholder=valPlaceholder on-enter=btnVisibleAndSave on-escape='tableReset()')
 
 mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes)
-    .col-sm-7.fieldset
-        .legend
+    .col-sm-7.group
+        .group-legend
             label #{header}:
-            +tipLabel('field.tip')
-            +btn-add('tableNewItem(field)', 'field.addTip', 'newKey{{::field.focusId}}')
-        .fieldset-content(ng-show='(#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field)')
+            +group-tip('field.tip')
+            +group-btn-add('tableNewItem(field)', 'field.addTip')
+        .group-content-empty(ng-if='!((#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field))')
+        .group-content(ng-show='(#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field)')
             table.col-sm-12.links-edit(id='{{::field.model}}' st-table=tblMdl)
                 tbody
                     tr(ng-repeat='item in #{tblMdl}')
                         td.col-sm-12
                             div(ng-show='!tableEditing(field, $index)')
-                                a.labelFormField(event-focus='curKey{{::field.focusId}}' ng-click='curPair = tableStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{compactJavaName(item.#{keyFld}, 25, availableWidth(field.model)[1])}} / {{compactJavaName(item.#{valFld}, 25, availableWidth(field.model)[1])}}
+                                a.labelFormField(ng-click='tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{compactJavaName(item.#{keyFld}, 25, availableWidth(field.model)[1])}} / {{compactJavaName(item.#{valFld}, 25, availableWidth(field.model)[1])}}
                                 +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                             div(ng-if='tableEditing(field, $index)')
-                                +table-pair-edit('curKey', 'curValue', keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes, '{{::field.focusId}}', '$index')
+                                +table-pair-edit('cur', keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes, '{{::field.focusId}}', '$index')
                 tfoot(ng-show='tableNewItemActive(field)')
                     tr
                         td.col-sm-12
-                            +table-pair-edit('newKey', 'newValue', keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes, '{{::field.focusId}}', '-1')
+                            +table-pair-edit('new', keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes, '{{::field.focusId}}', '-1')
 
 mixin details-row
     - var lblDetailClasses = ['col-sm-4', 'details-label']
@@ -127,7 +134,7 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(name='{{detail.model}}' type='number' placeholder='{{::detail.placeholder}}' min='{{detail.min ? detail.min : 0}}' max='{{detail.max ? detail.max : Number.MAX_VALUE}}')&attributes(detailCommon)
+                    input.form-control(type='number' placeholder='{{::detail.placeholder}}' min='{{detail.min ? detail.min : 0}}' max='{{detail.max ? detail.max : Number.MAX_VALUE}}')&attributes(detailCommon)
                     +ico-exclamation('{{detail.model}}', 'min', 'Value is less than allowable minimum.')
                     +ico-exclamation('{{detail.model}}', 'max', 'Value is more than allowable maximum.')
                     +ico-exclamation('{{detail.model}}', 'number', 'Invalid value. Only numbers allowed.')
@@ -152,49 +159,59 @@ mixin details-row
                     tr(ng-repeat='item in #{detailMdl} track by $index')
                         td
                             div(ng-show='!tableEditing(detail, $index)')
-                                a.labelFormField(event-focus='cur{{::detail.focusId}}' ng-click='curValue = tableStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
+                                a.labelFormField(ng-click='tableStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
                                 +btn-remove('tableRemove(backupItem, detail, $index)', 'detail.removeTip')
                                 +btn-down('detail.reordering && tableSimpleDownVisible(backupItem, detail, $index)', 'tableSimpleDown(backupItem, detail, $index)')
                                 +btn-up('detail.reordering && $index > 0', 'tableSimpleUp(backupItem, detail, $index)')
                             div(ng-if='tableEditing(detail, $index)')
                                 label.labelField {{$index + 1}})
-                                +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)')
+                                +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, detail, $index)')
                                 .input-tip.form-group.has-feedback
-                                    input.form-control(id='cur{{::detail.focusId}}' name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)' on-escape='tableReset()')&attributes(customValidators)
+                                    input.form-control(id='cur{{::detail.focusId}}' type='text' ng-model='detail.curValue' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, $index)' on-escape='tableReset()')&attributes(customValidators)
                                     +ico-exclamation('{{detail.model}}.edit', 'ipaddress', 'Invalid address, see help for format description.')
-            button.btn.btn-primary.fieldButton(ng-disabled='!newValue' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)') Add
+            button.btn.btn-primary.fieldButton(ng-disabled='!newValue' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, -1)') Add
             +tipField('detail.tip')
             .input-tip.form-group.has-feedback
-                input.form-control(id='new{{::detail.focusId}}' name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableNewItem(detail)' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)' on-escape='tableReset()')&attributes(customValidators)
+                input.form-control(id='new{{::detail.focusId}}' type='text' ng-model='detail.newValue' ng-focus='tableNewItem(detail)' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, newValue, -1)' on-escape='tableReset()')&attributes(customValidators)
                 +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
         div(ng-switch-when='table-simple-with-border')&attributes(detailCommon)
-            .fieldset
-                .legend
+            .group
+                .group-legend
                     label {{::detail.label}}:
-                    +tipLabel('detail.tableTip')
-                .fieldset-content
+                    +group-tip('detail.tableTip')
+                .group-content
                     table.col-sm-12.links-edit-details(st-table='#{detailMdl}')
                         tbody
                             tr(ng-repeat='item in #{detailMdl} track by $index')
                                 td
                                     div(ng-show='!tableEditing(detail, $index)')
-                                        a.labelFormField(event-focus='cur{{::detail.focusId}}' ng-click='curValue = tableStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
+                                        a.labelFormField(ng-click='curValue = tableStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
                                         +btn-remove('tableRemove(backupItem, detail, $index)', 'detail.removeTip')
                                         +btn-down('detail.reordering && tableSimpleDownVisible(backupItem, detail, $index)', 'tableSimpleDown(backupItem, detail, $index)')
                                         +btn-up('detail.reordering && $index > 0', 'tableSimpleUp(backupItem, detail, $index)')
                                     div(ng-if='tableEditing(detail, $index)')
                                         label.labelField {{$index + 1}})
-                                        +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)')
+                                        +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, detail, $index)')
                                         .input-tip.form-group.has-feedback
-                                            input.form-control(id='cur{{::detail.focusId}}' name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)' on-escape='tableReset()')&attributes(customValidators)
+                                            input.form-control(id='cur{{::detail.focusId}}' type='text' ng-model='detail.curValue' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, $index)' on-escape='tableReset()')&attributes(customValidators)
                                             +ico-exclamation('{{detail.model}}.edit', 'ipaddress', 'Invalid address, see help for format description.')
-                    button.btn.btn-primary.fieldButton(ng-disabled='!newValue' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)') Add
+                    button.btn.btn-primary.fieldButton(ng-disabled='!newValue' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, -1)') Add
                     +tipField('detail.tip')
                     .input-tip.form-group.has-feedback
-                        input.form-control(id='new{{::detail.focusId}}' name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableNewItem(detail)' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)' on-escape='tableReset()')&attributes(customValidators)
+                        input.form-control(id='new{{::detail.focusId}}' type='text' ng-model='detail.newValue' ng-focus='tableNewItem(detail)' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, -1)' on-escape='tableReset()')&attributes(customValidators)
                         +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
-mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, focusId, index)
+mixin table-db-field-edit(prefix, focusId, index)
+    -var databaseName = prefix + 'DatabaseName'
+    -var databaseType = prefix + 'DatabaseType'
+    -var javaName = prefix + 'JavaName'
+    -var javaType = prefix + 'JavaType'
+
+    -var databaseNameModel = 'field.' + databaseName
+    -var databaseTypeModel = 'field.' + databaseType
+    -var javaNameModel = 'field.' + javaName
+    -var javaTypeModel = 'field.' + javaType
+
     -var databaseNameId = databaseName + focusId
     -var databaseTypeId = databaseType + focusId
     -var javaNameId = javaName + focusId
@@ -203,24 +220,23 @@ mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, focusI
     .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
-            input.form-control(id=databaseNameId enter-focus-next=databaseTypeId type='text' ng-model=databaseName placeholder='DB name' on-escape='tableReset()')
+            input.form-control(id=databaseNameId enter-focus-next=databaseTypeId type='text' ng-model=databaseNameModel placeholder='DB name' on-escape='tableReset()')
     .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
-            select.form-control(id=databaseTypeId enter-focus-next=javaNameId ng-model=databaseType ng-options='item.value as item.label for item in {{jdbcTypes}}' on-escape='tableReset()')
+            select.form-control(id=databaseTypeId enter-focus-next=javaNameId ng-model=databaseTypeModel ng-options='item.value as item.label for item in {{jdbcTypes}}' on-escape='tableReset()')
     .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
-            input.form-control(id=javaNameId enter-focus-next=javaTypeId type='text' ng-model=javaName placeholder='Java name' on-escape='tableReset()')
+            input.form-control(id=javaNameId enter-focus-next=javaTypeId type='text' ng-model=javaNameModel placeholder='Java name' on-escape='tableReset()')
     .col-xs-3.col-sm-3.col-md-3
-        -var args = databaseName + ', ' + databaseType + ', ' + javaName + ', ' + javaType
-        -var btnVisible = 'tableDbFieldSaveVisible(' + args + ')'
-        -var btnSave = 'tableDbFieldSave(field, ' + args + ', ' + index +')'
+        -var btnVisible = 'tableDbFieldSaveVisible(field, ' + index +')'
+        -var btnSave = 'tableDbFieldSave(field, ' + index +')'
         -var btnVisibleAndSave = btnVisible + ' && ' + btnSave
 
         +btn-save(btnVisible, btnSave)
         .input-tip
-            select.form-control(id=javaTypeId ng-model=javaType ng-options='item.value as item.label for item in {{javaTypes}}' on-enter=btnVisibleAndSave on-escape='tableReset()')
+            select.form-control(id=javaTypeId ng-model=javaTypeModel ng-options='item.value as item.label for item in {{javaTypes}}' on-enter=btnVisibleAndSave on-escape='tableReset()')
 
 mixin table-group-item-edit(fieldName, className, direction, index)
     -var args = fieldName + ', ' + className
@@ -281,7 +297,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(name='{{field.model}}' type='number' placeholder='{{::field.placeholder}}' ng-focus='tableReset()' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}')&attributes(fieldCommon)
+                    input.form-control(type='number' placeholder='{{::field.placeholder}}' ng-focus='tableReset()' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}')&attributes(fieldCommon)
                     +ico-exclamation('{{field.model}}', 'min', 'Value is less than allowable minimum.')
                     +ico-exclamation('{{field.model}}', 'max', 'Value is more than allowable maximum.')
                     +ico-exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
@@ -317,93 +333,94 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
         .section(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
-            .col-sm-7.fieldset
-                .legend
+            .col-sm-7.group
+                .group-legend
                     label {{::field.label}}:
-                    +tipLabel('field.tableTip')
-                    +btn-add('tableNewItem(field)', 'field.addTip', 'new{{::field.focusId}}')
-                .fieldset-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
+                    +group-tip('field.tableTip')
+                    +group-btn-add('tableNewItem(field)', 'field.addTip')
+                .group-content-empty(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))')
+                .group-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                     table.col-sm-12.links-edit(id='{{::field.model}}' st-table='#{fieldMdl}')
                         tbody
                             tr(ng-repeat='item in #{fieldMdl} track by $index')
                                 td
                                     div(ng-show='!tableEditing(field, $index)')
-                                        a.labelFormField(event-focus='cur{{::field.focusId}}' ng-click='curValue = tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{compactJavaName(item, 55, availableWidth(field.model)[0])}}
+                                        a.labelFormField(ng-click='tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{compactJavaName(item, 55, availableWidth(field.model)[0])}}
                                         +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                                         +btn-down('field.reordering && tableSimpleDownVisible(backupItem, field, $index)', 'tableSimpleDown(backupItem, field, $index)')
                                         +btn-up('field.reordering && $index > 0', 'tableSimpleUp(backupItem, field, $index)')
                                     div(ng-if='tableEditing(field, $index)')
                                         label.labelField {{$index + 1}})
-                                        +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, curValue, $index)')
+                                        +btn-save('tableSimpleSaveVisible(field.curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, $index)')
                                         .input-tip
-                                            input.form-control(id='cur{{::field.focusId}}' type='text' ng-model='curValue' placeholder='{{::field.placeholder}}' on-enter='tableSimpleSaveVisible(curValue) && tableSimpleSave(tableSimpleValid, backupItem, field, curValue, $index)' on-escape='tableReset()')
+                                            input.form-control(id='cur{{::field.focusId}}' type='text' ng-model='field.curValue' placeholder='{{::field.placeholder}}' on-enter='tableSimpleSaveVisible(field.curValue) && tableSimpleSave(tableSimpleValid, backupItem, field, $index)' on-escape='tableReset()')
                         tfoot(ng-show='tableNewItemActive(field)')
                             tr
                                 td
-                                    +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
+                                    +btn-save('tableSimpleSaveVisible(field.newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, -1)')
                                     .input-tip
-                                        input.form-control(id='new{{::field.focusId}}' type='text' ng-model='newValue' placeholder='{{::field.placeholder}}' on-enter='tableSimpleSaveVisible(newValue) && tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)' on-escape='tableReset()')
+                                        input.form-control(id='new{{::field.focusId}}' type='text' ng-model='field.newValue' placeholder='{{::field.placeholder}}' on-enter='tableSimpleSaveVisible(field.newValue) && tableSimpleSave(tableSimpleValid, backupItem, field, -1)' on-escape='tableReset()')
         .section(ng-switch-when='indexedTypes')
-            +table-pair('Index key-value type pairs', fieldMdl, 'keyClass', 'valueClass', 'Key class full name', 'Value class full name', true, false)
+            +table-pair('Index key-value type pairs', fieldMdl, 'keyClass', 'valueClass', 'Key class full name', 'Value class full name', true, true)
         div(ng-switch-when='queryFieldsFirst' ng-hide=fieldHide)
             +table-pair('{{::field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name', false, true)
         .section(ng-switch-when='queryFields' ng-hide=fieldHide)
             +table-pair('{{::field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name', false, true)
-        .section(ng-switch-when='dbFields' ng-hide=fieldHide)
-            .col-sm-7.fieldset
-                .legend
+        .section(ng-switch-when='table-db-fields' ng-hide=fieldHide)
+            .col-sm-7.group
+                .group-legend
                     label {{::field.label}}:
-                    +tipLabel('field.tip')
-                    +btn-add('tableNewItem(field)', 'field.addTip', 'newDatabaseName{{::field.focusId}}')
-                .fieldset-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
+                    +group-tip('field.tip')
+                    +group-btn-add('tableNewItem(field)', 'field.addTip')
+                .group-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                     table.col-sm-12.links-edit(st-table=fieldMdl)
                         tbody
                             tr(ng-repeat='item in #{fieldMdl}')
                                 td.col-sm-12
                                     div(ng-show='!tableEditing(field, $index)')
-                                        a.labelFormField(event-focus='curDatabaseName{{::field.focusId}}' ng-click='curField = tableStartEdit(backupItem, field, $index); curDatabaseName = curField.databaseName; curDatabaseType = curField.databaseType; curJavaName = curField.javaName; curJavaType = curField.javaType') {{$index + 1}}) {{item.databaseName}} / {{item.databaseType}} / {{item.javaName}} / {{item.javaType}}
+                                        a.labelFormField(ng-click='tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item.databaseName}} / {{item.databaseType}} / {{item.javaName}} / {{item.javaType}}
                                         +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                                     div(ng-if='tableEditing(field, $index)')
-                                        +table-db-field-edit('curDatabaseName', 'curDatabaseType', 'curJavaName', 'curJavaType', '{{::field.focusId}}', '$index')
+                                        +table-db-field-edit('cur', '{{::field.focusId}}', '$index')
                         tfoot(ng-show='tableNewItemActive(field)')
                             tr
                                 td.col-sm-12(ng-init='newDatabaseType="INTEGER"; newJavaType="Integer"')
-                                    +table-db-field-edit('newDatabaseName', 'newDatabaseType', 'newJavaName', 'newJavaType', '{{::field.focusId}}', '-1')
-        .section(ng-switch-when='queryGroups' ng-hide=fieldHide)
-            .col-sm-7.fieldset
-                .legend
+                                    +table-db-field-edit('new', '{{::field.focusId}}', '-1')
+        .section(ng-switch-when='table-query-groups' ng-hide=fieldHide)
+            .col-sm-7.group
+                .group-legend
                     label {{::field.label}}:
-                    +tipLabel('field.tip')
-                    +btn-add('tableNewItem(field)', 'field.addTip', 'newGroupName')
-                .fieldset-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
+                    +group-tip('field.tip')
+                    +group-btn-add('tableNewItem(field)', 'field.addTip')
+                .group-content-empty(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))')
+                .group-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                     table.links-edit.col-sm-12(st-table=fieldMdl ng-init='newDirection = false')
                         tbody
                             tr(ng-repeat='group in #{fieldMdl}')
                                 td.col-sm-12
-                                    div
-                                        .col-sm-12(ng-show='!tableEditing(field, $index)')
-                                            a.labelFormField(event-focus='curGroupName' ng-click='curGroup = tableStartEdit(backupItem, field, $index); curGroupName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
-                                            +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
-                                            +btn-add2('tableGroupNewItem($index)', 'field.addItemTip', 'newFieldName')
-                                        div(ng-if='tableEditing(field, $index)')
-                                            label.labelField {{$index + 1}})
-                                            +btn-save('tableGroupSaveVisible(curGroupName)', 'tableGroupSave(curGroupName, $index)')
-                                            .input-tip
-                                                input#curGroupName.form-control(type='text' ng-model='curGroupName' placeholder='Index name' on-enter='tableGroupSaveVisible(curGroupName) && tableGroupSave(curGroupName, $index)' on-escape='tableReset()')
-                                        .margin-left-dflt
-                                            table.links-edit-sub.col-sm-12(st-table='group.fields' ng-init='groupIndex = $index')
-                                                tbody
-                                                    tr(ng-repeat='groupItem in group.fields')
-                                                        td
-                                                            div(ng-show='!tableGroupItemEditing(groupIndex, $index)')
-                                                                a.labelFormField(event-focus='curFieldName' ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction ? "DESC" : "ASC"}}
-                                                                +btn-remove('tableRemoveGroupItem(group, $index)', 'field.removeItemTip')
-                                                            div(ng-if='tableGroupItemEditing(groupIndex, $index)')
-                                                                +table-group-item-edit('curFieldName', 'curClassName', 'curDirection', '$index')
-                                                tfoot(ng-if='tableGroupNewItemActive(groupIndex)')
-                                                    tr.col-sm-12(style='padding-left: 18px')
-                                                        td
-                                                            +table-group-item-edit('newFieldName', 'newClassName', 'newDirection', '-1')
+                                    .col-sm-12(ng-show='!tableEditing(field, $index)')
+                                        a.labelFormField(ng-click='tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{group.name}}
+                                        +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
+                                        +btn-add2('tableGroupNewItem($index)', 'field.addItemTip', 'newFieldName')
+                                    div(ng-if='tableEditing(field, $index)')
+                                        label.labelField {{$index + 1}})
+                                        +btn-save('tableGroupSaveVisible(curGroupName)', 'tableGroupSave(curGroupName, $index)')
+                                        .input-tip
+                                            input#curGroupName.form-control(type='text' ng-model='curGroupName' placeholder='Index name' on-enter='tableGroupSaveVisible(curGroupName) && tableGroupSave(curGroupName, $index)' on-escape='tableReset()')
+                                    .margin-left-dflt
+                                        table.links-edit-sub.col-sm-12(st-table='group.fields' ng-init='groupIndex = $index')
+                                            tbody
+                                                tr(ng-repeat='groupItem in group.fields')
+                                                    td
+                                                        div(ng-show='!tableGroupItemEditing(groupIndex, $index)')
+                                                            a.labelFormField(on-click-focus='curFieldName' ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction ? "DESC" : "ASC"}}
+                                                            +btn-remove('tableRemoveGroupItem(group, $index)', 'field.removeItemTip')
+                                                        div(ng-if='tableGroupItemEditing(groupIndex, $index)')
+                                                            +table-group-item-edit('curFieldName', 'curClassName', 'curDirection', '$index')
+                                            tfoot(ng-if='tableGroupNewItemActive(groupIndex)')
+                                                tr.col-sm-12(style='padding-left: 18px')
+                                                    td
+                                                        +table-group-item-edit('newFieldName', 'newClassName', 'newDirection', '-1')
                         tfoot(ng-show='tableNewItemActive(field)')
                             tr
                                 td.col-sm-12
