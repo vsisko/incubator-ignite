@@ -34,9 +34,9 @@ block content
                     tbody
                         tr(ng-repeat='row in clusters track by row._id')
                             td(ng-class='{active: row._id == selectedItem._id}')
-                                a(on-click-focus='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:'Discovery not set'}}
+                                a(on-click-focus='clusterName' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:'Discovery not set'}}
         .padding-top-dflt
-            button.btn.btn-primary(on-click-focus='defaultFocusId' ng-click='createItem()') Add cluster
+            button.btn.btn-primary(on-click-focus='clusterName' ng-click='createItem()') Add cluster
             label(style='margin-left: 10px; margin-right: 10px') Use template:
             select.form-control.line-control(ng-model='template' ng-options='item.value as item.label for item in templates')
             i.tipLabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
@@ -68,6 +68,6 @@ block content
                 i.fa.fa-chevron-circle-down(ng-show='!ui.expanded' ng-click='toggleExpanded()')
                 a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
             .section
-                button.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
+                button.btn.btn-primary(ng-click='saveItem()') Save
                 button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Copy
                 button.btn.btn-primary(ng-show='backupItem._id' ng-click='removeItem()') Remove

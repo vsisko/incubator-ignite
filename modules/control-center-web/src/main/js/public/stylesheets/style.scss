@@ -917,6 +917,18 @@ button .caret, .btn .caret {
     background-color: $ignite-red;
 }
 
+.popover {
+    color: $ignite-red;
+}
+
+.popover-content {
+    padding: 5px;
+}
+
+.popover-content .close {
+    margin-left: 5px;
+}
+
 label {
     font-weight: normal;
     margin-bottom: 0;

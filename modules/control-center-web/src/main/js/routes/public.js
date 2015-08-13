@@ -26,6 +26,11 @@ router.get('/select', function (req, res) {
     res.render('templates/select', {});
 });
 
+// GET dropdown-menu template.
+router.get('/popover', function (req, res) {
+    res.render('templates/popover', {});
+});
+
 // GET dynamic tabs template.
 router.get('/tab', function (req, res) {
     res.render('templates/tab', {});

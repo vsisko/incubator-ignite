@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table', function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
+controlCenterModule.controller('clustersController', ['$scope', '$http', '$popover', '$common', '$focus', '$confirm', '$copy', '$table',
+    function ($scope, $http, $popover, $common, $focus, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
@@ -221,8 +222,28 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             });
         };
 
+        $scope.popover = {
+            "title": "Title",
+            "content": "Hello Popover<br />This is a multiline message!"
+        };
+
         // Check cluster logical consistency.
         function validate(item) {
+            if ($common.isEmptyString(item.name)) {
+                $focus('clusterName');
+
+                var el = $('body').find('#clusterName');
+
+                var myPopover = $popover(el, {content: 'Name should not be empty'});
+
+                myPopover.$promise.then(myPopover.show);
+
+                //window.setInterval(function() { myPopover.hide() }, 3000)
+
+                //return $common.showError('Name should not be empty!', 'zzz', '#div_to_show');
+                return false;
+            }
+
             if (!item.swapSpaceSpi || !item.swapSpaceSpi.kind && item.caches) {
                 for (var i = 0; i < item.caches.length; i++) {
                     var idx = $scope.indexOfCache(item.caches[i]);
@@ -230,11 +251,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                     if (idx >= 0) {
                         var cache = $scope.caches[idx];
 
-                        if (cache.swapEnabled) {
-                            $common.showError('Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!');
-
-                            return false;
-                        }
+                        if (cache.swapEnabled)
+                            return $common.showError('Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!');
                     }
                 }
             }

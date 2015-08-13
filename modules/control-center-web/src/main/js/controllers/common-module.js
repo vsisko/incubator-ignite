@@ -24,6 +24,16 @@ controlCenterModule.config(function ($modalProvider) {
     });
 });
 
+// Comboboxes configuration.
+controlCenterModule.config(function ($popoverProvider) {
+    angular.extend($popoverProvider.defaults, {
+        trigger: 'manual',
+        placement: 'right',
+        container: 'body',
+        templateUrl: '/popover'
+    });
+});
+
 // Tooltips configuration.
 controlCenterModule.config(function ($tooltipProvider) {
     angular.extend($tooltipProvider.defaults, {

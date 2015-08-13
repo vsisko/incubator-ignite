@@ -30,7 +30,7 @@
       "model": "name",
       "required": true,
       "placeholder": "Input name",
-      "id": "defaultFocusId"
+      "id": "clusterName"
     },
     {
       "label": "Caches",
