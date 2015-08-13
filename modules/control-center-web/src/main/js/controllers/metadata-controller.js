@@ -148,7 +148,7 @@ controlCenterModule.controller('metadataController', [
             $scope.loadMeta = {action: 'connect'};
             $scope.loadMeta.tables = [];
 
-            $scope.loadMeta.selectAll = function() {
+            $scope.loadMeta.selectAll = function () {
                 var allSelected = $scope.loadMeta.allSelected;
 
                 _.forEach($scope.loadMeta.tables, function (table) {
@@ -467,7 +467,7 @@ controlCenterModule.controller('metadataController', [
 
                     if ($common.isDefined(model)) {
                         var idx = _.findIndex(model, function (pair) {
-                            return pair.name == pairValue.name
+                            return pair.name == pairValue.key
                         });
 
                         // Found duplicate.
@@ -490,8 +490,7 @@ controlCenterModule.controller('metadataController', [
                 var javaName = isNew ? field.newJavaName : field.curJavaName;
                 var javaType = isNew ? field.newJavaType : field.curJavaType;
 
-                return !$common.isEmptyString(databaseName) && $common.isDefined(databaseType) &&
-                    !$common.isEmptyString(javaName) && $common.isDefined(javaType);
+                return !$common.isEmptyString(databaseName) && $common.isDefined(databaseType) && !$common.isEmptyString(javaName) && $common.isDefined(javaType);
             };
 
             var dbFields = {
@@ -562,11 +561,17 @@ controlCenterModule.controller('metadataController', [
                 }
             };
 
-            $scope.tableGroupSaveVisible = function (group) {
-                return !$common.isEmptyString(group);
+            function tableGroupValue(field, index) {
+                return index < 0 ? field.newGroupName : field.curGroupName;
+            }
+
+            $scope.tableGroupSaveVisible = function (field, index) {
+                return !$common.isEmptyString(tableGroupValue(field, index));
             };
 
-            function tableGroupValid(groupName, index) {
+            $scope.tableGroupSave = function (field, index) {
+                var groupName = tableGroupValue(field, index);
+
                 var groups = $scope.backupItem.groups;
 
                 if ($common.isDefined(groups)) {
@@ -582,26 +587,20 @@ controlCenterModule.controller('metadataController', [
                     }
                 }
 
-                return true;
-            }
+                $table.tableReset();
 
-            $scope.tableGroupSave = function (groupName, index) {
-                if (tableGroupValid(groupName, index)) {
-                    $table.tableReset();
+                var item = $scope.backupItem;
 
-                    var item = $scope.backupItem;
+                if (index < 0) {
+                    var newGroup = {name: groupName};
 
-                    if (index < 0) {
-                        var newGroup = {name: groupName};
-
-                        if (item.groups)
-                            item.groups.push(newGroup);
-                        else
-                            item.groups = [newGroup];
-                    }
+                    if (item.groups)
+                        item.groups.push(newGroup);
                     else
-                        item.groups[index].name = groupName;
+                        item.groups = [newGroup];
                 }
+                else
+                    item.groups[index].name = groupName;
             };
 
             $scope.tableGroupNewItem = function (groupIndex) {
@@ -639,27 +638,45 @@ controlCenterModule.controller('metadataController', [
                 return false;
             };
 
-            $scope.tableGroupItemStartEdit = function (groupIndex, index) {
+            function tableGroupItemValue(field, index) {
+                return index < 0
+                    ? {name: field.newFieldName, className: field.newClassName, direction: field.newDirection}
+                    : {name: field.curFieldName, className: field.curClassName, direction: field.curDirection};
+            }
+
+            $scope.tableGroupItemStartEdit = function (field, groupIndex, index) {
                 var groups = $scope.backupItem.groups;
 
-                $table.tableState(groups[groupIndex].name, index);
+                var group = groups[groupIndex];
 
-                return groups[groupIndex].fields[index];
+                $table.tableState(group.name, index);
+
+                var groupItem = group.fields[index];
+
+                field.curFieldName = groupItem.name;
+                field.curClassName = groupItem.className;
+                field.curDirection = groupItem.direction;
+
+                $focus('curFieldName');
             };
 
-            $scope.tableGroupItemSaveVisible = function (fieldName, className) {
-                return !$common.isEmptyString(fieldName) && !$common.isEmptyString(className);
+            $scope.tableGroupItemSaveVisible = function (field, index) {
+                var groupItemValue = tableGroupItemValue(field, index);
+
+                return !$common.isEmptyString(groupItemValue.name) && !$common.isEmptyString(groupItemValue.className);
             };
 
-            function tableGroupItemValid(fieldName, className, groupIndex, index) {
-                if (!$common.isValidJavaClass('Group field', className, true))
-                    return focusInvalidField(index, 'FieldClassName');
+            $scope.tableGroupItemSave = function (field, groupIndex, index) {
+                var groupItemValue = tableGroupItemValue(field, index);
+
+                if (!$common.isValidJavaClass('Group field', groupItemValue.className, true))
+                    return focusInvalidField(index, 'ClassName');
 
                 var fields = $scope.backupItem.groups[groupIndex].fields;
 
                 if ($common.isDefined(fields)) {
                     var idx = _.findIndex(fields, function (field) {
-                        return field.name == fieldName;
+                        return field.name == groupItemValue.name;
                     });
 
                     // Found duplicate.
@@ -670,30 +687,22 @@ controlCenterModule.controller('metadataController', [
                     }
                 }
 
-                return true;
-            }
+                $table.tableReset();
 
-            $scope.tableGroupItemSave = function (fieldName, className, direction, groupIndex, index) {
-                if (tableGroupItemValid(fieldName, className, groupIndex, index)) {
-                    $table.tableReset();
+                var group = $scope.backupItem.groups[groupIndex];
 
-                    var group = $scope.backupItem.groups[groupIndex];
+                if (index < 0) {
+                    if (group.fields)
+                        group.fields.push(groupItemValue);
+                    else
+                        group.fields = [groupItemValue];
+                }
+                else {
+                    var groupItem = group.fields[index];
 
-                    if (index < 0) {
-                        var newGroupItem = {name: fieldName, className: className, direction: direction};
-
-                        if (group.fields)
-                            group.fields.push(newGroupItem);
-                        else
-                            group.fields = [newGroupItem];
-                    }
-                    else {
-                        var groupItem = group.fields[index];
-
-                        groupItem.name = fieldName;
-                        groupItem.className = className;
-                        groupItem.direction = direction;
-                    }
+                    groupItem.name = groupItemValue.name;
+                    groupItem.className = groupItemValue.className;
+                    groupItem.direction = groupItemValue.direction;
                 }
             };
 
@@ -702,52 +711,5 @@ controlCenterModule.controller('metadataController', [
 
                 group.fields.splice(index, 1);
             };
-
-            //$scope.selectSchema = function (idx) {
-            //    var data = $scope.data;
-            //    var tables = data.tables;
-            //    var schemaName = tables[idx].schemaName;
-            //    var use = tables[idx].use;
-            //
-            //    for (var i = idx + 1; i < tables.length; i++) {
-            //        var item = tables[i];
-            //
-            //        if (item.schemaName == schemaName && item.tableName)
-            //            item.use = use;
-            //        else
-            //            break;
-            //    }
-            //
-            //    data.curTableIdx = -1;
-            //    data.curFieldIdx = -1;
-            //};
-
-            //$scope.selectTable = function (idx) {
-            //    var data = $scope.data;
-            //
-            //    data.curTableIdx = idx;
-            //    data.curFieldIdx = -1;
-            //
-            //    if (idx >= 0) {
-            //        var tbl = data.tables[idx];
-            //
-            //        data.curKeyClass = tbl.keyClass;
-            //        data.curValueClass = tbl.valueClass;
-            //    }
-            //};
-            //
-            //$scope.selectField = function (idx) {
-            //    var data = $scope.data;
-            //
-            //    data.curFieldIdx = idx;
-            //
-            //    if (idx >= 0) {
-            //        var fld = data.tables[data.curTableIdx].fields[idx];
-            //
-            //        data.curJavaName = fld.javaName;
-            //        data.curJavaType = fld.javaType;
-            //    }
-            //};
         }]
-)
-;
+);

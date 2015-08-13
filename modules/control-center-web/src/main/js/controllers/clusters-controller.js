@@ -171,8 +171,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                             // Remove deleted caches.
                             restoredItem.caches = _.filter(restoredItem.caches, function (cacheId) {
                                 return _.findIndex($scope.caches, function (scopeCache) {
-                                    return scopeCache.value == cacheId;
-                                }) >= 0;
+                                        return scopeCache.value == cacheId;
+                                    }) >= 0;
                             });
 
                             $scope.selectedItem = $scope.clusters[idx];

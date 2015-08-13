@@ -662,14 +662,31 @@ controlCenterModule.service('$table', [
 
             var ui = _tableUI(field);
 
-            if (ui == 'table-simple')
+            if (ui == 'table-simple') {
+                field.newValue = null;
+
                 _tableFocus(field.focusId, -1);
-            else if (ui == 'table-pair')
+            }
+            else if (ui == 'table-pair') {
+                field.newKey = null;
+                field.newValue = null;
+
                 _tableFocus('Key' + field.focusId, -1);
-            else if (ui == 'table-db-fields')
+            }
+            else if (ui == 'table-db-fields') {
+                field.newDatabaseName = null;
+                field.newDatabaseType = null;
+                field.newJavaName = null;
+                field.newJavaType = null;
+
                 _tableFocus('DatabaseName' + field.focusId, -1);
-            else if (ui == 'table-query-groups')
+            }
+            else if (ui == 'table-query-groups') {
+                field.newGroupName = null;
+                field.newFields = null;
+
                 _tableFocus('GroupName', -1);
+            }
         }
 
         return {

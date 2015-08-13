@@ -147,17 +147,19 @@ controlCenterModule.controller('cachesController', [
             };
 
             $scope.tablePairValid = function (item, field, index) {
-                if (!$common.isValidJavaClass('Indexed type key', keyCls, true))
+                var pairValue = $table.tablePairValue(field, index);
+
+                if (!$common.isValidJavaClass('Indexed type key', pairValue.key, true))
                     return focusInvalidField(index, 'KeyIndexedType');
 
-                if (!$common.isValidJavaClass('Indexed type value', valCls, true))
+                if (!$common.isValidJavaClass('Indexed type value', pairValue.value, true))
                     return focusInvalidField(index, 'ValueIndexedType');
 
                 var model = item[field.model];
 
                 if ($common.isDefined(model)) {
                     var idx = _.findIndex(model, function (pair) {
-                        return pair.keyClass == keyCls
+                        return pair.keyClass == pairValue.key
                     });
 
                     // Found duplicate.
