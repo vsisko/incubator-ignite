@@ -109,6 +109,9 @@ router.get('/logout', function (req, res) {
     res.redirect('/');
 });
 
+var _mailUser = '!!! YOUR USERNAME !!!';
+var _mailPass = '!!! YOUR PASSWORD !!!';
+
 /**
  * Request for password reset and send e-mail to user with reset token. */
 router.post('/request_password_reset', function(req, res) {
@@ -130,13 +133,13 @@ router.post('/request_password_reset', function(req, res) {
             var transporter  = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: '!!! YOUR USERNAME !!!',
-                    pass: '!!! YOUR PASSWORD !!!'
+                    user: _mailUser,
+                    pass: _mailPass
                 }
             });
 
             var mailOptions = {
-                from: '!!! YOUR USERNAME !!!',
+                from: _mailUser,
                 to: user.email,
                 subject: 'Password Reset',
                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
@@ -149,7 +152,7 @@ router.post('/request_password_reset', function(req, res) {
 
             transporter.sendMail(mailOptions, function(err){
                 if (err)
-                    return res.status(401).send('Failed to send e-mail with reset link!');
+                    return res.status(401).send('Failed to send e-mail with reset link!<br />' + err);
 
                 return res.status(403).send('An e-mail has been sent with further instructions.');
             });
@@ -201,13 +204,13 @@ router.post('/reset_password', function(req, res) {
                 var transporter  = nodemailer.createTransport({
                     service: 'gmail',
                     auth: {
-                        user: '!!! YOUR USERNAME !!!',
-                        pass: '!!! YOUR PASSWORD !!!'
+                        user: _mailUser,
+                        pass: _mailPass
                     }
                 });
 
                 var mailOptions = {
-                    from: '!!! YOUR USERNAME !!!',
+                    from: _mailUser,
                     to: user.email,
                     subject: 'Your password has been changed',
                     text: 'Hello,\n\n' +
