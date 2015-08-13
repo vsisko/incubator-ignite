@@ -44,41 +44,6 @@ eventGroups = {
         'EVT_IGFS_META_UPDATED', 'EVT_IGFS_DIR_CREATED', 'EVT_IGFS_DIR_RENAMED', 'EVT_IGFS_DIR_DELETED']
 };
 
-jdbcTypes = {
-    BIT: {value: "BIT", code: -7, label: "BIT"},
-    TINYINT: {value: "TINYINT", code: -6, label: "TINYINT"},
-    SMALLINT: {value: "SMALLINT", code: 5, label: "SMALLINT"},
-    INTEGER: {value: "INTEGER", code: 4, label: "INTEGER"},
-    BIGINT: {value: "BIGINT", code: -5, label: "BIGINT"},
-    FLOAT: {value: "FLOAT", code: 6, label: "FLOAT"},
-    REAL: {value: "REAL", code: 7, label: "REAL"},
-    DOUBLE: {value: "DOUBLE", code: 8, label: "DOUBLE"},
-    NUMERIC: {value: "NUMERIC", code: 2, label: "NUMERIC"},
-    DECIMAL: {value: "DECIMAL", code: 3, label: "DECIMAL"},
-    CHAR: {value: "CHAR", code: 1, label: "CHAR"},
-    VARCHAR: {value: "VARCHAR", code: 12, label: "VARCHAR"},
-    DATE: {value: "DATE", code: 91, label: "DATE"},
-    TIME: {value: "TIME", code: 92, label: "TIME"},
-    TIMESTAMP: {value: "TIMESTAMP", code: 93, label: "TIMESTAMP"},
-    BINARY: {value: "BINARY", code: -2, label: "BINARY"}
-};
-
-javaTypes = {
-    INTEGER: {value: "java.lang.Integer", label: "Integer"},
-    LONG: {value: "java.lang.Long", label: "Long"},
-    BIGDECIMAL: {value: "java.math.BigDecimal", label: "BigDecimal"},
-    FLOAT: {value: "java.lang.Float", label: "Float"},
-    DOUBLE: {value: "java.lang.Double", label: "Double"},
-    STRING: {value: "java.lang.String", label: "String"},
-    BOOLEAN: {value: "java.lang.Boolean", label: "Boolean"},
-    BYTE_ARRAY: {value: "byte[]", label: "byte[]"},
-    DATE: {value: "java.sql.Date", label: "Date"},
-    TIME: {value: "java.sql.Time", label: "Time"},
-    TIMESTAMP: {value: "java.sql.Timestamp", label: "Timestamp"}
-};
-
 if (typeof window === 'undefined') {
     exports.eventGroups = eventGroups;
-    exports.jdbcTypes = jdbcTypes;
-    exports.javaTypes = javaTypes;
 }

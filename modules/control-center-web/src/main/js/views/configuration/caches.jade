@@ -40,19 +40,19 @@ block content
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true')
-                .panel.panel-default
+                .panel.panel-default(ng-repeat='group in general')
                     .panel-heading
                         h3
-                            a(bs-collapse-toggle) General
+                            a(bs-collapse-toggle) {{::group.label}}
                     .panel-collapse(bs-collapse-target)
                         .panel-body
-                            .settings-row(ng-repeat='field in general')
+                            .settings-row(ng-repeat='field in group.fields')
                                 +form-row('backupItem')
                 div(ng-show='ui.expanded')
                     .advanced-options
                         i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
                         a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
-                    .panel.panel-default(ng-repeat='group in advanced' ng-click='triggerDigest = true')
+                    .panel.panel-default(ng-repeat='group in advanced')
                         .panel-heading
                             h3
                                 a(bs-collapse-toggle) {{::group.label}}

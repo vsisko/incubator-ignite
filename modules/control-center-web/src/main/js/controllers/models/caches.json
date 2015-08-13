@@ -18,123 +18,83 @@
   },
   "general": [
     {
-      "label": "Name",
-      "type": "text",
-      "model": "name",
-      "required": true,
-      "placeholder": "Input name",
-      "id": "defaultFocusId"
-    },
-    {
-      "label": "Mode",
-      "type": "select",
-      "model": "mode",
-      "placeholder": "PARTITIONED",
-      "items": "modes",
-      "tip": [
-        "Cache modes:",
-        "<ul>",
-        "  <li>Partitioned - in this mode the overall key set will be divided into partitions and all partitions will be split equally between participating nodes.</li>",
-        "  <li>Replicated - in this mode all the keys are distributed to all participating nodes.</li>",
-        "  <li>Local - in this mode caches residing on different grid nodes will not know about each other.</li>",
-        "</ul>"
-      ]
-    },
-    {
-      "label": "Atomicity",
-      "type": "select",
-      "model": "atomicityMode",
-      "placeholder": "ATOMIC",
-      "items": "atomicities",
-      "tip": [
-        "Atomicity:",
-        "<ul>",
-        "  <li>Transactional - in this mode specified fully ACID-compliant transactional cache behavior.</li>",
-        "  <li>Atomic - in this mode distributed transactions and distributed locking are not supported.</li>",
-        "</ul>"
-      ]
-    },
-    {
-      "label": "Backups",
-      "type": "number",
-      "model": "backups",
-      "hide": "backupItem.mode != 'PARTITIONED'",
-      "placeholder": 0,
-      "tip": [
-        "Number of nodes used to back up single partition for partitioned cache."
-      ]
-    },
-    {
-      "label": "Read from backup",
-      "type": "check",
-      "model": "readFromBackup",
-      "placeholder": true,
-      "hide": "!backupItem.backups || backupItem.mode == 'LOCAL'",
-      "tip": [
-        "Flag indicating whether data can be read from backup.",
-        "If not set then always get data from primary node (never from backup)."
-      ]
-    },
-    {
-      "label": "Copy on read",
-      "type": "check",
-      "model": "copyOnRead",
-      "placeholder": true,
-      "tip": [
-        "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
-        "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
-      ]
-    },
-    {
-      "label": "Invalidate near cache",
-      "type": "check",
-      "model": "invalidate",
-      "tip": [
-        "Invalidation flag for near cache entries in transaction.",
-        "If set then values will be invalidated (nullified) upon commit in near cache."
-      ]
-    }
-  ],
-  "advanced": [
-    {
-      "label": "Concurrency control",
-      "tip": [
-        "Cache concurrent usage settings."
-      ],
+      "label": "General",
       "fields": [
         {
-          "label": "Max async operations",
-          "type": "number",
-          "model": "maxConcurrentAsyncOperations",
-          "placeholder": 500,
+          "label": "Name",
+          "type": "text",
+          "model": "name",
+          "required": true,
+          "placeholder": "Input name",
+          "id": "defaultFocusId"
+        },
+        {
+          "label": "Mode",
+          "type": "select",
+          "model": "mode",
+          "placeholder": "PARTITIONED",
+          "items": "modes",
           "tip": [
-            "Maximum number of allowed concurrent asynchronous operations.",
-            "If 0 then number of concurrent asynchronous operations is unlimited."
+            "Cache modes:",
+            "<ul>",
+            "  <li>Partitioned - in this mode the overall key set will be divided into partitions and all partitions will be split equally between participating nodes.</li>",
+            "  <li>Replicated - in this mode all the keys are distributed to all participating nodes.</li>",
+            "  <li>Local - in this mode caches residing on different grid nodes will not know about each other.</li>",
+            "</ul>"
           ]
         },
         {
-          "label": "Default lock timeout",
+          "label": "Atomicity",
+          "type": "select",
+          "model": "atomicityMode",
+          "placeholder": "ATOMIC",
+          "items": "atomicities",
+          "tip": [
+            "Atomicity:",
+            "<ul>",
+            "  <li>Transactional - in this mode specified fully ACID-compliant transactional cache behavior.</li>",
+            "  <li>Atomic - in this mode distributed transactions and distributed locking are not supported.</li>",
+            "</ul>"
+          ]
+        },
+        {
+          "label": "Backups",
           "type": "number",
-          "model": "defaultLockTimeout",
+          "model": "backups",
+          "hide": "backupItem.mode != 'PARTITIONED'",
           "placeholder": 0,
           "tip": [
-            "Default lock acquisition timeout.",
-            "If 0 then lock acquisition will never timeout."
+            "Number of nodes used to back up single partition for partitioned cache."
           ]
         },
         {
-          "label": "Entry versioning",
-          "type": "dropdown",
-          "model": "atomicWriteOrderMode",
-          "placeholder": "Choose versioning",
-          "items": "atomicWriteOrderModes",
-          "hide": "backupItem.atomicityMode == 'TRANSACTIONAL'",
+          "label": "Read from backup",
+          "type": "check",
+          "model": "readFromBackup",
+          "placeholder": true,
+          "hide": "!backupItem.backups || backupItem.mode == 'LOCAL'",
           "tip": [
-            "Write ordering mode determines which node assigns the write version, sender or the primary node.",
-            "<ul>",
-            "  <li>CLOCK - in this mode write versions are assigned on a sender node which generally leads to better performance.</li>",
-            "  <li>PRIMARY - in this mode version is assigned only on primary node. This means that sender will only send write request to primary node, which in turn will assign write version and forward it to backups.</li>",
-            "</ul>"
+            "Flag indicating whether data can be read from backup.",
+            "If not set then always get data from primary node (never from backup)."
+          ]
+        },
+        {
+          "label": "Copy on read",
+          "type": "check",
+          "model": "copyOnRead",
+          "placeholder": true,
+          "tip": [
+            "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
+            "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
+          ]
+        },
+        {
+          "label": "Invalidate near cache",
+          "type": "check",
+          "model": "invalidate",
+          "tip": [
+            "Invalidation flag for near cache entries in transaction.",
+            "If set then values will be invalidated (nullified) upon commit in near cache."
           ]
         }
       ]
@@ -381,7 +341,7 @@
             "label": "Add metadata(s)",
             "ref": "/configuration/metadata"
           }
-        } ,
+        },
         {
           "ui": "table-pair",
           "type": "indexedTypes",
@@ -408,6 +368,261 @@
           ],
           "tip": [
             "Class with user-defined functions for SQL queries."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Store",
+      "tip": [
+        "Cache store settings."
+      ],
+      "fields": [
+        {
+          "label": "Store factory",
+          "type": "dropdown-details",
+          "path": "cacheStoreFactory",
+          "model": "kind",
+          "placeholder": "Choose store factory",
+          "items": "cacheStoreFactories",
+          "tip": [
+            "Factory for persistent storage for cache data."
+          ],
+          "details": {
+            "CacheJdbcPojoStoreFactory": {
+              "expanded": true,
+              "fields": [
+                {
+                  "label": "Data source bean",
+                  "type": "text",
+                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
+                  "model": "dataSourceBean",
+                  "required": true,
+                  "placeholder": "Bean name in Spring context",
+                  "tip": [
+                    "Name of the data source bean in Spring context."
+                  ]
+                },
+                {
+                  "label": "Dialect",
+                  "type": "dropdown",
+                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
+                  "model": "dialect",
+                  "required": true,
+                  "placeholder": "Choose JDBC dialect",
+                  "items": "cacheStoreJdbcDialects",
+                  "tip": [
+                    "Dialect of SQL implemented by a particular RDBMS:",
+                    "<ul>",
+                    "  <li>Generic JDBC dialect.</li>",
+                    "  <li>Oracle database.</li>",
+                    "  <li>IBM DB2.</li>",
+                    "  <li>Microsoft SQL Server.</li>",
+                    "  <li>My SQL.</li>",
+                    "  <li>H2 database.</li>",
+                    "</ul>"
+                  ]
+                },
+                {
+                  "label": "Metadata",
+                  "type": "dropdown-multiple",
+                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
+                  "model": "storeMetadata",
+                  "placeholder": "Choose metadata",
+                  "items": "storeMetadata",
+                  "tip": [
+                    "Select cache type metadata to associate database with cache."
+                  ]
+                }
+              ]
+            },
+            "CacheJdbcBlobStoreFactory": {
+              "expanded": true,
+              "fields": [
+                {
+                  "label": "user",
+                  "type": "text",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
+                  "model": "user",
+                  "required": true,
+                  "tip": [
+                    "User name for database access."
+                  ]
+                },
+                {
+                  "label": "Data source bean",
+                  "type": "text",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
+                  "model": "dataSourceBean",
+                  "required": true,
+                  "placeholder": "Bean name in Spring context",
+                  "tip": [
+                    "Name of the data source bean in Spring context."
+                  ]
+                },
+                {
+                  "label": "Init schema",
+                  "type": "check",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
+                  "model": "initSchema",
+                  "tip": [
+                    "Flag indicating whether DB schema should be initialized by Ignite (default behaviour) or was explicitly created by user."
+                  ]
+                },
+                {
+                  "label": "Create query",
+                  "type": "text",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
+                  "model": "createTableQuery",
+                  "placeholder": "SQL for table creation",
+                  "tip": [
+                    "Query for table creation in underlying database.",
+                    "Default value: create table if not exists ENTRIES (key binary primary key, val binary)"
+                  ]
+                },
+                {
+                  "label": "Load query",
+                  "type": "text",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
+                  "model": "loadQuery",
+                  "placeholder": "SQL for load entry",
+                  "tip": [
+                    "Query for entry load from underlying database.",
+                    "Default value: select * from ENTRIES where key=?"
+                  ]
+                },
+                {
+                  "label": "Insert query",
+                  "type": "text",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
+                  "model": "insertQuery",
+                  "placeholder": "SQL for insert entry",
+                  "tip": [
+                    "Query for insert entry into underlying database.",
+                    "Default value: insert into ENTRIES (key, val) values (?, ?)"
+                  ]
+                },
+                {
+                  "label": "Update query",
+                  "type": "text",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
+                  "model": "updateQuery",
+                  "placeholder": "SQL for update entry",
+                  "tip": [
+                    "Query fpr update entry in underlying database.",
+                    "Default value: update ENTRIES set val=? where key=?"
+                  ]
+                },
+                {
+                  "label": "Delete query",
+                  "type": "text",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
+                  "model": "deleteQuery",
+                  "placeholder": "SQL for delete entry",
+                  "tip": [
+                    "Query for delete entry from underlying database.",
+                    "Default value: delete from ENTRIES where key=?"
+                  ]
+                }
+              ]
+            },
+            "CacheHibernateBlobStoreFactory": {
+              "expanded": true,
+              "fields": [
+                {
+                  "label": "Hibernate properties",
+                  "type": "table-simple",
+                  "path": "cacheStoreFactory.CacheHibernateBlobStoreFactory",
+                  "model": "hibernateProperties",
+                  "placeholder": "key=value",
+                  "addTip": "Add new Hibernate property.",
+                  "removeTip": "Remove Hibernate property.",
+                  "tip": [
+                    "List of Hibernate properties.",
+                    "For example: connection.url=jdbc:h2:mem:"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "label": "Load previous value",
+          "type": "check",
+          "model": "loadPreviousValue",
+          "tip": [
+            "Flag indicating whether value should be loaded from store if it is not in the cache for following cache operations:",
+            "<ul>",
+            "  <li>IgniteCache.putIfAbsent()</li>",
+            "  <li>IgniteCache.replace()</li>",
+            "  <li>IgniteCache.replace()</li>",
+            "  <li>IgniteCache.remove()</li>",
+            "  <li>IgniteCache.getAndPut()</li>",
+            "  <li>IgniteCache.getAndRemove()</li>",
+            "  <li>IgniteCache.getAndReplace()</li>",
+            "  <li>IgniteCache.getAndPutIfAbsent()</li>",
+            "</ul>"
+          ]
+        },
+        {
+          "label": "Read-through",
+          "type": "check",
+          "model": "readThrough",
+          "tip": [
+            "Flag indicating whether read-through caching should be used."
+          ]
+        },
+        {
+          "label": "Write-through",
+          "type": "check",
+          "model": "writeThrough",
+          "tip": [
+            "Flag indicating whether write-through caching should be used."
+          ]
+        }
+      ]
+    }
+  ],
+  "advanced": [
+    {
+      "label": "Concurrency control",
+      "tip": [
+        "Cache concurrent usage settings."
+      ],
+      "fields": [
+        {
+          "label": "Max async operations",
+          "type": "number",
+          "model": "maxConcurrentAsyncOperations",
+          "placeholder": 500,
+          "tip": [
+            "Maximum number of allowed concurrent asynchronous operations.",
+            "If 0 then number of concurrent asynchronous operations is unlimited."
+          ]
+        },
+        {
+          "label": "Default lock timeout",
+          "type": "number",
+          "model": "defaultLockTimeout",
+          "placeholder": 0,
+          "tip": [
+            "Default lock acquisition timeout.",
+            "If 0 then lock acquisition will never timeout."
+          ]
+        },
+        {
+          "label": "Entry versioning",
+          "type": "dropdown",
+          "model": "atomicWriteOrderMode",
+          "placeholder": "Choose versioning",
+          "items": "atomicWriteOrderModes",
+          "hide": "backupItem.atomicityMode == 'TRANSACTIONAL'",
+          "tip": [
+            "Write ordering mode determines which node assigns the write version, sender or the primary node.",
+            "<ul>",
+            "  <li>CLOCK - in this mode write versions are assigned on a sender node which generally leads to better performance.</li>",
+            "  <li>PRIMARY - in this mode version is assigned only on primary node. This means that sender will only send write request to primary node, which in turn will assign write version and forward it to backups.</li>",
+            "</ul>"
           ]
         }
       ]
@@ -676,216 +891,6 @@
           "model": "managementEnabled",
           "tip": [
             "Flag indicating whether management is enabled on this cache."
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Store",
-      "tip": [
-        "Cache store settings."
-      ],
-      "fields": [
-        {
-          "label": "Store factory",
-          "type": "dropdown-details",
-          "path": "cacheStoreFactory",
-          "model": "kind",
-          "placeholder": "Choose store factory",
-          "items": "cacheStoreFactories",
-          "tip": [
-            "Factory for persistent storage for cache data."
-          ],
-          "details": {
-            "CacheJdbcPojoStoreFactory": {
-              "expanded": true,
-              "fields": [
-                {
-                  "label": "Data source bean",
-                  "type": "text",
-                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
-                  "model": "dataSourceBean",
-                  "required": true,
-                  "placeholder": "Bean name in Spring context",
-                  "tip": [
-                    "Name of the data source bean in Spring context."
-                  ]
-                },
-                {
-                  "label": "Dialect",
-                  "type": "dropdown",
-                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
-                  "model": "dialect",
-                  "required": true,
-                  "placeholder": "Choose JDBC dialect",
-                  "items": "cacheStoreJdbcDialects",
-                  "tip": [
-                    "Dialect of SQL implemented by a particular RDBMS:",
-                    "<ul>",
-                    "  <li>Generic JDBC dialect.</li>",
-                    "  <li>Oracle database.</li>",
-                    "  <li>IBM DB2.</li>",
-                    "  <li>Microsoft SQL Server.</li>",
-                    "  <li>My SQL.</li>",
-                    "  <li>H2 database.</li>",
-                    "</ul>"
-                  ]
-                },
-                {
-                  "label": "Metadata",
-                  "type": "dropdown-multiple",
-                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
-                  "model": "storeMetadata",
-                  "placeholder": "Choose metadata",
-                  "items": "storeMetadata",
-                  "tip": [
-                    "Select cache type metadata to associate database with cache."
-                  ]
-                }
-              ]
-            },
-            "CacheJdbcBlobStoreFactory": {
-              "expanded": true,
-              "fields": [
-                {
-                  "label": "user",
-                  "type": "text",
-                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
-                  "model": "user",
-                  "required": true,
-                  "tip": [
-                    "User name for database access."
-                  ]
-                },
-                {
-                  "label": "Data source bean",
-                  "type": "text",
-                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
-                  "model": "dataSourceBean",
-                  "required": true,
-                  "placeholder": "Bean name in Spring context",
-                  "tip": [
-                    "Name of the data source bean in Spring context."
-                  ]
-                },
-                {
-                  "label": "Init schema",
-                  "type": "check",
-                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
-                  "model": "initSchema",
-                  "tip": [
-                    "Flag indicating whether DB schema should be initialized by Ignite (default behaviour) or was explicitly created by user."
-                  ]
-                },
-                {
-                  "label": "Create query",
-                  "type": "text",
-                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
-                  "model": "createTableQuery",
-                  "placeholder": "SQL for table creation",
-                  "tip": [
-                    "Query for table creation in underlying database.",
-                    "Default value: create table if not exists ENTRIES (key binary primary key, val binary)"
-                  ]
-                },
-                {
-                  "label": "Load query",
-                  "type": "text",
-                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
-                  "model": "loadQuery",
-                  "placeholder": "SQL for load entry",
-                  "tip": [
-                    "Query for entry load from underlying database.",
-                    "Default value: select * from ENTRIES where key=?"
-                  ]
-                },
-                {
-                  "label": "Insert query",
-                  "type": "text",
-                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
-                  "model": "insertQuery",
-                  "placeholder": "SQL for insert entry",
-                  "tip": [
-                    "Query for insert entry into underlying database.",
-                    "Default value: insert into ENTRIES (key, val) values (?, ?)"
-                  ]
-                },
-                {
-                  "label": "Update query",
-                  "type": "text",
-                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
-                  "model": "updateQuery",
-                  "placeholder": "SQL for update entry",
-                  "tip": [
-                    "Query fpr update entry in underlying database.",
-                    "Default value: update ENTRIES set val=? where key=?"
-                  ]
-                },
-                {
-                  "label": "Delete query",
-                  "type": "text",
-                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
-                  "model": "deleteQuery",
-                  "placeholder": "SQL for delete entry",
-                  "tip": [
-                    "Query for delete entry from underlying database.",
-                    "Default value: delete from ENTRIES where key=?"
-                  ]
-                }
-              ]
-            },
-            "CacheHibernateBlobStoreFactory": {
-              "expanded": true,
-              "fields": [
-                {
-                  "label": "Hibernate properties",
-                  "type": "table-simple",
-                  "path": "cacheStoreFactory.CacheHibernateBlobStoreFactory",
-                  "model": "hibernateProperties",
-                  "placeholder": "key=value",
-                  "addTip": "Add new Hibernate property.",
-                  "removeTip": "Remove Hibernate property.",
-                  "tip": [
-                    "List of Hibernate properties.",
-                    "For example: connection.url=jdbc:h2:mem:"
-                  ]
-                }
-              ]
-            }
-          }
-        },
-        {
-          "label": "Load previous value",
-          "type": "check",
-          "model": "loadPreviousValue",
-          "tip": [
-            "Flag indicating whether value should be loaded from store if it is not in the cache for following cache operations:",
-            "<ul>",
-            "  <li>IgniteCache.putIfAbsent()</li>",
-            "  <li>IgniteCache.replace()</li>",
-            "  <li>IgniteCache.replace()</li>",
-            "  <li>IgniteCache.remove()</li>",
-            "  <li>IgniteCache.getAndPut()</li>",
-            "  <li>IgniteCache.getAndRemove()</li>",
-            "  <li>IgniteCache.getAndReplace()</li>",
-            "  <li>IgniteCache.getAndPutIfAbsent()</li>",
-            "</ul>"
-          ]
-        },
-        {
-          "label": "Read-through",
-          "type": "check",
-          "model": "readThrough",
-          "tip": [
-            "Flag indicating whether read-through caching should be used."
-          ]
-        },
-        {
-          "label": "Write-through",
-          "type": "check",
-          "model": "writeThrough",
-          "tip": [
-            "Flag indicating whether write-through caching should be used."
           ]
         }
       ]
