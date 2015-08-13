@@ -21,98 +21,101 @@ var agentManager = require('../agents/agent-manager');
 var apacheIgnite = require('apache-ignite');
 var SqlFieldsQuery = apacheIgnite.SqlFieldsQuery;
 
-/* Get grid topology. */
-router.post('/topology', function (req, res) {
+function _client(req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
-    if (!client)
-        return res.status(500).send("Client not found");
+    if (!client) {
+        res.status(500).send("Client not found");
 
-    client.ignite().cluster().then(function (clusters) {
-        res.json(clusters.map(function (cluster) {
-            var caches = Object.keys(cluster._caches).map(function (key) {
-                return {"name": key, "mode": cluster._caches[key]}
-            });
+        return null;
+    }
 
-            return {nodeId: cluster._nodeId, caches: caches};
-        }));
-    }, function (err) {
-        res.status(500).send(err);
-    });
+    return client;
+}
+
+/* Get grid topology. */
+router.post('/topology', function (req, res) {
+    var client = _client(req, res);
+
+    if (client) {
+        client.ignite().cluster().then(function (clusters) {
+            res.json(clusters.map(function (cluster) {
+                var caches = Object.keys(cluster._caches).map(function (key) {
+                    return {"name": key, "mode": cluster._caches[key]}
+                });
+
+                return {nodeId: cluster._nodeId, caches: caches};
+            }));
+        }, function (err) {
+            res.status(500).send(err);
+        });
+    }
 });
 
 /* Execute query. */
 router.post('/query', function (req, res) {
-    var client = agentManager.getAgentManager().findClient(req.currentUserId());
+    var client = _client(req, res);
 
-    if (!client)
-        return res.status(500).send("Client not found");
+    if (client) {
+        // Create sql query.
+        var qry = new SqlFieldsQuery(req.body.query);
 
-    // Create sql query.
-    var qry = new SqlFieldsQuery(req.body.query);
+        // Set page size for query.
+        qry.setPageSize(req.body.pageSize);
 
-    // Set page size for query.
-    qry.setPageSize(req.body.pageSize);
-
-    // Get query cursor.
-    client.ignite().cache(req.body.cacheName).query(qry).nextPage().then(function (cursor) {
-        res.json({meta: cursor.fieldsMetadata(), rows: cursor.page(), queryId: cursor.queryId()});
-    }, function (err) {
-        res.status(500).send(err);
-    });
+        // Get query cursor.
+        client.ignite().cache(req.body.cacheName).query(qry).nextPage().then(function (cursor) {
+            res.json({meta: cursor.fieldsMetadata(), rows: cursor.page(), queryId: cursor.queryId()});
+        }, function (err) {
+            res.status(500).send(err);
+        });
+    }
 });
 
 /* Get next query page. */
 router.post('/next_page', function (req, res) {
-    var client = agentManager.getAgentManager().findClient(req.currentUserId());
+    var client = _client(req, res);
 
-    if (!client)
-        return res.status(500).send("Client not found");
+    if (client) {
+        var cache = client.ignite().cache(req.body.cacheName);
 
-    var cache = client.ignite().cache(req.body.cacheName);
+        var cmd = cache._createCommand("qryfetch").addParam("qryId", req.body.queryId).
+            addParam("pageSize", req.body.pageSize);
 
-    var cmd = cache._createCommand("qryfetch").addParam("qryId", req.body.queryId).
-        addParam("pageSize", req.body.pageSize);
-
-    cache.__createPromise(cmd).then(function (page) {
-        res.json({rows: page["items"], last: page === null || page["last"]});
-    }, function (err) {
-        res.status(500).send(err);
-    });
+        cache.__createPromise(cmd).then(function (page) {
+            res.json({rows: page["items"], last: page === null || page["last"]});
+        }, function (err) {
+            res.status(500).send(err);
+        });
+    }
 });
 
 /* Get JDBC drivers list. */
 router.post('/drivers', function (req, res) {
-    res.json(['ojdbc6.jar', 'db2jcc4.jar', 'h2.jar']);
+    var client = _client(req, res);
 
-    //var client = agentManager.getAgentManager().findClient(req.currentUserId());
-    //
-    //if (!client)
-    //    return res.status(500).send("Client not found");
+    if (client) {
+        client.availableDrivers(function (err, drivers) {
+            if (err)
+                return res.status(500).send(err);
 
+            res.json(drivers);
+        });
+    }
 });
 
 /** Get database metadata. */
 router.post('/metadata', function (req, res) {
-    var tables = [];
+    var client = _client(req, res);
 
-    for (var i = 1; i < 17; i++) {
-        tables.push({
-            schemaName: 'Schema' + ((i / 5) + 1),
-            use: true,
-            tableName: 'Table' + i,
-            keyClass: 'KeyClass' + i,
-            valueClass: 'ValueClass' + i
-        })
+    if (client) {
+        client.extractMetadata('h2-1.4.188.jar', 'org.h2.Driver', 'jdbc:h2:tcp://localhost/c:/temp/agent', {user: 'sa'}, true, function (err, meta) {
+            if (err)
+                return res.status(500).send(err);
+
+            res.json(meta);
+        });
     }
-
-    res.json(tables);
-
-    //var client = agentManager.getAgentManager().findClient(req.currentUserId());
-    //
-    //if (!client)
-    //    return res.status(500).send("Client not found");
-
 });
 
 module.exports = router;

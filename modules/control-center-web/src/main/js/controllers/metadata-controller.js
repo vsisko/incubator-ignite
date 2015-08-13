@@ -195,7 +195,9 @@ controlCenterModule.controller('metadataController', [
             $scope.loadMetadataFromDb = function () {
                 $http.post('/agent/metadata')
                     .success(function (tables) {
-                        $scope.loadMeta.tables = tables;
+                        $scope.loadMeta.tables = _.map(tables, function (tbl) {
+                            return {schemaName: tbl.schema, tableName: tbl.tbl};
+                        });
                         $scope.loadMeta.action = 'tables';
                     })
                     .error(function (errMsg) {
