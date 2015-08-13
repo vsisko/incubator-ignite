@@ -675,9 +675,9 @@ controlCenterModule.service('$table', [
             }
             else if (ui == 'table-db-fields') {
                 field.newDatabaseName = null;
-                field.newDatabaseType = null;
+                field.newDatabaseType = 'INTEGER';
                 field.newJavaName = null;
-                field.newJavaType = null;
+                field.newJavaType = 'Integer';
 
                 _tableFocus('DatabaseName' + field.focusId, -1);
             }

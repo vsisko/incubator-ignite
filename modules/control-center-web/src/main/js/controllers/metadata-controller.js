@@ -482,15 +482,17 @@ controlCenterModule.controller('metadataController', [
                 return true;
             };
 
+            function tableDbFieldValue(field, index) {
+                return index < 0
+                    ? {databaseName: field.newDatabaseName, databaseType: field.newDatabaseType, javaName: field.newJavaName, javaType: field.newJavaType}
+                    : {databaseName: field.curDatabaseName, databaseType: field.curDatabaseType, javaName: field.curJavaName, javaType: field.curJavaType}
+            }
+
             $scope.tableDbFieldSaveVisible = function (field, index) {
-                var isNew = index < 0;
+                var dbFieldValue = tableDbFieldValue(field, index);
 
-                var databaseName = isNew ? field.newDatabaseName : field.curDatabaseName;
-                var databaseType = isNew ? field.newDatabaseType : field.curDatabaseType;
-                var javaName = isNew ? field.newJavaName : field.curJavaName;
-                var javaType = isNew ? field.newJavaType : field.curJavaType;
-
-                return !$common.isEmptyString(databaseName) && $common.isDefined(databaseType) && !$common.isEmptyString(javaName) && $common.isDefined(javaType);
+                return !$common.isEmptyString(dbFieldValue.databaseName) && $common.isDefined(dbFieldValue.databaseType) &&
+                    !$common.isEmptyString(dbFieldValue.javaName) && $common.isDefined(dbFieldValue.javaType);
             };
 
             var dbFields = {
@@ -502,23 +504,18 @@ controlCenterModule.controller('metadataController', [
                 var dbField = dbFields[field.model];
 
                 if (dbField) {
+                    var dbFieldValue = tableDbFieldValue(field, index);
+
                     var backupItem = $scope.backupItem;
 
                     var model = backupItem[field.model];
 
-                    var newItem = {
-                        databaseName: newDatabaseName,
-                        databaseType: newDatabaseType,
-                        javaName: newJavaName,
-                        javaType: newJavaType
-                    };
-
-                    if (!$common.isValidJavaIdentifier(dbField.msg + ' java name', newJavaName))
+                    if (!$common.isValidJavaIdentifier(dbField.msg + ' java name', dbFieldValue.javaName))
                         return focusInvalidField(index, 'JavaName' + dbField.id);
 
                     if ($common.isDefined(model)) {
                         var idx = _.findIndex(model, function (dbMeta) {
-                            return dbMeta.databaseName == newDatabaseName
+                            return dbMeta.databaseName == dbFieldValue.databaseName;
                         });
 
                         // Found duplicate.
@@ -529,7 +526,7 @@ controlCenterModule.controller('metadataController', [
                         }
 
                         idx = _.findIndex(model, function (dbMeta) {
-                            return dbMeta.javaName == newJavaName
+                            return dbMeta.javaName == dbFieldValue.javaName;
                         });
 
                         // Found duplicate.
@@ -540,22 +537,19 @@ controlCenterModule.controller('metadataController', [
                         }
 
                         if (index < 0) {
-                            if (model)
-                                model.push(newItem);
-                            else
-                                backupItem[field.model] = [newItem];
+                                model.push(dbFieldValue);
                         }
                         else {
                             var item = model[index];
 
-                            item.databaseName = newDatabaseName;
-                            item.databaseType = newDatabaseType;
-                            item.javaName = newJavaName;
-                            item.javaType = newJavaType;
+                            item.databaseName = dbFieldValue.databaseName;
+                            item.databaseType = dbFieldValue.databaseType;
+                            item.javaName = dbFieldValue.javaName;
+                            item.javaType = dbFieldValue.javaType;
                         }
                     }
                     else
-                        backupItem[field.model] = [newItem];
+                        backupItem[field.model] = [dbFieldValue];
 
                     $table.tableReset();
                 }
