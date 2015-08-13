@@ -36,8 +36,8 @@ public class AgentConfiguration {
     private String pwd;
 
     /** */
-    @Parameter(names = {"-s", "--serverUri"},
-        description = "Link to web-control-center web-socket server, for example: wss://localhost:3001 or wss://control-center.gridgain.com")
+    @Parameter(names = {"-s", "--serverUri"}, description = "Link to web-control-center web-socket server, " +
+        "for example: wss://localhost:3001 or wss://control-center.gridgain.com")
     private String srvUri = "wss://localhost:3001";
 
     /** */
@@ -49,7 +49,8 @@ public class AgentConfiguration {
     private String cfgPath;
 
     /** */
-    @Parameter(names = {"-drv", "--driver-folder"}, description = "Path to folder with JDBC drivers, for example /home/user/drivers")
+    @Parameter(names = {"-drv", "--driver-folder"}, description = "Path to folder with JDBC drivers, for example " +
+        "/home/user/drivers")
     private String driversFolder;
 
     /** */

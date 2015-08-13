@@ -71,7 +71,7 @@ public class AgentSocket implements WebSocketSender {
      */
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
-        log.log(Level.INFO, String.format("Connection closed: %d - %s", statusCode, reason));
+        log.log(Level.INFO, String.format("Connection closed: %d - %s.", statusCode, reason));
 
         if (remote != null)
             remote.close();
@@ -84,7 +84,7 @@ public class AgentSocket implements WebSocketSender {
      */
     @OnWebSocketConnect
     public void onConnect(Session ses) {
-        log.log(Level.INFO, "Connection established");
+        log.log(Level.INFO, "Connection established.");
 
         this.ses = ses;
 
@@ -118,7 +118,7 @@ public class AgentSocket implements WebSocketSender {
             return true;
         }
         catch (IOException ignored) {
-            log.log(Level.SEVERE, "Failed to send message to Control Center");
+            log.log(Level.SEVERE, "Failed to send message to Control Center.");
 
             return false;
         }
@@ -133,7 +133,7 @@ public class AgentSocket implements WebSocketSender {
         if (error instanceof ConnectException)
             log.log(Level.INFO, error.getMessage());
         else
-            log.log(Level.SEVERE, "Connection error", error);
+            log.log(Level.SEVERE, "Connection error.", error);
 
         if (remote != null)
             remote.close();
@@ -157,7 +157,7 @@ public class AgentSocket implements WebSocketSender {
     @Remote
     public void authResult(String errorMsg) {
         if (errorMsg == null)
-            log.info("Authentication success");
+            log.info("Authentication success.");
         else {
             log.info("Authentication failed: " + errorMsg);
 

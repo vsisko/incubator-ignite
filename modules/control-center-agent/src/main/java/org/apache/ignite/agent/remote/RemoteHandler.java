@@ -47,7 +47,8 @@ public class RemoteHandler implements AutoCloseable {
     private final Map<String, MethodDescriptor> methods = new HashMap<>();
 
     /** */
-    private final ExecutorService executorSrvc = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private final ExecutorService executorSrvc = Executors.newFixedThreadPool(Runtime.getRuntime()
+        .availableProcessors());
 
     /**
      * @param snd Session.
@@ -61,14 +62,14 @@ public class RemoteHandler implements AutoCloseable {
                 Remote remoteAnn = method.getAnnotation(Remote.class);
 
                 if (remoteAnn != null) {
-                    MethodDescriptor old = methods.put(method.getName(), new MethodDescriptor(method, hnd, remoteAnn.async()));
+                    MethodDescriptor old = methods.put(method.getName(), new MethodDescriptor(method, hnd,
+                        remoteAnn.async()));
 
                     if (old != null)
                         throw new IllegalArgumentException("Duplicated method: " + method.getName());
                 }
             }
         }
-
     }
 
     /**
@@ -126,14 +127,15 @@ public class RemoteHandler implements AutoCloseable {
 
                 try {
                     res = desc.mtd.invoke(desc.hnd, args);
-                } catch (Throwable e) {
+                }
+                catch (Throwable e) {
                     if (e instanceof InvocationTargetException)
                         e = ((InvocationTargetException)e).getTargetException();
 
                     if (reqId != null)
                         sendException(reqId, e.getClass().getName(), e.getMessage());
                     else
-                        log.log(Level.SEVERE, "Exception on execute remote method", e);
+                        log.log(Level.SEVERE, "Exception on execute remote method.", e);
 
                     return;
                 }

@@ -61,10 +61,11 @@ public class AgentLoggingConfigurator {
                 }
             }
 
-            LogManager.getLogManager().readConfiguration(AgentLauncher.class.getResourceAsStream("/" + PROPERTIES_FILE));
+            LogManager.getLogManager().readConfiguration(AgentLauncher.class.getResourceAsStream("/"
+                + PROPERTIES_FILE));
         }
         catch (IOException e) {
-            System.err.println("Failed to load logging configuration");
+            System.err.println("Failed to load logging configuration.");
 
             e.printStackTrace();
 

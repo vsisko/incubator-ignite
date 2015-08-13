@@ -31,15 +31,11 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.*;
 import java.util.*;
-import java.util.logging.*;
 
 /**
  * Executor for REST requests.
  */
 public class RestExecutor {
-    /** */
-    private static final Logger log = Logger.getLogger(RestExecutor.class.getName());
-
     /** */
     private final AgentConfiguration cfg;
 
