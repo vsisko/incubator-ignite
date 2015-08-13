@@ -929,6 +929,34 @@ button .caret, .btn .caret {
     margin-left: 5px;
 }
 
+.popover-arrow {
+    background: white;
+    border: 1px solid $ignite-red;
+}
+
+.popover-arrow:after, .popover-arrow:before {
+    right: 100%;
+    top: 50%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.popover-arrow:after {
+    border: solid 7px transparent;
+    border-right-color: white;
+    margin-top: -7px;
+}
+
+.popover-arrow:before {
+    border: solid 8px transparent;
+    border-right-color: $ignite-red;
+    margin-top: -8px;
+}
+
 label {
     font-weight: normal;
     margin-bottom: 0;
