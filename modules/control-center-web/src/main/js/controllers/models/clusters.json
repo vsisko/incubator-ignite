@@ -448,7 +448,14 @@
           "placeholder": "SHARED",
           "items": "deploymentModes",
           "tip": [
-            "Task classes and resources sharing mode."
+            "Task classes and resources sharing mode.",
+            "The following deployment modes are supported:",
+            "<ul>",
+            "  <li>PRIVATE - in this mode deployed classes do not share resources.</li>",
+            "  <li>ISOLATED - in this mode tasks or classes deployed within the same class loader will share the same instances of resources.</li>",
+            "  <li>SHARED - same as ISOLATED, but now tasks from different master nodes with the same user version and same class loader will share the same class loader on remote nodes.</li>",
+            "  <li>CONTINUOUS - same as SHARED deployment mode, but resources will not be undeployed even after all master nodes left grid.</li>",
+            "</ul>"
           ]
         }
       ]
