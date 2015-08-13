@@ -44,7 +44,7 @@ public class RemoteHandler implements AutoCloseable {
     private final WebSocketSender snd;
 
     /** */
-    private final Map<String, MethodDescriptor> methods = new HashMap<>();
+    private final Map<String, MethodDescriptor> mtds = new HashMap<>();
 
     /** */
     private final ExecutorService executorSrvc = Executors.newFixedThreadPool(Runtime.getRuntime()
@@ -62,7 +62,7 @@ public class RemoteHandler implements AutoCloseable {
                 Remote remoteAnn = method.getAnnotation(Remote.class);
 
                 if (remoteAnn != null) {
-                    MethodDescriptor old = methods.put(method.getName(), new MethodDescriptor(method, hnd,
+                    MethodDescriptor old = mtds.put(method.getName(), new MethodDescriptor(method, hnd,
                         remoteAnn.async()));
 
                     if (old != null)
@@ -85,7 +85,7 @@ public class RemoteHandler implements AutoCloseable {
 
         String mtdName = req.getAsJsonPrimitive("mtdName").getAsString();
 
-        final MethodDescriptor desc = methods.get(mtdName);
+        final MethodDescriptor desc = mtds.get(mtdName);
 
         if (desc == null) {
             sendException(reqId, INTERNAL_EXCEPTION_TYPE, "Unknown method: " + mtdName);
