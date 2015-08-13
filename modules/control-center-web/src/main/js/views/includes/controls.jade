@@ -315,8 +315,8 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
-            a.customize(ng-show='#{fieldMdl} && field.details[#{fieldMdl}].fields' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
-            .col-sm-7.panel-details(ng-show='#{expanded} && #{fieldMdl}')
+            a.customize(ng-show='#{fieldMdl} && field.settings' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
+            .col-sm-7.panel-details(ng-show='(#{expanded} || !field.settings) && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
         .section(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)

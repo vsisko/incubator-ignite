@@ -145,6 +145,7 @@
         {
           "label": "Eviction policy",
           "type": "dropdown-details",
+          "settings": true,
           "path": "evictionPolicy",
           "model": "kind",
           "placeholder": "Choose eviction policy",
@@ -381,6 +382,7 @@
         {
           "label": "Store factory",
           "type": "dropdown-details",
+          "settings": true,
           "path": "cacheStoreFactory",
           "model": "kind",
           "placeholder": "Choose store factory",
@@ -738,6 +740,7 @@
         {
           "label": "Eviction policy",
           "type": "dropdown-details",
+          "settings": true,
           "path": "nearConfiguration.nearEvictionPolicy",
           "model": "kind",
           "placeholder": "Choose eviction policy",

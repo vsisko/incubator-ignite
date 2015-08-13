@@ -49,17 +49,15 @@
     {
       "label": "Discovery",
       "type": "dropdown-details",
+      "settings": false,
       "path": "discovery",
       "model": "kind",
-      "required": true,
-      "placeholder": "Choose discovery",
       "items": "discoveries",
       "tip": [
         "Discovery allows to discover remote nodes in grid."
       ],
       "details": {
         "Vm": {
-          "expanded": true,
           "fields": [
             {
               "label": "Addresses",
@@ -93,7 +91,6 @@
           ]
         },
         "Multicast": {
-          "expanded": false,
           "fields": [
             {
               "label": "IP address",
@@ -151,7 +148,6 @@
           ]
         },
         "S3": {
-          "expanded": true,
           "fields": [
             {
               "label": "Bucket name",
@@ -170,7 +166,6 @@
           ]
         },
         "Cloud": {
-          "expanded": true,
           "fields": [
             {
               "label": "Credential",
@@ -253,7 +248,6 @@
           ]
         },
         "GoogleStorage": {
-          "expanded": true,
           "fields": [
             {
               "label": "Project name",
@@ -301,7 +295,6 @@
           ]
         },
         "Jdbc": {
-          "expanded": true,
           "fields": [
             {
               "label": "DB schema should be initialized by Ignite",
@@ -315,7 +308,6 @@
           ]
         },
         "SharedFs": {
-          "expanded": false,
           "fields": [
             {
               "label": "File path",
@@ -490,6 +482,7 @@
         {
           "label": "Marshaller",
           "type": "dropdown-details",
+          "settings": true,
           "path": "marshaller",
           "model": "kind",
           "placeholder": "Choose marshaller",
@@ -663,6 +656,7 @@
         {
           "label": "Swap space SPI",
           "type": "dropdown-details",
+          "settings": true,
           "path": "swapSpaceSpi",
           "model": "kind",
           "items": "swapSpaceSpis",

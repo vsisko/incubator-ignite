@@ -29,6 +29,7 @@
     {
       "label": "Near cache eviction policy",
       "type": "dropdown-details",
+      "settings": true,
       "path": "nearConfiguration.nearEvictionPolicy",
       "model": "kind",
       "placeholder": "Choose eviction policy",
