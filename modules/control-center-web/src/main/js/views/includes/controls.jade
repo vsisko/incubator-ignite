@@ -388,7 +388,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                                     .col-sm-12(ng-show='!tableEditing(field, $index)')
                                         a.labelFormField(ng-click='tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{group.name}}
                                         +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
-                                        +btn-add('tableGroupNewItem($index)', 'field.addItemTip')
+                                        +btn-add('tableGroupNewItem(field, $index)', 'field.addItemTip')
                                     div(ng-if='tableEditing(field, $index)')
                                         label.labelField {{$index + 1}})
                                         +btn-save('tableGroupSaveVisible(field, $index)', 'tableGroupSave(field, $index)')

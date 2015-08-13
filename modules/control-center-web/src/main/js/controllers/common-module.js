@@ -687,6 +687,9 @@ controlCenterModule.service('$table', [
 
                 _tableFocus('GroupName', -1);
             }
+            else if (ui == 'table-query-group-fields') {
+                _tableFocus('FieldName', -1);
+            }
         }
 
         return {

@@ -495,23 +495,23 @@ controlCenterModule.controller('metadataController', [
                     !$common.isEmptyString(dbFieldValue.javaName) && $common.isDefined(dbFieldValue.javaType);
             };
 
-            var dbFields = {
+            var dbFieldTables = {
                 keyFields: {msg: 'Key field', id: 'KeyField'},
                 valueFields: {msg: 'Value field', id: 'ValueField'}
             };
 
             $scope.tableDbFieldSave = function (field, index) {
-                var dbField = dbFields[field.model];
+                var dbFieldTable = dbFieldTables[field.model];
 
-                if (dbField) {
+                if (dbFieldTable) {
                     var dbFieldValue = tableDbFieldValue(field, index);
 
-                    var backupItem = $scope.backupItem;
+                    var item = $scope.backupItem;
 
-                    var model = backupItem[field.model];
+                    var model = item[field.model];
 
-                    if (!$common.isValidJavaIdentifier(dbField.msg + ' java name', dbFieldValue.javaName))
-                        return focusInvalidField(index, 'JavaName' + dbField.id);
+                    if (!$common.isValidJavaIdentifier(dbFieldTable.msg + ' java name', dbFieldValue.javaName))
+                        return focusInvalidField(index, 'JavaName' + dbFieldTable.id);
 
                     if ($common.isDefined(model)) {
                         var idx = _.findIndex(model, function (dbMeta) {
@@ -522,7 +522,7 @@ controlCenterModule.controller('metadataController', [
                         if (idx >= 0 && index != idx) {
                             $common.showError('Field with such database name already exists!');
 
-                            return focusInvalidField(index, 'DatabaseName' + dbField.id);
+                            return focusInvalidField(index, 'DatabaseName' + dbFieldTable.id);
                         }
 
                         idx = _.findIndex(model, function (dbMeta) {
@@ -533,25 +533,33 @@ controlCenterModule.controller('metadataController', [
                         if (idx >= 0 && index != idx) {
                             $common.showError('Field with such java name already exists!');
 
-                            return focusInvalidField(index, 'JavaName' + dbField.id);
+                            return focusInvalidField(index, 'JavaName' + dbFieldTable.id);
                         }
 
                         if (index < 0) {
                                 model.push(dbFieldValue);
                         }
                         else {
-                            var item = model[index];
+                            var dbField = model[index];
 
-                            item.databaseName = dbFieldValue.databaseName;
-                            item.databaseType = dbFieldValue.databaseType;
-                            item.javaName = dbFieldValue.javaName;
-                            item.javaType = dbFieldValue.javaType;
+                            dbField.databaseName = dbFieldValue.databaseName;
+                            dbField.databaseType = dbFieldValue.databaseType;
+                            dbField.javaName = dbFieldValue.javaName;
+                            dbField.javaType = dbFieldValue.javaType;
                         }
                     }
-                    else
-                        backupItem[field.model] = [dbFieldValue];
+                    else {
+                        model = [dbFieldValue];
 
-                    $table.tableReset();
+                        item[field.model] = model;
+                    }
+
+                    if (index < 0)
+                        $table.tableNewItem(field);
+                    else  if (index < model.length - 1)
+                        $table.tableStartEdit(item, field, index + 1);
+                    else
+                        $table.tableNewItem(field);
                 }
             };
 
@@ -581,8 +589,6 @@ controlCenterModule.controller('metadataController', [
                     }
                 }
 
-                $table.tableReset();
-
                 var item = $scope.backupItem;
 
                 if (index < 0) {
@@ -595,12 +601,27 @@ controlCenterModule.controller('metadataController', [
                 }
                 else
                     item.groups[index].name = groupName;
+
+                if (index < 0)
+                    $scope.tableGroupNewItem(field, item.groups.length - 1);
+                else {
+                    var group = item.groups[index];
+
+                    if (group.fields || group.fields.length > 0)
+                        $scope.tableGroupItemStartEdit(field, index, 0);
+                    else
+                        $scope.tableGroupNewItem(field, index);
+                }
             };
 
-            $scope.tableGroupNewItem = function (groupIndex) {
+            $scope.tableGroupNewItem = function (field, groupIndex) {
                 var groupName = $scope.backupItem.groups[groupIndex].name;
 
-                return $table.tableNewItem({model: groupName});
+                $table.tableNewItem({ui: 'table-query-group-fields', model: groupName});
+
+                field.newFieldName = null;
+                field.newClassName = null;
+                field.newDirection = false;
             };
 
             $scope.tableGroupNewItemActive = function (groupIndex) {
@@ -681,8 +702,6 @@ controlCenterModule.controller('metadataController', [
                     }
                 }
 
-                $table.tableReset();
-
                 var group = $scope.backupItem.groups[groupIndex];
 
                 if (index < 0) {
@@ -690,6 +709,8 @@ controlCenterModule.controller('metadataController', [
                         group.fields.push(groupItemValue);
                     else
                         group.fields = [groupItemValue];
+
+                    $scope.tableGroupNewItem(field, groupIndex);
                 }
                 else {
                     var groupItem = group.fields[index];
@@ -697,6 +718,11 @@ controlCenterModule.controller('metadataController', [
                     groupItem.name = groupItemValue.name;
                     groupItem.className = groupItemValue.className;
                     groupItem.direction = groupItemValue.direction;
+
+                    if (index < group.fields.length - 1)
+                        $scope.tableGroupItemStartEdit(field, groupIndex, index + 1);
+                    else
+                        $scope.tableGroupNewItem(field, groupIndex);
                 }
             };
 
