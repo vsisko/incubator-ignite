@@ -230,13 +230,17 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$popov
         // Check cluster logical consistency.
         function validate(item) {
             if ($common.isEmptyString(item.name)) {
-                $focus('clusterName');
+                $common.ensureActivePanel($scope.panels, 0);
 
                 var el = $('body').find('#clusterName');
 
                 var myPopover = $popover(el, {content: 'Name should not be empty'});
 
-                myPopover.$promise.then(myPopover.show);
+                myPopover.$promise.then(function () {
+                    myPopover.show();
+
+                    $focus('clusterName');
+                });
 
                 //window.setInterval(function() { myPopover.hide() }, 3000)
 
