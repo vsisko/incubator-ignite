@@ -168,7 +168,7 @@ Client.prototype.authResult = function(error) {
  * @param {String} jdbcUrl
  * @param {Object} jdbcInfo
  * @param {Boolean} tablesOnly
- * @param {Function} cb Callback. Take 3 arguments: {String} error, {Object} exception, {Object} result.
+ * @param {Function} cb Callback. Take two arguments: {Object} exception, {Object} result.
  * @return {Array} List of tables (see org.apache.ignite.schema.parser.DbTable java class)
  */
 Client.prototype.extractMetadata = function(jdbcDriverJarPath, jdbcDriverClass, jdbcUrl, jdbcInfo, tablesOnly, cb) {
@@ -176,7 +176,7 @@ Client.prototype.extractMetadata = function(jdbcDriverJarPath, jdbcDriverClass, 
 };
 
 /**
- * @param {Function} cb Callback.
+ * @param {Function} cb Callback. Take two arguments: {Object} exception, {Object} result.
  * @return {Array} List of jars from driver folder.
  */
 Client.prototype.availableDrivers = function(cb) {
