@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$http', '$popover', '$common', '$focus', '$confirm', '$copy', '$table',
-    function ($scope, $http, $popover, $common, $focus, $confirm, $copy, $table) {
+controlCenterModule.controller('clustersController', ['$scope', '$http', '$popover', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table',
+    function ($scope, $http, $popover, $timeout, $common, $focus, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
@@ -222,30 +222,64 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$popov
             });
         };
 
-        $scope.popover = {
-            "title": "Title",
-            "content": "Hello Popover<br />This is a multiline message!"
-        };
+        var popover = null;
+
+        function showPopoverMessage(panelIndex, id, message) {
+            $common.ensureActivePanel($scope.panels, panelIndex);
+
+            var el = $('body').find('#' + id);
+
+            if (popover)
+                popover.hide();
+
+            var newPopover = $popover(el, {content: message});
+
+            $timeout(function () {
+                $focus(id);
+            }, 50);
+
+            $timeout(function () {
+                newPopover.show();
+
+                popover = newPopover;
+            }, 100);
+
+            $timeout(function () { newPopover.hide() }, 3000);
+
+            return false;
+        }
 
         // Check cluster logical consistency.
         function validate(item) {
-            if ($common.isEmptyString(item.name)) {
-                $common.ensureActivePanel($scope.panels, 0);
+            if ($common.isEmptyString(item.name))
+                return showPopoverMessage(0, 'clusterName', 'Name should not be empty');
 
-                var el = $('body').find('#clusterName');
+            if (item.discovery.kind == 'Vm' && item.discovery.Vm.addresses.length == 0)
+                return showPopoverMessage(0, 'addresses', 'Addresses are not specified');
 
-                var myPopover = $popover(el, {content: 'Name should not be empty'});
+            if (item.discovery.kind == 'S3' && $common.isEmptyString(item.discovery.S3.bucketName))
+                return showPopoverMessage(0, 'bucketName', 'Bucket name should not be empty');
 
-                myPopover.$promise.then(function () {
-                    myPopover.show();
+            if (item.discovery.kind == 'Cloud') {
+                if ($common.isEmptyString(item.discovery.Cloud.identity))
+                    return showPopoverMessage(0, 'identity', 'Identity should not be empty');
 
-                    $focus('clusterName');
-                });
+                if ($common.isEmptyString(item.discovery.Cloud.provider))
+                    return showPopoverMessage(0, 'provider', 'Provider should not be empty');
+            }
 
-                //window.setInterval(function() { myPopover.hide() }, 3000)
+            if (item.discovery.kind == 'GoogleStorage') {
+                if ($common.isEmptyString(item.discovery.GoogleStorage.projectName))
+                    return showPopoverMessage(0, 'projectName', 'Project name should not be empty');
 
-                //return $common.showError('Name should not be empty!', 'zzz', '#div_to_show');
-                return false;
+                if ($common.isEmptyString(item.discovery.GoogleStorage.bucketName))
+                    return showPopoverMessage(0, 'bucketName', 'Bucket name should not be empty');
+
+                if ($common.isEmptyString(item.discovery.GoogleStorage.serviceAccountP12FilePath))
+                    return showPopoverMessage(0, 'serviceAccountP12FilePath', 'Private key path should not be empty');
+
+                if ($common.isEmptyString(item.discovery.GoogleStorage.accountId))
+                    return showPopoverMessage(0, 'accountId', 'Account ID should not be empty');
             }
 
             if (!item.swapSpaceSpi || !item.swapSpaceSpi.kind && item.caches) {

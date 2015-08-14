@@ -943,16 +943,24 @@ controlCenterModule.directive('retainSelection', function ($timeout) {
 });
 
 // Factory function to focus element.
-controlCenterModule.factory('$focus', function ($timeout, $window) {
+controlCenterModule.factory('$focus', function ($timeout) {
     return function (id) {
         // Timeout makes sure that is invoked after any other event has been triggered.
         // E.g. click events that need to run before the focus or inputs elements that are
         // in a disabled state but are enabled when those events are triggered.
         $timeout(function () {
-            var elem = $window.document.getElementById(id);
+            var elem = $('#' + id);
 
-            if (elem)
-                elem.focus();
+            if (elem.length > 0) {
+                var offset = elem.offset();
+
+                if(offset.top < window.pageYOffset)
+                    $('html, body').animate({
+                        scrollTop: offset.top - 20
+                    }, 10);
+
+                elem[0].focus();
+            }
         });
     };
 });

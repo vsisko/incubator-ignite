@@ -128,7 +128,7 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(type='text' placeholder='{{::detail.placeholder}}')&attributes(detailCommon)
+                    input.form-control(id='{{::detail.model}}' type='text' placeholder='{{::detail.placeholder}}')&attributes(detailCommon)
         div(ng-switch-when='number')
             label(class=lblDetailClasses ng-class='{required: detail.required}') {{::detail.label}}:
             .col-sm-8
@@ -151,7 +151,7 @@ mixin details-row
                 .input-tip
                     button.form-control(bs-select data-multiple='1' data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
         .section(ng-switch-when='table-simple')&attributes(detailCommon)
-            .col-sm-12.group
+            .col-sm-12.group(id='{{::detail.model}}')
                 .group-legend
                     label {{::detail.label}}:
                     +group-tip('detail.tableTip')
@@ -435,7 +435,7 @@ mixin group(title, fields, dataSource)
                     +form-row(dataSource)
 
 mixin groups(groups, dataSource)
-    .panel.panel-default(ng-repeat='group in #{groups}')
+    .panel.panel-default(ng-repeat='group in #{groups}' ng-click='triggerDigest=true')
         .panel-heading
             h3
                 a(bs-collapse-toggle) {{::group.label}}
