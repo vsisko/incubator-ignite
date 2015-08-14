@@ -3,15 +3,17 @@
     "workflowTitle": "What's now:",
     "workflowContent": [
       "<ul>",
-      "  <li>See XML and java code for server nodes configurations.</li>",
-      "  <li>See XML and java code for client nodes configurations.</li>",
+      "  <li>Download XML Config</li>",
+      "  <li>Download Java Code</li>",
+      "  <li>Download Docker File</li>",
       "</ul>"
     ],
     "whatsNextTitle": "What's next:",
     "whatsNextContent": [
       "<ul>",
-      "  <li>Download XML or java code configuration.</li>",
-      "  <li>Start Ignite cluster with downloaded configuration.</li>",
+      "  <li>Deploy Ignite Servers</li>",
+      "  <li>Connect Ignite Clients</li>",
+      "  <li>Analyze with SQL</li>",
       "</ul>"
     ]
   },

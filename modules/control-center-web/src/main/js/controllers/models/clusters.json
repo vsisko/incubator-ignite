@@ -3,16 +3,15 @@
     "workflowTitle": "What's now:",
     "workflowContent": [
       "<ul>",
-      "  <li>Configure clusters.</li>",
-      "  <li>Associate clusters with caches.</li>",
-      "</ul><br/>"
+      "  <li>Configure Clusters</li>",
+      "  <li>Link Clusters to Caches</li>",
+      "</ul>"
     ],
     "whatsNextTitle": "What's next:",
     "whatsNextContent": [
       "<ul>",
-      "  <li>Configure cache type metadata.</li>",
-      "  <li>Configure caches.</li>",
-      "  <li>Generate XML and java code on Summary view.</li>",
+      "  <li>Continue to <a href='/configuration/caches'>Caches</a></li>",
+      "  <li>Continue to <a href='/configuration/summary'>Summary</a></li>",
       "</ul>"
     ]
   },

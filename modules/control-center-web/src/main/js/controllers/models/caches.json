@@ -3,16 +3,17 @@
     "workflowTitle": "What's now:",
     "workflowContent": [
       "<ul>",
-      "  <li>Configure caches.</li>",
-      "  <li>Associate metadata with cache queries and/or cache store.</li>",
-      "</ul><br/>"
+      "  <li>Configure Caches</li>",
+      "  <li>Link Metadata to Caches</li>",
+      "  <li>Link Caches to Clusters</li>",
+      "</ul>"
     ],
     "whatsNextTitle": "What's next:",
     "whatsNextContent": [
       "<ul>",
-      "  <li>Configure clusters.</li>",
-      "  <li>Configure cache type metadata.</li>",
-      "  <li>Generate XML and java code on Summary view.</li>",
+      "  <li>Continue to <a href='/configuration/summary'>Summary</a></li>",
+      "  <li>Back to <a href='/configuration/metadata'>Metadata</a></li>",
+      "  <li>Back to <a href='/configuration/clusters'>Clusters</a></li>",
       "</ul>"
     ]
   },
@@ -297,20 +298,11 @@
       ]
     },
     {
-      "label": "Query",
+      "label": "Queries & Indexing",
       "tip": [
         "Cache query settings."
       ],
       "fields": [
-        {
-          "label": "Escape table and filed names",
-          "type": "check",
-          "model": "sqlEscapeAll",
-          "tip": [
-            "If set then all the SQL table and field names will be escaped with double quotes.",
-            "This enforces case sensitivity for field names and also allows having special characters in table and field names."
-          ]
-        },
         {
           "label": "On-heap cache for off-heap indexes",
           "type": "number",
@@ -369,6 +361,15 @@
           ],
           "tip": [
             "Class with user-defined functions for SQL queries."
+          ]
+        },
+        {
+          "label": "Escape table and filed names",
+          "type": "check",
+          "model": "sqlEscapeAll",
+          "tip": [
+            "If set then all the SQL table and field names will be escaped with double quotes.",
+            "This enforces case sensitivity for field names and also allows having special characters in table and field names."
           ]
         }
       ]
