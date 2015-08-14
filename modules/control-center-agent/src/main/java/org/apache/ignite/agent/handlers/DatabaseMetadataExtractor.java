@@ -42,7 +42,7 @@ public class DatabaseMetadataExtractor {
             File agentHome = AgentUtils.getAgentHome();
 
             if (agentHome != null)
-                driversFolder = agentHome + "/drivers";
+                driversFolder = agentHome + "/jdbc-drivers";
         }
 
         this.driversFolder = driversFolder;

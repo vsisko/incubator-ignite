@@ -28,7 +28,7 @@ import java.util.*;
  */
 public class AgentConfiguration {
     /** */
-    @Parameter(names = {"-l", "--login"}, description = "User's login (email) on web-control-center")
+    @Parameter(names = {"-l", "--login"}, description = "User's login (email) on Ignite Web Control Center")
     private String login;
 
     /** */
@@ -36,12 +36,13 @@ public class AgentConfiguration {
     private String pwd;
 
     /** */
-    @Parameter(names = {"-s", "--serverUri"}, description = "Link to web-control-center web-socket server, " +
-        "for example: wss://localhost:3001 or wss://control-center.gridgain.com")
+    @Parameter(names = {"-s", "--serverUri"}, description = "URI for connect to Ignite Web Control Center via " +
+        "web-socket protocol, for example: wss://control-center.my-company.com")
     private String srvUri = "wss://localhost:3001";
 
     /** */
-    @Parameter(names = {"-n", "--nodeUri"}, description = "ignite REST server, for example: http://localhost:8080")
+    @Parameter(names = {"-n", "--nodeUri"}, description = "URI for connect to Ignite REST server, " +
+        "for example: http://localhost:8080")
     private String nodeUri = "http://localhost:8080";
 
     /** */
@@ -49,8 +50,8 @@ public class AgentConfiguration {
     private String cfgPath;
 
     /** */
-    @Parameter(names = {"-drv", "--driver-folder"}, description = "Path to folder with JDBC drivers, for example " +
-        "/home/user/drivers")
+    @Parameter(names = {"-drv", "--driverFolder"}, description = "Path to folder with JDBC drivers, for example " +
+        "/home/user/jdbc-drivers")
     private String driversFolder;
 
     /** */
@@ -170,6 +171,11 @@ public class AgentConfiguration {
 
         if (val != null)
             setNodeUri(val);
+
+        val = (String)props.remove("driverFolder");
+
+        if (val != null)
+            setDriversFolder(val);
     }
 
     /**

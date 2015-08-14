@@ -83,7 +83,7 @@ public class AgentLauncher {
         try {
             SslContextFactory sslCtxFactory = new SslContextFactory();
 
-            if (Boolean.TRUE.equals(Boolean.getBoolean("trust.all")))
+            // TODO IGNITE-843 Fix issue with trust all: if (Boolean.TRUE.equals(Boolean.getBoolean("trust.all")))
                 sslCtxFactory.setTrustAll(true);
 
             WebSocketClient client = new WebSocketClient(sslCtxFactory);
