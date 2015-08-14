@@ -3,15 +3,16 @@
     "workflowTitle": "What's now:",
     "workflowContent": [
       "<ul>",
-      "  <li>Manually configure metadata for queries and persistence.</li>",
-      "  <li>Automatically configure metadata from database schema.</li>",
-      "</ul>"
+      "  <li>Manually enter Metadata</li>",
+      "  <li>Load Metadata from Database</li>",
+      "</ul><br/>"
     ],
     "whatsNextTitle": "What's next:",
     "whatsNextContent": [
       "<ul>",
-      "  <li>Associate caches with metadata.</li>",
-      "  <li>Generate XML and java code on Summary view.</li>",
+      "  <li>Continue to <a href='/configuration/caches'>Caches</a></li>",
+      "  <li>Continue to <a href='/configuration/summary'>Summary</a></li>",
+      "  <li>Back to <a href='/configuration/clusters'>Clusters</a></li>",
       "</ul>"
     ]
   },

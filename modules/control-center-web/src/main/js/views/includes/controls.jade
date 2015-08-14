@@ -414,3 +414,45 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                                     +btn-save('tableGroupSaveVisible(field, -1)', 'tableGroupSave(field, -1)')
                                     .input-tip
                                         input#newGroupName.form-control(type='text' ng-model='field.newGroupName' placeholder='Group name' on-enter='tableGroupSaveVisible(field, -1) && tableGroupSave(field, -1)' on-escape='tableReset()')
+
+mixin main-table(title, rows, focusId, click, rowTemplate)
+    .padding-dflt(ng-show='#{rows} && #{rows}.length > 0')
+        lable.labelHeader #{title}
+        table.links(st-table=rows)
+            tbody
+                tr(ng-repeat='row in #{rows} track by row._id')
+                    td(ng-class='{active: row._id == selectedItem._id}')
+                        a(on-click-focus=focusId ng-click=click) #{rowTemplate}
+
+mixin group(title, fields, dataSource)
+    .panel.panel-default
+        .panel-heading
+            h3
+                a(bs-collapse-toggle) #{title}
+        .panel-collapse(bs-collapse-target)
+            .panel-body
+                .settings-row(ng-repeat='field in #{fields}')
+                    +form-row(dataSource)
+
+mixin groups(groups, dataSource)
+    .panel.panel-default(ng-repeat='group in #{groups}')
+        .panel-heading
+            h3
+                a(bs-collapse-toggle) {{::group.label}}
+                i.tipLabel.fa.fa-question-circle(ng-if='group.tip' bs-tooltip='joinTip(group.tip)' type='button')
+                i.tipLabel.fa.fa-question-circle.blank(ng-if='!group.tip')
+        .panel-collapse(role='tabpanel' bs-collapse-target)
+            .panel-body
+                .settings-row(ng-repeat='field in group.fields')
+                    +form-row(dataSource)
+
+mixin advanced-options-top
+    .advanced-options
+        i.fa.fa-chevron-circle-up(ng-show='ui.expanded' ng-click='toggleExpanded()')
+        i.fa.fa-chevron-circle-down(ng-show='!ui.expanded' ng-click='toggleExpanded()')
+        a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
+
+mixin advanced-options-bottom
+    .advanced-options
+        i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
+        a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}

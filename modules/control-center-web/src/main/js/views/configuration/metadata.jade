@@ -27,29 +27,15 @@ block content
         hr
     .docs-body(ng-controller='metadataController')
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
-        div(ng-hide='metadatas.length == 0')
-            .padding-dflt
-                lable.labelHeader Types metadata:
-                table.links(st-table='metadatas')
-                    tbody
-                        tr(ng-repeat='row in metadatas track by row._id')
-                            td(ng-class='{active: row._id == selectedItem._id}')
-                                a(on-click-focus='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
+        +main-table('Types metadata:', 'metadatas', 'defaultFocusId', 'selectItem(row)', '{{$index + 1}}) {{row.name}}')
         .padding-top-dflt
             button.btn.btn-primary(ng-click='createItem()' on-click-focus='defaultFocusId') Add metadata
             button.btn.btn-primary(ng-click='showLoadMetadataModal()') Load from database
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
-            .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true' ng-click='triggerDigest = true')
-                .panel.panel-default(ng-repeat='group in metadata')
-                    .panel-heading
-                        h3
-                            a(bs-collapse-toggle) {{::group.label}}
-                    .panel-collapse(role='tabpanel' bs-collapse-target)
-                        .panel-body
-                            .settings-row(ng-repeat='field in group.fields')
-                                +form-row('backupItem')
-        .section
-            button.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
-            button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Copy
-            button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
+            .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true')
+                +groups('metadata', 'backupItem')
+            .section
+                button.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
+                button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Copy
+                button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove

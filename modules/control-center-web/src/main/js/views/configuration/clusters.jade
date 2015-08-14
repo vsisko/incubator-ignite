@@ -27,14 +27,7 @@ block content
         hr
     .docs-body(ng-controller='clustersController')
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
-        div(ng-hide='clusters.length == 0')
-            .padding-dflt
-                lable.labelHeader Clusters:
-                table.links(st-table='clusters')
-                    tbody
-                        tr(ng-repeat='row in clusters track by row._id')
-                            td(ng-class='{active: row._id == selectedItem._id}')
-                                a(on-click-focus='clusterName' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:'Discovery not set'}}
+        +main-table('Clusters:', 'clusters', 'clusterName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:"Discovery not set"}}')
         .padding-top-dflt
             button.btn.btn-primary(on-click-focus='clusterName' ng-click='createItem()') Add cluster
             label(style='margin-left: 10px; margin-right: 10px') Use template:
@@ -43,30 +36,11 @@ block content
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true' ng-click='triggerDigest = true')
-                .panel.panel-default
-                    .panel-heading
-                        h3
-                            a(bs-collapse-toggle) General
-                    .panel-collapse(bs-collapse-target)
-                        .panel-body
-                            .settings-row(ng-repeat='field in general')
-                                +form-row('backupItem')
+                +group('General', 'general', 'backupItem')
                 div(ng-show='ui.expanded')
-                    .advanced-options
-                        i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
-                        a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
-                    .panel.panel-default(ng-repeat='group in advanced')
-                        .panel-heading
-                            h3
-                                a(bs-collapse-toggle) {{::group.label}}
-                        .panel-collapse(bs-collapse-target)
-                            .panel-body
-                                .settings-row(ng-repeat='field in group.fields')
-                                    +form-row('backupItem')
-            .advanced-options
-                i.fa.fa-chevron-circle-up(ng-show='ui.expanded' ng-click='toggleExpanded()')
-                i.fa.fa-chevron-circle-down(ng-show='!ui.expanded' ng-click='toggleExpanded()')
-                a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
+                    +advanced-options-bottom
+                    +groups('advanced', 'backupItem')
+            +advanced-options-top
             .section
                 button.btn.btn-primary(ng-click='saveItem()') Save
                 button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Copy
