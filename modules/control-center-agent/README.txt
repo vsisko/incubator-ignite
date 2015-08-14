@@ -1,9 +1,9 @@
 Ignite Control Center Agent
 ======================================
-Ignite Control Center Agent is a java standalone application that allow to connect grid to Ignite Web Control Center.
-Control Center Agent communicates with grid nodes via REST interface and connects to Web Control Center via web-socket.
+Ignite Control Center Agent is a java standalone application that allow to connect Ignite Grid to Ignite Web Control Center.
+Ignite Control Center Agent communicates with grid nodes via REST interface and connects to Ignite Web Control Center via web-socket.
 
-Two main functions of Control Center Agent:
+Two main functions of Ignite Control Center Agent:
  1. Proxy between Ignite Web Control Center and Ignite Grid to execute SQL statements and collect metrics for monitoring.
     You may need to specify URI for connect to Ignite REST server via "-n" option.
 
@@ -39,7 +39,7 @@ Options:
        Default: "./jdbc-drivers".
 
     -l, --login
-       User's login (email) on Web Control Center.
+       User's login (email) on Ignite Web Control Center.
 
     -n, --nodeUri
        URI for connect to Ignite REST server, for example: "http://localhost:8080".
