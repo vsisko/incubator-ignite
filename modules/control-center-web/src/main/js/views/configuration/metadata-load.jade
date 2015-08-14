@@ -23,13 +23,12 @@ include ../includes/controls
                 button.close(type='button' ng-click='$hide()' aria-hidden='true') &times;
                 h4.modal-title Load metadata from database
             .metadata-download(ng-show='loadMeta.action == "download"')
-                |Connection to web agent is not established!<br/><br/>
+                |Connection to Web Agent is not established!<br/><br/>
                 |How to extract metadata from database:
                 ul
-                    li Download web agent.
-                    li Unzip web agent to some folder.
-                    li Create a "driver" subfolder and copy there JDBC driver for your database.
-                    li Start web agent with "agent.sh" (to see agent usage: "agent.sh -h").
+                    li Download Web Agent.
+                    li Unzip Web Agent to some folder.
+                    li Please refer to the README.txt how to configure and start Web Agent.
 
             div(ng-show='loadMeta.action == "connect"')
                 form.form-horizontal(name='loadForm' novalidate)
