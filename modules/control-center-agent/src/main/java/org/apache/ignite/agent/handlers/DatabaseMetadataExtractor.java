@@ -22,6 +22,7 @@ import org.apache.ignite.agent.remote.*;
 import org.apache.ignite.schema.parser.*;
 
 import java.io.*;
+import java.net.*;
 import java.sql.*;
 import java.util.*;
 
@@ -68,11 +69,30 @@ public class DatabaseMetadataExtractor {
     }
 
     /**
+     * Wrapper class for later to be transformed to JSON and send to Web Control Center.
+     */
+    private static class JdbcDriver {
+        /** */
+        private final String jdbcDriverClass;
+        /** */
+        private final String jdbcDriverJar;
+
+        /**
+         * @param jdbcDriverClass Optional JDBC driver class.
+         * @param jdbcDriverJar File name of driver jar file.
+         */
+        public JdbcDriver(String jdbcDriverClass, String jdbcDriverJar) {
+            this.jdbcDriverClass = jdbcDriverClass;
+            this.jdbcDriverJar = jdbcDriverJar;
+        }
+    }
+
+    /**
      * @return Drivers in drivers folder
      * @see AgentConfiguration#driversFolder
      */
     @Remote
-    public List<String> availableDrivers() {
+    public List<JdbcDriver> availableDrivers() {
         if (driversFolder == null)
             return Collections.emptyList();
 
@@ -81,11 +101,22 @@ public class DatabaseMetadataExtractor {
         if (list == null)
             return Collections.emptyList();
 
-        List<String> res = new ArrayList<>();
+        List<JdbcDriver> res = new ArrayList<>();
 
         for (String fileName : list) {
-            if (fileName.endsWith(".jar"))
-                res.add(fileName);
+            if (fileName.endsWith(".jar")) {
+                try {
+                    String spec = "jar:file:/" + driversFolder + '/' + fileName + "!/META-INF/services/java.sql.Driver";
+
+                    URL url = new URL(spec.replace('\\', '/'));
+
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
+                        res.add(new JdbcDriver(reader.readLine(), fileName));
+                    }
+                } catch (IOException ignored) {
+                    res.add(new JdbcDriver(null, fileName));
+                }
+            }
         }
 
         return res;
