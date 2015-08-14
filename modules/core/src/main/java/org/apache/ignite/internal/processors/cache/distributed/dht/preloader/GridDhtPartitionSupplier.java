@@ -170,8 +170,8 @@ class GridDhtPartitionSupplier {
         if (!cctx.affinity().affinityTopologyVersion().equals(d.topologyVersion()))
             return;
 
-        GridDhtPartitionSupplyMessage s = new GridDhtPartitionSupplyMessage(d.workerId(),
-            d.updateSequence(), cctx.cacheId());
+        GridDhtPartitionSupplyMessageV2 s = new GridDhtPartitionSupplyMessageV2(d.workerId(),
+            d.updateSequence(), cctx.cacheId(), d.topologyVersion());
 
         long preloadThrottle = cctx.config().getRebalanceThrottle();
 
@@ -180,11 +180,12 @@ class GridDhtPartitionSupplier {
         T2<UUID, Object> scId = new T2<>(id, d.topic());
 
         try {
-            SupplyContext sctx = scMap.remove(scId);
-
             if (!d.partitions().isEmpty()) {//Only initial request contains partitions.
                 doneMap.remove(scId);
+                scMap.remove(scId);
             }
+
+            SupplyContext sctx = scMap.remove(scId);
 
             if (doneMap.get(scId) != null)
                 return;
@@ -195,7 +196,7 @@ class GridDhtPartitionSupplier {
 
             boolean newReq = true;
 
-            long maxBatchesCnt = 3;//Todo: param
+            long maxBatchesCnt = cctx.config().getRebalanceBatchesCount();
 
             if (sctx != null) {
                 phase = sctx.phase;
@@ -273,8 +274,8 @@ class GridDhtPartitionSupplier {
                                     return;
                                 }
                                 else {
-                                    s = new GridDhtPartitionSupplyMessage(d.workerId(), d.updateSequence(),
-                                        cctx.cacheId());
+                                    s = new GridDhtPartitionSupplyMessageV2(d.workerId(), d.updateSequence(),
+                                        cctx.cacheId(), d.topologyVersion());
                                 }
                             }
 
@@ -340,8 +341,8 @@ class GridDhtPartitionSupplier {
                                             return;
                                         }
                                         else {
-                                            s = new GridDhtPartitionSupplyMessage(d.workerId(), d.updateSequence(),
-                                                cctx.cacheId());
+                                            s = new GridDhtPartitionSupplyMessageV2(d.workerId(), d.updateSequence(),
+                                                cctx.cacheId(), d.topologyVersion());
                                         }
                                     }
 
@@ -443,8 +444,8 @@ class GridDhtPartitionSupplier {
                                     return;
                                 }
                                 else {
-                                    s = new GridDhtPartitionSupplyMessage(d.workerId(), d.updateSequence(),
-                                        cctx.cacheId());
+                                    s = new GridDhtPartitionSupplyMessageV2(d.workerId(), d.updateSequence(),
+                                        cctx.cacheId(), d.topologyVersion());
                                 }
                             }
 
@@ -491,7 +492,7 @@ class GridDhtPartitionSupplier {
      * @return {@code True} if message was sent, {@code false} if recipient left grid.
      * @throws IgniteCheckedException If failed.
      */
-    private boolean reply(ClusterNode n, GridDhtPartitionDemandMessage d, GridDhtPartitionSupplyMessage s)
+    private boolean reply(ClusterNode n, GridDhtPartitionDemandMessage d, GridDhtPartitionSupplyMessageV2 s)
         throws IgniteCheckedException {
 
         try {

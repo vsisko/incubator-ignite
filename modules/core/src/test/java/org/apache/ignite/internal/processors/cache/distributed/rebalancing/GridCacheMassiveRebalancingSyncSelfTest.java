@@ -15,12 +15,14 @@
  *  limitations under the License.
  */
 
-package org.apache.ignite.internal.processors.cache;
+package org.apache.ignite.internal.processors.cache.distributed.rebalancing;
 
 import org.apache.ignite.*;
 import org.apache.ignite.cache.*;
 import org.apache.ignite.configuration.*;
 import org.apache.ignite.internal.*;
+import org.apache.ignite.internal.processors.cache.*;
+import org.apache.ignite.internal.processors.cache.distributed.dht.preloader.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.spi.discovery.tcp.*;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.*;
@@ -32,7 +34,7 @@ import java.util.concurrent.atomic.*;
 /**
  *
  */
-public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest {
+public class GridCacheMassiveRebalancingSyncSelfTest extends GridCommonAbstractTest {
     /** */
     private static TcpDiscoveryIpFinder ipFinder = new TcpDiscoveryVmIpFinder(true);
 
@@ -61,6 +63,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
         cacheCfg.setName(CACHE_NAME_DHT);
         cacheCfg.setCacheMode(CacheMode.PARTITIONED);
         //cacheCfg.setRebalanceBatchSize(1024);
+        //cacheCfg.setRebalanceBatchesCount(1);
         cacheCfg.setRebalanceMode(CacheRebalanceMode.SYNC);
         cacheCfg.setRebalanceThreadPoolSize(4);
         //cacheCfg.setRebalanceTimeout(1000000);
@@ -73,7 +76,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
     /**
      * @param ignite Ignite.
      */
-    private void generateData(Ignite ignite) {
+    protected void generateData(Ignite ignite) {
         try (IgniteDataStreamer<Integer, Integer> stmr = ignite.dataStreamer(CACHE_NAME_DHT)) {
             for (int i = 0; i < TEST_SIZE; i++) {
                 if (i % 1_000_000 == 0)
@@ -88,7 +91,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
      * @param ignite Ignite.
      * @throws IgniteCheckedException
      */
-    private void checkData(Ignite ignite) throws IgniteCheckedException {
+    protected void checkData(Ignite ignite) throws IgniteCheckedException {
         for (int i = 0; i < TEST_SIZE; i++) {
             if (i % 1_000_000 == 0)
                 log.info("Checked " + i / 1_000_000 + "m entries.");
@@ -100,7 +103,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
     /**
      * @throws Exception
      */
-    public void testMassiveRebalancing() throws Exception {
+    public void testSimpleRebalancing() throws Exception {
         Ignite ignite = startGrid(0);
 
         generateData(ignite);
@@ -111,12 +114,51 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
 
         startGrid(1);
 
-        startGrid(2);
+        IgniteInternalFuture f1 = ((GridCacheAdapter)grid(1).context().cache().internalCache(CACHE_NAME_DHT)).preloader().syncFuture();
+
+        f1.get();
 
         long spend = (System.currentTimeMillis() - start) / 1000;
 
-        IgniteInternalFuture f1 = ((GridCacheAdapter)grid(1).context().cache().internalCache(CACHE_NAME_DHT)).preloader().syncFuture();
+        stopGrid(0);
+
+        checkData(grid(1));
+
+        log.info("Spend " + spend + " seconds to preload entries.");
+
+        stopAllGrids();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testComplexRebalancing() throws Exception {
+        Ignite ignite = startGrid(0);
+
+        generateData(ignite);
+
+        log.info("Preloading started.");
+
+        long start = System.currentTimeMillis();
+
+        startGrid(1);
+        startGrid(2);
+
         IgniteInternalFuture f2 = ((GridCacheAdapter)grid(2).context().cache().internalCache(CACHE_NAME_DHT)).preloader().syncFuture();
+        f2.get();
+
+        IgniteInternalFuture f1 = ((GridCacheAdapter)grid(1).context().cache().internalCache(CACHE_NAME_DHT)).preloader().syncFuture();
+        while (!((GridDhtPartitionDemander.SyncFuture)f1).topologyVersion().equals(((GridDhtPartitionDemander.SyncFuture)f2).topologyVersion())) {
+            U.sleep(100);
+
+            f1 = ((GridCacheAdapter)grid(1).context().cache().internalCache(CACHE_NAME_DHT)).preloader().syncFuture();
+        }
+        f1.get();
+
+        long spend = (System.currentTimeMillis() - start) / 1000;
+
+        f1 = ((GridCacheAdapter)grid(1).context().cache().internalCache(CACHE_NAME_DHT)).preloader().syncFuture();
+        f2 = ((GridCacheAdapter)grid(2).context().cache().internalCache(CACHE_NAME_DHT)).preloader().syncFuture();
 
         stopGrid(0);
 
@@ -147,7 +189,7 @@ public class GridCacheMassiveRebalancingSelfTest extends GridCommonAbstractTest 
     /**
      * @throws Exception
      */
-    public void testOpPerSecRebalancingTest() throws Exception {
+    public void _testOpPerSecRebalancingTest() throws Exception {
         startGrid(0);
 
         final AtomicBoolean cancelled = new AtomicBoolean(false);
