@@ -187,8 +187,16 @@ controlCenterModule.controller('metadataController', [
                         else
                             $common.showError('JDBC drivers not found!');
                     })
-                    .error(function (errMsg) {
-                        $common.showError(errMsg);
+                    .error(function (errMsg, status) {
+                        if (status == 503)
+                            loadMetaModal.$promise.then(function () {
+                                $scope.loadMeta.action = 'download';
+                                $scope.loadMeta.tables = [];
+
+                                loadMetaModal.show();
+                            });
+                        else
+                            $common.showError(errMsg);
                     });
             };
 
@@ -203,6 +211,21 @@ controlCenterModule.controller('metadataController', [
                     .error(function (errMsg) {
                         $common.showError(errMsg);
                     });
+            };
+
+            $scope.downloadAgent = function () {
+                loadMetaModal.hide();
+
+                var lnk = document.createElement('a');
+
+                lnk.setAttribute('href', '/agent/agent.zip');
+                lnk.style.display = 'none';
+
+                document.body.appendChild(lnk);
+
+                lnk.click();
+
+                document.body.removeChild(lnk);
             };
 
             $scope.saveSelectedMetadata = function (preset) {

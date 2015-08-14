@@ -749,7 +749,7 @@ public class CacheConfiguration<K, V> extends MutableConfiguration<K, V> {
      *     <li>{@link IgniteCache#getAndRemove(Object)}</li>
      *     <li>{@link IgniteCache#getAndReplace(Object, Object)}</li>
      *     <li>{@link IgniteCache#getAndPutIfAbsent(Object, Object)}</li>
-     *</ul>
+     * </ul>
      *
      * @return Load previous value flag.
      */
@@ -769,7 +769,7 @@ public class CacheConfiguration<K, V> extends MutableConfiguration<K, V> {
      *     <li>{@link IgniteCache#getAndRemove(Object)}</li>
      *     <li>{@link IgniteCache#getAndReplace(Object, Object)}</li>
      *     <li>{@link IgniteCache#getAndPutIfAbsent(Object, Object)}</li>
-     *</ul>
+     * </ul>
      * When not set, default value is {@link #DFLT_LOAD_PREV_VAL}.
      *
      * @param loadPrevVal Load previous value flag.

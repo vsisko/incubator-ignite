@@ -25,7 +25,7 @@ function _client(req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
     if (!client) {
-        res.status(500).send("Client not found");
+        res.status(503).send("Client not found");
 
         return null;
     }
