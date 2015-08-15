@@ -192,19 +192,10 @@
   ],
   "metadataDb": [
     {
-      "label": "Database preset",
-      "type": "select",
-      "model": "db",
-      "items": "databases",
-      "tip": [
-        "Select database type to connect for loading tables metadata."
-      ]
-    },
-    {
       "label": "Driver JAR",
       "type": "select",
-      "model": "drvJar",
-      "items": "drivers",
+      "model": "jdbcDriverJar",
+      "items": "jdbcDriverJars",
       "tip": [
         "Select appropriate JAR with JDBC driver."
       ]
@@ -212,7 +203,7 @@
     {
       "label": "JDBC Driver",
       "type": "text",
-      "model": "drvClass",
+      "model": "jdbcDriverClass",
       "placeholder": "Full class name of JDBC driver",
       "tip": [
         "Full class name of JDBC driver that will be used to connect to database."
@@ -221,7 +212,8 @@
     {
       "label": "JDBC URL",
       "type": "text",
-      "model": "drvUrl",
+      "model": "jdbcUrl",
+      "id": "jdbcUrl",
       "placeholder": "JDBC URL",
       "tip": [
         "JDBC URL for connecting to database.",

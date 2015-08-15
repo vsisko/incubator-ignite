@@ -109,7 +109,9 @@ router.post('/metadata', function (req, res) {
     var client = _client(req, res);
 
     if (client) {
-        client.extractMetadata('h2-1.4.188.jar', 'org.h2.Driver', 'jdbc:h2:tcp://localhost/c:/temp/agent', {user: 'sa'}, true, function (err, meta) {
+        var params = req.body;
+
+        client.extractMetadata(params.jdbcDriverJar, params.jdbcDriverClass, params.jdbcUrl, {user: params.user}, true, function (err, meta) {
             if (err)
                 return res.status(500).send(err);
 
