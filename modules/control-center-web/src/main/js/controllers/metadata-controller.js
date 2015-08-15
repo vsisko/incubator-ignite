@@ -41,62 +41,88 @@ controlCenterModule.controller('metadataController', [
 
             $scope.compactJavaName = $common.compactJavaName;
 
-            $scope.databases = [
-                {value: 'oracle', label: 'Oracle database'},
-                {value: 'db2', label: 'IBM DB2'},
-                {value: 'mssql', label: 'MS SQL Server'},
-                {value: 'postgre', label: 'PostgreSQL'},
-                {value: 'mysql', label: 'MySQL'},
-                {value: 'h2', label: 'H2 database'}
-            ];
-
-            var presets = {
-                oracle: {
+            var presets = [
+                {
                     db: 'oracle',
-                    drvClass: 'oracle.jdbc.OracleDriver',
-                    drvUrl: 'jdbc:oracle:thin:@[host]:[port]:[database]',
+                    jdbcDriverClass: 'oracle.jdbc.OracleDriver',
+                    jdbcUrl: 'jdbc:oracle:thin:@[host]:[port]:[database]',
                     user: 'system'
                 },
-                db2: {
+                {
                     db: 'db2',
-                    drvClass: 'com.ibm.db2.jcc.DB2Driver',
-                    drvUrl: 'jdbc:db2://[host]:[port]/[database]',
+                    jdbcDriverClass: 'com.ibm.db2.jcc.DB2Driver',
+                    jdbcUrl: 'jdbc:db2://[host]:[port]/[database]',
                     user: 'db2admin'
                 },
-                mssql: {
+                {
                     db: 'mssql',
-                    drvClass: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
-                    drvUrl: 'jdbc:sqlserver://[host]:[port][;databaseName=database]',
+                    jdbcDriverClass: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+                    jdbcUrl: 'jdbc:sqlserver://[host]:[port][;databaseName=database]',
                     user: 'sa'
                 },
-                postgre: {
+                {
                     db: 'postgre',
-                    drvClass: 'org.postgresql.Driver', drvUrl: 'jdbc:postgresql://[host]:[port]/[database]',
+                    jdbcDriverClass: 'org.postgresql.Driver',
+                    jdbcUrl: 'jdbc:postgresql://[host]:[port]/[database]',
                     user: 'sa'
                 },
-                mysql: {
+                {
                     db: 'mysql',
-                    drvClass: 'com.mysql.jdbc.Driver',
-                    drvUrl: 'jdbc:mysql://[host]:[port]/[database]', user: 'root'
+                    jdbcDriverClass: 'com.mysql.jdbc.Driver',
+                    jdbcUrl: 'jdbc:mysql://[host]:[port]/[database]',
+                    user: 'root'
                 },
-                h2: {
-                    db: 'h2,',
-                    drvClass: 'org.h2.Driver',
-                    drvUrl: 'jdbc:h2:[database]',
+                {
+                    db: 'h2',
+                    jdbcDriverClass: 'org.h2.Driver',
+                    jdbcUrl: 'jdbc:h2:tcp://[host]/[database]',
                     user: 'sa'
                 }
+            ];
+
+            $scope.preset = {
+                db: 'unknown',
+                jdbcDriverClass: '',
+                jdbcDriverJar: '',
+                jdbcUrl: 'jdbc:[database]',
+                user: 'sa'
             };
 
-            $scope.preset = presets['oracle'];
+            var jdbcDrivers = [];
 
-            $scope.$watch('preset.db', function (newDb) {
-                if (newDb) {
-                    var newPreset = presets[newDb];
-                    var curPreset = $scope.preset;
+            function _findPreset(jdbcDriverJar) {
+                var idx = _.findIndex(jdbcDrivers, function (jdbcDriver) {
+                   return  jdbcDriver.jdbcDriverJar == jdbcDriverJar;
+                });
 
-                    curPreset.drvClass = newPreset.drvClass;
-                    curPreset.drvUrl = newPreset.drvUrl;
-                    curPreset.user = newPreset.user;
+                if (idx >= 0) {
+                    var jdbcDriverClass = jdbcDrivers[idx].jdbcDriverClass;
+
+                    idx = _.findIndex(presets, function (preset) {
+                        return preset.jdbcDriverClass == jdbcDriverClass;
+                    });
+
+                    if (idx >= 0)
+                        return presets[idx];
+                }
+
+                return {
+                    db: 'unknown',
+                    jdbcDriverClass: '',
+                    jdbcDriverJar: '',
+                    jdbcUrl: 'jdbc:[database]',
+                    user: 'sa'
+                }
+            }
+
+            $scope.$watch('preset.jdbcDriverJar', function (jdbcDriverJar) {
+                if (jdbcDriverJar) {
+                    var newPreset = _findPreset(jdbcDriverJar);
+
+                    $scope.preset.db = newPreset.db;
+                    $scope.preset.jdbcDriverClass = newPreset.jdbcDriverClass;
+                    $scope.preset.jdbcUrl = newPreset.jdbcUrl;
+                    $scope.preset.user = newPreset.user;
                 }
             }, true);
 
@@ -160,7 +186,6 @@ controlCenterModule.controller('metadataController', [
                 $scope.loadMeta.allSelected = _.every($scope.loadMeta.tables, 'use', true);
             };
 
-
             // Pre-fetch modal dialogs.
             var loadMetaModal = $modal({scope: $scope, templateUrl: 'metadata/metadata-load', show: false});
 
@@ -169,11 +194,13 @@ controlCenterModule.controller('metadataController', [
                 $http.post('/agent/drivers')
                     .success(function (drivers) {
                         if (drivers && drivers.length > 0) {
-                            $scope.drivers = _.map(drivers, function (driver) {
-                                return {value: driver, label: driver};
+                            $scope.jdbcDriverJars = _.map(drivers, function (driver) {
+                                return {value: driver.jdbcDriverJar, label: driver.jdbcDriverJar};
                             });
 
-                            $scope.preset.drvJar = drivers[0];
+                            jdbcDrivers = drivers;
+
+                            $scope.preset.jdbcDriverJar = drivers[0].jdbcDriverJar;
 
                             loadMetaModal.$promise.then(function () {
                                 $scope.loadMeta.action = 'connect';
@@ -181,7 +208,7 @@ controlCenterModule.controller('metadataController', [
 
                                 loadMetaModal.show();
 
-                                $focus('db');
+                                $focus('jdbcUrl');
                             });
                         }
                         else
@@ -201,7 +228,7 @@ controlCenterModule.controller('metadataController', [
             };
 
             $scope.loadMetadataFromDb = function () {
-                $http.post('/agent/metadata')
+                $http.post('/agent/metadata', $scope.preset)
                     .success(function (tables) {
                         $scope.loadMeta.tables = _.map(tables, function (tbl) {
                             return {schemaName: tbl.schema, tableName: tbl.tbl};
@@ -231,7 +258,7 @@ controlCenterModule.controller('metadataController', [
             $scope.saveSelectedMetadata = function (preset) {
                 loadMetaModal.hide();
 
-                $common.showError("Saving selected metadatanot ready yet!");
+                $common.showError("Saving selected metadata not ready yet!");
             };
 
             // When landing on the page, get metadatas and show them.
