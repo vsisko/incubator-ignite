@@ -25,11 +25,15 @@ import java.io.*;
 import java.net.*;
 import java.sql.*;
 import java.util.*;
+import java.util.logging.*;
 
 /**
  * Remote API to extract database metadata.
  */
 public class DatabaseMetadataExtractor {
+    /** */
+    private static final Logger log = Logger.getLogger(DatabaseMetadataExtractor.class.getName());
+
     /** */
     private final String driversFolder;
 
@@ -60,12 +64,18 @@ public class DatabaseMetadataExtractor {
     @Remote
     public Collection<DbTable> extractMetadata(String jdbcDriverJarPath, String jdbcDriverCls, String jdbcUrl,
         Properties jdbcInfo, boolean tblsOnly) throws SQLException {
+        log.log(Level.INFO, "Collecting database metadata...");
+
         if (!new File(jdbcDriverJarPath).isAbsolute() && driversFolder != null)
             jdbcDriverJarPath = new File(driversFolder, jdbcDriverJarPath).getPath();
 
         Connection conn = DbMetadataReader.getInstance().connect(jdbcDriverJarPath, jdbcDriverCls, jdbcUrl, jdbcInfo);
 
-        return DbMetadataReader.getInstance().extractMetadata(conn, tblsOnly);
+        Collection<DbTable> metadata = DbMetadataReader.getInstance().extractMetadata(conn, tblsOnly);
+
+        log.log(Level.INFO, "Collected: " + metadata.size());
+
+        return metadata;
     }
 
     /**
@@ -93,13 +103,21 @@ public class DatabaseMetadataExtractor {
      */
     @Remote
     public List<JdbcDriver> availableDrivers() {
-        if (driversFolder == null)
+        log.log(Level.INFO, "Collecting JDBC drivers in folder: " + driversFolder);
+
+        if (driversFolder == null) {
+            log.log(Level.INFO, "JDBC drivers folder not specified, returning empty list");
+
             return Collections.emptyList();
+        }
 
         String[] list = new File(driversFolder).list();
 
-        if (list == null)
+        if (list == null) {
+            log.log(Level.INFO, "JDBC drivers folder has no files, returning empty list");
+
             return Collections.emptyList();
+        }
 
         List<JdbcDriver> res = new ArrayList<>();
 
@@ -111,10 +129,16 @@ public class DatabaseMetadataExtractor {
                     URL url = new URL(spec.replace('\\', '/'));
 
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
-                        res.add(new JdbcDriver(reader.readLine(), fileName));
+                        String jdbcDriverClass = reader.readLine();
+                        res.add(new JdbcDriver(jdbcDriverClass, fileName));
+
+                        log.log(Level.INFO, "Found: [driver=" + fileName + ", class=" + jdbcDriverClass + "]");
                     }
-                } catch (IOException ignored) {
+                } catch (IOException e) {
                     res.add(new JdbcDriver(null, fileName));
+
+                    log.log(Level.INFO, "Found: [driver=" + fileName + "]");
+                    log.log(Level.INFO, "Failed to detect driver class: " + e.getMessage());
                 }
             }
         }
