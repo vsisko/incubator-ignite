@@ -13,5 +13,10 @@
             "cert": "keys/test.crt",
             "keyPassphrase": "password"
         }
+    },
+    "smtp": {
+        "service": "",
+        "username": "",
+        "password": ""
     }
 }

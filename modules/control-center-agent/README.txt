@@ -11,7 +11,7 @@ Two main functions of Ignite Control Center Agent:
     You may need to copy JDBC driver into "./jdbc-drivers" subfolder or specify path via "-drv" option.
 
 Usage example:
-    agent.sh -l john.smith@gmail.com -p qwerty -s wss://control-center.example.com
+    ignite-control-center-agent.sh -l john.smith@gmail.com -p qwerty -s wss://control-center.example.com
 
 Configuration file:
     Should be a file with simple line-oriented format as described here: http://docs.oracle.com/javase/7/docs/api/java/util/Properties.html#load(java.io.Reader)

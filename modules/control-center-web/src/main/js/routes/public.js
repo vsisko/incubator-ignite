@@ -19,7 +19,9 @@ var router = require('express').Router();
 var passport = require('passport');
 var crypto = require('crypto');
 var nodemailer = require('nodemailer');
+
 var db = require('../db');
+var config = require('../helpers/configuration-loader.js');
 
 // GET dropdown-menu template.
 router.get('/select', function (req, res) {
@@ -109,12 +111,22 @@ router.get('/logout', function (req, res) {
     res.redirect('/');
 });
 
-var _mailUser = '!!! YOUR USERNAME !!!';
-var _mailPass = '!!! YOUR PASSWORD !!!';
-
 /**
- * Request for password reset and send e-mail to user with reset token. */
+ * Request for password reset and send e-mail to user with reset token.
+ */
 router.post('/request_password_reset', function(req, res) {
+    var transporter = {
+        service: config.get('smtp:service'),
+        auth: {
+            user:config.get('smtp:username'),
+            pass: config.get('smtp:password')
+        }
+    };
+
+    if (transporter.service == '' || transporter.auth.user == '' || transporter.auth.pass == '')
+        return res.status(401).send('Can\'t send e-mail with instructions to reset password.<br />' +
+            'Please ask webmaster to setup smtp server!');
+
     var token = crypto.randomBytes(20).toString('hex');
 
     db.Account.findOne({ email: req.body.email }, function(err, user) {
@@ -130,16 +142,10 @@ router.post('/request_password_reset', function(req, res) {
             if (err)
                 return res.status(401).send(err);
 
-            var transporter  = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: _mailUser,
-                    pass: _mailPass
-                }
-            });
+            var mailer  = nodemailer.createTransport(transporter);
 
             var mailOptions = {
-                from: _mailUser,
+                from: transporter.auth.user,
                 to: user.email,
                 subject: 'Password Reset',
                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
@@ -150,7 +156,7 @@ router.post('/request_password_reset', function(req, res) {
                 'Apache Ignite Web Control Center\n'
             };
 
-            transporter.sendMail(mailOptions, function(err){
+            mailer.sendMail(mailOptions, function(err){
                 if (err)
                     return res.status(401).send('Failed to send e-mail with reset link!<br />' + err);
 
