@@ -115,6 +115,7 @@ exports.generateClusterConfiguration = function (cluster, clientNearConfiguratio
                 addProperty(res, d.GoogleStorage, 'projectName');
                 addProperty(res, d.GoogleStorage, 'bucketName');
                 addProperty(res, d.GoogleStorage, 'serviceAccountP12FilePath');
+                addProperty(res, d.GoogleStorage, 'serviceAccountId');
 
                 //if (d.GoogleStorage.addrReqAttempts) todo ????
                 //    res.line('<property name="serviceAccountP12FilePath" value="' + escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
@@ -125,7 +126,7 @@ exports.generateClusterConfiguration = function (cluster, clientNearConfiguratio
 
             case 'Jdbc':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder">');
-                res.line('<property name="initSchema" value="' + (d.Jdbc.initSchema != null || d.Jdbc.initSchema) + '"/>');
+                res.line('<property name="initSchema" value="' + (generatorCommon.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + '"/>');
                 res.endBlock('</bean>');
 
                 break;

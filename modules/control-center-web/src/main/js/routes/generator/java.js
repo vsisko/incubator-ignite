@@ -124,7 +124,8 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientNearC
                     'TcpDiscoveryGoogleStorageIpFinder', {
                         projectName: null,
                         bucketName: null,
-                        serviceAccountP12FilePath: null
+                        serviceAccountP12FilePath: null,
+                        serviceAccountId: null
                     }, true);
 
                 //if (d.GoogleStorage.addrReqAttempts) todo ????
@@ -137,7 +138,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientNearC
 
                 declareVariable(res, true, 'ipFinder', 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
 
-                res.line('ipFinder.setInitSchema(' + (d.Jdbc.initSchema != null || d.Jdbc.initSchema) + ');');
+                res.line('ipFinder.setInitSchema(' + (generatorCommon.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + ');');
                 res.line('discovery.setIpFinder(ipFinder);');
                 res.needEmptyLine = true;
 

@@ -237,6 +237,7 @@ var ClusterSchema = new Schema({
             projectName: String,
             bucketName: String,
             serviceAccountP12FilePath: String,
+            serviceAccountId: String,
             addrReqAttempts: String
         },
         Jdbc: {

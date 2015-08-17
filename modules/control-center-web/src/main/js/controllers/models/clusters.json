@@ -286,7 +286,7 @@
               "type": "text",
               "required": true,
               "path": "discovery.GoogleStorage",
-              "model": "accountId",
+              "model": "serviceAccountId",
               "tip": [
                 "Service account ID (typically an e-mail address)."
               ]
