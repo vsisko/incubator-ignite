@@ -278,7 +278,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$popov
                 if ($common.isEmptyString(item.discovery.GoogleStorage.serviceAccountP12FilePath))
                     return showPopoverMessage(0, 'serviceAccountP12FilePath', 'Private key path should not be empty');
 
-                if ($common.isEmptyString(item.discovery.GoogleStorage.accountId))
+                if ($common.isEmptyString(item.discovery.GoogleStorage.serviceAccountId))
                     return showPopoverMessage(0, 'serviceAccountId', 'Account ID should not be empty');
             }
 
