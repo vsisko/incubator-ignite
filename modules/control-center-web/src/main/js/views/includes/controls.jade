@@ -91,7 +91,8 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder,
             label #{header}:
             +group-tip('field.tip')
             +group-btn-add('tableNewItem(field)', 'field.addTip')
-        .group-content-empty(ng-if='!((#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field))')
+        .group-content(ng-if='!((#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field))')
+            a(ng-click='tableNewItem(field)') Add
         .group-content(ng-show='(#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field)')
             table.col-sm-12.links-edit(id='{{::field.model}}' st-table=tblMdl)
                 tbody
@@ -150,13 +151,14 @@ mixin details-row
                 +tipField('detail.tip')
                 .input-tip
                     button.form-control(bs-select data-multiple='1' data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
-        .section(ng-switch-when='table-simple')&attributes(detailCommon)
+        .group-section(ng-switch-when='table-simple')&attributes(detailCommon)
             .col-sm-12.group(id='{{::detail.model}}')
                 .group-legend
                     label {{::detail.label}}:
                     +group-tip('detail.tableTip')
                     +group-btn-add('tableNewItem(detail)', 'detail.addTip')
-                .group-content-empty(ng-show='!((#{detailMdl} && #{detailMdl}.length > 0) || tableNewItemActive(detail))')
+                .group-content(ng-show='!((#{detailMdl} && #{detailMdl}.length > 0) || tableNewItemActive(detail))')
+                    a(ng-click='tableNewItem(detail)') Add
                 .group-content(ng-show='(#{detailMdl} && #{detailMdl}.length > 0) || tableNewItemActive(detail)')
                     table.col-sm-12.links-edit-details(st-table='#{detailMdl}')
                         tbody
@@ -311,7 +313,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
-            div(class=fieldClasses)
+            div(class=fieldClasses id='{{::field.id}}')
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
@@ -319,13 +321,14 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             .col-sm-7.panel-details(ng-show='(#{expanded} || !field.settings) && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
-        .section(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
+        .group-section(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
             .col-sm-7.group
                 .group-legend
                     label {{::field.label}}:
                     +group-tip('field.tableTip')
                     +group-btn-add('tableNewItem(field)', 'field.addTip')
-                .group-content-empty(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))')
+                .group-content(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))')
+                    a(ng-click='tableNewItem(field)') Add
                 .group-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                     table.col-sm-12.links-edit(id='{{::field.model}}' st-table='#{fieldMdl}')
                         tbody
@@ -347,18 +350,20 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                                     +btn-save('tableSimpleSaveVisible(field, -1)', 'tableSimpleSave(tableSimpleValid, backupItem, field, -1)')
                                     .input-tip
                                         input.form-control(id='new{{::field.focusId}}' type='text' ng-model='field.newValue' placeholder='{{::field.placeholder}}' on-enter='tableSimpleSaveVisible(field, -1) && tableSimpleSave(tableSimpleValid, backupItem, field, -1)' on-escape='tableReset()')
-        .section(ng-switch-when='indexedTypes')
+        .group-section(ng-switch-when='indexedTypes')
             +table-pair('Index key-value type pairs', fieldMdl, 'keyClass', 'valueClass', 'Key class full name', 'Value class full name', true, true)
         div(ng-switch-when='queryFieldsFirst' ng-hide=fieldHide)
             +table-pair('{{::field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name', false, true)
-        .section(ng-switch-when='queryFields' ng-hide=fieldHide)
+        .group-section(ng-switch-when='queryFields' ng-hide=fieldHide)
             +table-pair('{{::field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name', false, true)
-        .section(ng-switch-when='table-db-fields' ng-hide=fieldHide)
+        .group-section(ng-switch-when='table-db-fields' ng-hide=fieldHide)
             .col-sm-7.group
                 .group-legend
                     label {{::field.label}}:
                     +group-tip('field.tip')
                     +group-btn-add('tableNewItem(field)', 'field.addTip')
+                .group-content(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))')
+                    a(ng-click='tableNewItem(field)') Add
                 .group-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                     table.col-sm-12.links-edit(st-table=fieldMdl)
                         tbody
@@ -373,13 +378,14 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                             tr
                                 td.col-sm-12(ng-init='newDatabaseType="INTEGER"; newJavaType="Integer"')
                                     +table-db-field-edit('new', '{{::field.focusId}}', '-1')
-        .section(ng-switch-when='table-query-groups' ng-hide=fieldHide)
+        .group-section(ng-switch-when='table-query-groups' ng-hide=fieldHide)
             .col-sm-7.group
                 .group-legend
                     label {{::field.label}}:
                     +group-tip('field.tip')
                     +group-btn-add('tableNewItem(field)', 'field.addTip')
-                .group-content-empty(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))')
+                .group-content(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))')
+                    a(ng-click='tableNewItem(field)') Add
                 .group-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                     table.links-edit.col-sm-12(st-table=fieldMdl ng-init='newDirection = false')
                         tbody

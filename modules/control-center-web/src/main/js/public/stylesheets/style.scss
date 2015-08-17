@@ -867,6 +867,10 @@ button .caret, .btn .caret {
     padding-right: 5px;
 }
 
+.group-section {
+    margin-top: 25px;
+}
+
 .group {
     border-radius: 5px;
     border: thin dotted lightgrey;
@@ -901,10 +905,6 @@ button .caret, .btn .caret {
 
 .group-content {
     margin: 0 10px 10px 10px;
-}
-
-.group-content-empty {
-    padding-top: 10px;
 }
 
 .tooltip.right .tooltip-arrow {

@@ -68,7 +68,7 @@ controlCenterModule.config(function ($alertProvider) {
 
 // Common functions to be used in controllers.
 controlCenterModule.service('$common', [
-    '$alert', function ($alert) {
+    '$alert', '$popover', '$timeout', '$focus', function ($alert, $popover, $timeout, $focus) {
         function isDefined(v) {
             return !(v === undefined || v === null);
         }
@@ -391,6 +391,24 @@ controlCenterModule.service('$common', [
             return width | 0;
         }
 
+        var popover = null;
+
+        function ensureActivePanel(panels, pnlIdx) {
+            if (panels) {
+                var activePanels = panels.activePanels;
+
+                if (!activePanels || activePanels.length < 1)
+                    panels.activePanels = [pnlIdx];
+                else if (!_.contains(activePanels, pnlIdx)) {
+                    var newActivePanels = activePanels.slice();
+
+                    newActivePanels.push(pnlIdx);
+
+                    panels.activePanels = newActivePanels;
+                }
+            }
+        }
+
         return {
             getModel: function (obj, field) {
                 var path = field.path;
@@ -514,19 +532,35 @@ controlCenterModule.service('$common', [
                 return result;
             },
             ensureActivePanel: function (panels, pnlIdx) {
-                if (panels) {
-                    var activePanels = panels.activePanels;
+                ensureActivePanel(panels, pnlIdx);
+            },
+            showPopoverMessage: function (panels, panelIndex, id, message) {
+                ensureActivePanel(panels, panelIndex);
 
-                    if (!activePanels || activePanels.length < 1)
-                        panels.activePanels = [pnlIdx];
-                    else if (!_.contains(activePanels, pnlIdx)) {
-                        var newActivePanels = activePanels.slice();
+                var el = $('body').find('#' + id);
 
-                        newActivePanels.push(pnlIdx);
+                if (popover)
+                    popover.hide();
 
-                        panels.activePanels = newActivePanels;
-                    }
-                }
+                var newPopover = $popover(el, {content: message});
+
+                $timeout(function () {
+                    $focus(id);
+                }, 50);
+
+                $timeout(function () {
+                    newPopover.show();
+
+                    popover = newPopover;
+                }, 100);
+
+                $timeout(function () { newPopover.hide() }, 3000);
+
+                return false;
+            },
+            hidePopover: function () {
+                if (popover)
+                    popover.hide();
             }
         }
     }]);
@@ -954,9 +988,13 @@ controlCenterModule.factory('$focus', function ($timeout) {
             if (elem.length > 0) {
                 var offset = elem.offset();
 
-                if(offset.top < window.pageYOffset)
+                var elemOffset = offset.top;
+
+                var winOffset = window.pageYOffset;
+
+                if(elemOffset - 20 < winOffset || elemOffset + elem.outerHeight(true) + 20 > winOffset + window.innerHeight)
                     $('html, body').animate({
-                        scrollTop: offset.top - 20
+                        scrollTop: elemOffset - 20
                     }, 10);
 
                 elem[0].focus();
