@@ -5026,7 +5026,14 @@ public abstract class IgniteUtils {
      */
     @Nullable public static String readString(DataInput in) throws IOException {
         // If value is not null, then read it. Otherwise return null.
-        return !in.readBoolean() ? in.readUTF() : null;
+        try {
+            return !in.readBoolean() ? in.readUTF() : null;
+        } catch (IOException ioe) {
+            // TODO: debug, remove later.
+            ioe.printStackTrace();
+
+            throw ioe;
+        }
     }
 
     /**
