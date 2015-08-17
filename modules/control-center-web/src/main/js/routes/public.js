@@ -186,57 +186,6 @@ router.get('/reset/:token', function (req, res) {
     });
 });
 
-/**
- * Reset password with given token.
- */
-router.post('/reset_password', function(req, res) {
-    db.Account.findOne({ resetPasswordToken: req.body.token }, function(err, user) {
-        if (!user)
-            return res.status(500).send('Invalid token for password reset!');
-
-        if (err)
-            return res.status(500).send(err);
-
-        user.setPassword(req.body.password, function (err, updatedUser) {
-            if (err)
-                return res.status(500).send(err.message);
-
-            updatedUser.resetPasswordToken = undefined;
-
-            updatedUser.save(function (err) {
-                if (err)
-                    return res.status(500).send(err.message);
-
-                var transporter  = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: _mailUser,
-                        pass: _mailPass
-                    }
-                });
-
-                var mailOptions = {
-                    from: _mailUser,
-                    to: user.email,
-                    subject: 'Your password has been changed',
-                    text: 'Hello,\n\n' +
-                    'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n\n' +
-                    'Now you can login: http://' + req.headers.host + '\n\n' +
-                    '--------------\n' +
-                    'Apache Ignite Web Control Center\n'
-                };
-
-                transporter.sendMail(mailOptions, function(err){
-                    if (err)
-                        return res.status(503).send('Password was changed, but failed to send confirmation e-mail!<br />' + err);
-
-                    return res.status(200).send(user.email);
-                });
-            });
-        });
-    });
-});
-
 /* GET home page. */
 router.get('/', function (req, res) {
     if (req.isAuthenticated())
