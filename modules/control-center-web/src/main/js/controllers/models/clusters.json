@@ -671,6 +671,7 @@
             "Provides a mechanism in grid for storing data on disk.",
             "Ignite cache uses swap space to overflow data to disk if it cannot fit in memory."
           ],
+          "id": "swapSpaceSpi",
           "details": {
             "FileSwapSpaceSpi": {
               "fields": [

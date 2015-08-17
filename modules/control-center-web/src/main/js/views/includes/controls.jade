@@ -311,7 +311,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
-            div(class=fieldClasses)
+            div(class=fieldClasses id='{{::field.id}}')
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
