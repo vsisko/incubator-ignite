@@ -112,9 +112,9 @@ router.get('/logout', function (req, res) {
 });
 
 /**
- * Request for password reset and send e-mail to user with reset token.
+ * Send e-mail to user with reset token.
  */
-router.post('/request_password_reset', function(req, res) {
+router.post('/forgot_password', function(req, res) {
     var transporter = {
         service: config.get('smtp:service'),
         auth: {
@@ -161,6 +161,59 @@ router.post('/request_password_reset', function(req, res) {
                     return res.status(401).send('Failed to send e-mail with reset link!<br />' + err);
 
                 return res.status(403).send('An e-mail has been sent with further instructions.');
+            });
+        });
+    });
+});
+
+/**
+ * Change password with given token.
+ */
+router.post('/reset_password', function(req, res) {
+    db.Account.findOne({ resetPasswordToken: req.body.token }, function(err, user) {
+        if (!user)
+            return res.status(500).send('Invalid token for password reset!');
+
+        if (err)
+            return res.status(500).send(err);
+
+        user.setPassword(req.body.password, function (err, updatedUser) {
+            if (err)
+                return res.status(500).send(err.message);
+
+            updatedUser.resetPasswordToken = undefined;
+
+            updatedUser.save(function (err) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                var transporter = {
+                    service: config.get('smtp:service'),
+                    auth: {
+                        user: config.get('smtp:username'),
+                        pass: config.get('smtp:password')
+                    }
+                };
+
+                var mailer = nodemailer.createTransport(transporter);
+
+                var mailOptions = {
+                    from: transporter.auth.user,
+                    to: user.email,
+                    subject: 'Your password has been changed',
+                    text: 'Hello,\n\n' +
+                    'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n\n' +
+                    'Now you can login: http://' + req.headers.host + '\n\n' +
+                    '--------------\n' +
+                    'Apache Ignite Web Control Center\n'
+                };
+
+                mailer.sendMail(mailOptions, function (err) {
+                    if (err)
+                        return res.status(503).send('Password was changed, but failed to send confirmation e-mail!<br />' + err);
+
+                    return res.status(200).send(user.email);
+                });
             });
         });
     });

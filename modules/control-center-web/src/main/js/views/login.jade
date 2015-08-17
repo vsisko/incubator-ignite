@@ -28,7 +28,9 @@ mixin lbl(txt)
                 p(style='padding-right: 55px') Log in or register in order to collaborate
             form.form-horizontal(name='loginForm' ng-init='action == "login"')
                 .modal-body.row
-                    .col-sm-9.col-sm-offset-1
+                    .col-sm-10.col-sm-offset-1
+                        p(ng-show='action == "forgot_password"')
+                            | That's ok! Simply enter your email below and a reset password link will be sent to you via email. You can then follow that link and select a new password.
                         .details-row(ng-show='action == "register"')
                             +lbl('Full Name:')
                             .col-sm-9
@@ -36,20 +38,25 @@ mixin lbl(txt)
                         .details-row
                             +lbl('Email:')
                             .col-sm-9
-                                input#user_email.form-control(enter-focus-next='user_password' type='email' ng-model='user_info.email' placeholder='you@domain.com' required on-enter='action == "request_password_reset" && loginForm.$valid && auth(action, user_info)')
-                        .details-row(ng-show='action != "request_password_reset"')
+                                input#user_email.form-control(enter-focus-next='user_password' type='email' ng-model='user_info.email' placeholder='you@domain.com' required on-enter='action == "forgot_password" && loginForm.$valid && auth(action, user_info)')
+                        .details-row(ng-show='action != "forgot_password"')
                             +lbl('Password:')
                             .col-sm-9
-                                input#user_password.form-control(enter-focus-next='user_confirm' type='password' ng-model='user_info.password' placeholder='Password' ng-required='action != "request_password_reset"' on-enter='action == "login" && loginForm.$valid && auth(action, user_info)')
+                                input#user_password.form-control(enter-focus-next='user_confirm' type='password' ng-model='user_info.password' placeholder='Password' ng-required='action != "forgot_password"' on-enter='action == "login" && loginForm.$valid && auth(action, user_info)')
                         .details-row(ng-if='action == "register"')
                             +lbl('Confirm:')
                             .col-sm-9
                                 input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' ng-required='action == "register"' on-enter='loginForm.$valid && auth(action, user_info)')
-            .modal-footer
-                a.labelField(ng-show='action != "request_password_reset"' ng-click='action = "request_password_reset"' on-click-focus='user_email') Forgot password?
-                a.labelField(ng-show='action == "request_password_reset"' ng-click='action = "login"' on-click-focus='user_email') Log In
-                a.labelLogin(ng-show='action == "register"' on-click-focus='user_email' ng-click='action = "login";') Log In
-                a.labelLogin(ng-show='action == "login"' on-click-focus='user_name' ng-click='action = "register"') Sign Up
-                button.btn.btn-primary(ng-show='action == "login"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Log In
-                button.btn.btn-primary(ng-show='action == "register"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Sign Up
-                button.btn.btn-primary(ng-show='action == "request_password_reset"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Reset Password
+            .modal-footer(ng-show='action == "register"')
+                a.labelField(ng-click='action = "forgot_password"' on-click-focus='user_email') Forgot password?
+                a.labelLogin(ng-click='action = "login";' on-click-focus='user_email') Log In
+                button.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Sign Up
+
+            .modal-footer(ng-show='action == "forgot_password"')
+                a.labelField(ng-click='action = "login"' on-click-focus='user_email') Log In
+                button.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Send it to me
+
+            .modal-footer(ng-show='action == "login"')
+                a.labelField(ng-click='action = "forgot_password"' on-click-focus='user_email') Forgot password?
+                a.labelLogin(ng-click='action = "register"' on-click-focus='user_name') Sign Up
+                button.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Log In
