@@ -36,7 +36,7 @@ block content
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true' ng-click='triggerDigest = true')
-                +group('General', 'general', 'backupItem')
+                +groups('general', 'backupItem')
                 div(ng-show='ui.expanded')
                     +advanced-options-bottom
                     +groups('advanced', 'backupItem')

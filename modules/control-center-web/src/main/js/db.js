@@ -87,6 +87,7 @@ exports.CacheTypeMetadata = mongoose.model('CacheTypeMetadata', CacheTypeMetadat
 var CacheSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
+    clusters: [{type: ObjectId, ref: 'Cluster'}],
     mode: {type: String, enum: ['PARTITIONED', 'REPLICATED', 'LOCAL']},
     atomicityMode: {type: String, enum: ['ATOMIC', 'TRANSACTIONAL']},
 

@@ -24,6 +24,16 @@ router.get('/', function (req, res) {
     res.render('configuration/caches');
 });
 
+function _processed(err, res) {
+    if (err) {
+        res.status(500).send(err.message);
+
+        return false;
+    }
+
+    return true;
+}
+
 /**
  * Get spaces and caches accessed for user account.
  *
@@ -35,45 +45,51 @@ router.post('/list', function (req, res) {
 
     // Get owned space and all accessed space.
     db.Space.find({$or: [{owner: user_id}, {usedBy: {$elemMatch: {account: user_id}}}]}, function (err, spaces) {
-        if (err)
-            return res.status(500).send(err.message);
-
-        var space_ids = spaces.map(function (value) {
-            return value._id;
-        });
-
-        // Get all caches type metadata for spaces.
-        db.CacheTypeMetadata.find({space: {$in: space_ids}}, '_id name kind', function (err, metadatas) {
-            if (err)
-                return res.status(500).send(err);
-
-            // Get all caches for spaces.
-            db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
-                if (err)
-                    return res.status(500).send(err.message);
-
-                // Remove deleted metadata.
-                _.forEach(caches, function (cache) {
-                    cache.queryMetadata = _.filter(cache.queryMetadata, function (metaId) {
-                        return _.findIndex(metadatas, function (meta) {
-                            return meta._id.equals(metaId);
-                        }) >= 0;
-                    });
-
-                    cache.storeMetadata = _.filter(cache.storeMetadata, function (metaId) {
-                        return _.findIndex(metadatas, function (meta) {
-                            return meta._id.equals(metaId);
-                        }) >= 0;
-                    });
-                });
-
-                var metadatasJson = metadatas.map(function (meta) {
-                    return {value: meta._id, label: meta.name, kind: meta.kind};
-                });
-
-                res.json({spaces: spaces, metadatas: metadatasJson, caches: caches});
+        if (_processed(err, res)) {
+            var space_ids = spaces.map(function (value) {
+                return value._id;
             });
-        });
+
+            // Get all clusters for spaces.
+            db.Cluster.find({space: {$in: space_ids}}, '_id name', function (err, clusters) {
+                if (_processed(err, res)) {
+                    // Get all caches type metadata for spaces.
+                    db.CacheTypeMetadata.find({space: {$in: space_ids}}, '_id name kind', function (err, metadatas) {
+                        if (_processed(err, res)) {
+                            // Get all caches for spaces.
+                            db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
+                                if (_processed(err, res)) {
+                                    // Remove deleted metadata.
+                                    _.forEach(caches, function (cache) {
+                                        cache.queryMetadata = _.filter(cache.queryMetadata, function (metaId) {
+                                            return _.findIndex(metadatas, function (meta) {
+                                                    return meta._id.equals(metaId);
+                                                }) >= 0;
+                                        });
+
+                                        cache.storeMetadata = _.filter(cache.storeMetadata, function (metaId) {
+                                            return _.findIndex(metadatas, function (meta) {
+                                                    return meta._id.equals(metaId);
+                                                }) >= 0;
+                                        });
+                                    });
+
+                                    res.json({
+                                        spaces: spaces,
+                                        clusters: clusters.map(function(cluster) {
+                                            return {value: cluster._id, label: cluster.name};
+                                        }),
+                                        metadatas: metadatas.map(function (meta) {
+                                            return {value: meta._id, label: meta.name, kind: meta.kind};
+                                        }),
+                                        caches: caches});
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
     });
 });
 
@@ -81,29 +97,38 @@ router.post('/list', function (req, res) {
  * Save cache.
  */
 router.post('/save', function (req, res) {
-    if (req.body._id)
-        db.Cache.update({_id: req.body._id}, req.body, {upsert: true}, function (err) {
-            if (err)
-                return res.status(500).send(err.message);
+    var params = req.body;
+    var cacheId = params._id;
 
-            res.send(req.body._id);
+    if (params._id)
+        db.Cache.update({_id: cacheId}, params, {upsert: true}, function (err, cache) {
+            if (_processed(err, res)) {
+                //_.forEach(params.clusters, function (cluster) {
+                //    db.Cluster.findOne({_id: cluster}, function (err, cluster) {
+                //        if (_processed(err, res))
+                //            cluster.caches.push(cacheId);
+                //
+                //            db.Cluster.update({_id: params._id}, cluster, {upsert: true}, function(err) {
+                //                _processed(err, res);
+                //            });
+                //    });
+                //});
+
+                res.send(params._id);
+            }
         });
-    else {
-        db.Cache.findOne({space: req.body.space, name: req.body.name}, function (err, cache) {
-            if (err)
-                return res.status(500).send(err.message);
+    else
+        db.Cache.findOne({space: params.space, name: params.name}, function (err, cache) {
+            if (_processed(err, res)) {
+                if (cache)
+                    return res.status(500).send('Cache with name: "' + cache.name + '" already exist.');
 
-            if (cache)
-                return res.status(500).send('Cache with name: "' + cache.name + '" already exist.');
-
-            (new db.Cache(req.body)).save(function (err, cache) {
-                if (err)
-                    return res.status(500).send(err.message);
-
-                res.send(cache._id);
-            });
+                (new db.Cache(params)).save(function (err, cache) {
+                    if (_processed(er, res))
+                        res.send(cache._id);
+                });
+            }
         });
-    }
 });
 
 /**
@@ -111,10 +136,8 @@ router.post('/save', function (req, res) {
  */
 router.post('/remove', function (req, res) {
     db.Cache.remove(req.body, function (err) {
-        if (err)
-            return res.status(500).send(err.message);
-
-        res.sendStatus(200);
+        if (_processed(err, res))
+            res.sendStatus(200);
     })
 });
 

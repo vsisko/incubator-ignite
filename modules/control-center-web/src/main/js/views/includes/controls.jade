@@ -120,7 +120,7 @@ mixin details-row
         div(ng-switch-when='label')
             label {{::detail.label}}
         div.checkbox(ng-switch-when='check')
-            label
+            label(id='{{::detail.id}}')
                 input(type='checkbox')&attributes(detailCommon)
                 |{{::detail.label}}
                 +tipLabel('detail.tip')
@@ -258,7 +258,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
         div(ng-switch-when='label')
             label {{::field.label}}
         div.checkbox(ng-switch-when='check' ng-hide=fieldHide)
-            label
+            label(id = '{{::field.id}}')
                 input(type='checkbox')&attributes(fieldCommon)
                 | {{::field.label}}
                 +tipLabel('field.tip')
@@ -425,16 +425,6 @@ mixin main-table(title, rows, focusId, click, rowTemplate)
                 tr(ng-repeat='row in #{rows} track by row._id')
                     td(ng-class='{active: row._id == selectedItem._id}')
                         a(on-click-focus=focusId ng-click=click) #{rowTemplate}
-
-mixin group(title, fields, dataSource)
-    .panel.panel-default
-        .panel-heading
-            h3
-                a(bs-collapse-toggle ng-click='hidePopover()') #{title}
-        .panel-collapse(bs-collapse-target id='#{fields + "-data"}' number='0')
-            .panel-body
-                .settings-row(ng-repeat='field in #{fields}')
-                    +form-row(dataSource)
 
 mixin groups(groups, dataSource)
     .panel.panel-default(ng-repeat='group in #{groups}' ng-click='triggerDigest=true')

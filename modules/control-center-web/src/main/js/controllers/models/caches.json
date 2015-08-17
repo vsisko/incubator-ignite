@@ -28,7 +28,7 @@
           "model": "name",
           "required": true,
           "placeholder": "Input name",
-          "id": "defaultFocusId"
+          "id": "cacheName"
         },
         {
           "label": "Clusters",
@@ -391,6 +391,7 @@
     },
     {
       "label": "Store",
+      "id": "store-data",
       "tip": [
         "Cache store settings."
       ],
@@ -584,6 +585,7 @@
         },
         {
           "label": "Read-through",
+          "id": "readThrough",
           "type": "check",
           "model": "readThrough",
           "tip": [

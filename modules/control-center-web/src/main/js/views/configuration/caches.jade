@@ -27,7 +27,7 @@ block content
         hr
     .docs-body(ng-controller='cachesController')
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
-        +main-table('Caches:', 'caches', 'defaultFocusId', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:"Cache mode not set"}}, {{row.atomicityMode | displayValue:atomicities:"Cache atomicity not set"}}')
+        +main-table('Caches:', 'caches', 'cacheName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:"Cache mode not set"}}, {{row.atomicityMode | displayValue:atomicities:"Cache atomicity not set"}}')
         .padding-top-dflt
             button.btn.btn-primary(on-click-focus='defaultFocusId' ng-click='createItem()') Add cache
         hr
@@ -36,8 +36,6 @@ block content
                 +groups('general', 'backupItem')
                 div(ng-show='ui.expanded')
                     +advanced-options-bottom
-                        i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
-                        a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
                     +groups('advanced', 'backupItem')
             +advanced-options-top
             .section

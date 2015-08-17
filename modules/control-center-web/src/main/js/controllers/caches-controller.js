@@ -178,6 +178,7 @@ controlCenterModule.controller('cachesController', [
                 .success(function (data) {
                     $scope.spaces = data.spaces;
                     $scope.caches = data.caches;
+                    $scope.clusters = data.clusters;
 
                     _.forEach(data.metadatas, function (meta) {
                         var kind = meta.kind;
