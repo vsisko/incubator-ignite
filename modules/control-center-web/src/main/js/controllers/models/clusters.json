@@ -655,6 +655,7 @@
     },
     {
       "label": "Swap",
+      "id": "swap-data",
       "tip": [
         "Settings for overflow data to disk if it cannot fit in memory."
       ],

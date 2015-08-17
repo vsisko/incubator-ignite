@@ -27,6 +27,7 @@
   "metadata": [
     {
       "label": "Metadata common",
+      "id": "metadata-data",
       "tip": [
         "Metadata properties common to Query and Store."
       ],

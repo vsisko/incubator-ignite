@@ -20,6 +20,7 @@
   "general": [
     {
       "label": "General",
+      "id": "general-data",
       "fields": [
         {
           "label": "Name",
@@ -28,6 +29,20 @@
           "required": true,
           "placeholder": "Input name",
           "id": "defaultFocusId"
+        },
+        {
+          "label": "Clusters",
+          "type": "dropdown-multiple",
+          "model": "clusters",
+          "placeholder": "Choose clusters",
+          "items": "clusters",
+          "tip": [
+            "Select clusters to start in cluster or add a new cluster."
+          ],
+          "addLink": {
+            "label": "Add cluster(s)",
+            "ref": "/configuration/clusters"
+          }
         },
         {
           "label": "Mode",

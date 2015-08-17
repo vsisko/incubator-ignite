@@ -393,18 +393,24 @@ controlCenterModule.service('$common', [
 
         var popover = null;
 
-        function ensureActivePanel(panels, pnlIdx) {
+        function ensureActivePanel(panels, id) {
             if (panels) {
-                var activePanels = panels.activePanels;
+                var idx = _.findIndex($('div.panel-collapse'), function(pnl) {
+                    return pnl.id == id;
+                });
 
-                if (!activePanels || activePanels.length < 1)
-                    panels.activePanels = [pnlIdx];
-                else if (!_.contains(activePanels, pnlIdx)) {
-                    var newActivePanels = activePanels.slice();
+                if (idx >= 0) {
+                    var activePanels = panels.activePanels;
 
-                    newActivePanels.push(pnlIdx);
+                    if (!activePanels || activePanels.length < 1)
+                        panels.activePanels = [idx];
+                    else if (!_.contains(activePanels, idx)) {
+                        var newActivePanels = activePanels.slice();
 
-                    panels.activePanels = newActivePanels;
+                        newActivePanels.push(idx);
+
+                        panels.activePanels = newActivePanels;
+                    }
                 }
             }
         }
@@ -531,11 +537,11 @@ controlCenterModule.service('$common', [
 
                 return result;
             },
-            ensureActivePanel: function (panels, pnlIdx) {
-                ensureActivePanel(panels, pnlIdx);
+            ensureActivePanel: function (panels, id) {
+                ensureActivePanel(panels, id);
             },
-            showPopoverMessage: function (panels, panelIndex, id, message) {
-                ensureActivePanel(panels, panelIndex);
+            showPopoverMessage: function (panels, panelId, id, message) {
+                ensureActivePanel(panels, panelId);
 
                 var el = $('body').find('#' + id);
 

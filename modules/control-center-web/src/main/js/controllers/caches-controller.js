@@ -229,7 +229,7 @@ controlCenterModule.controller('cachesController', [
             // Add new cache.
             $scope.createItem = function () {
                 $table.tableReset();
-                $common.ensureActivePanel($scope.panels, 0);
+                $common.ensureActivePanel($scope.panels, 'general-data');
 
                 $scope.selectedItem = undefined;
 

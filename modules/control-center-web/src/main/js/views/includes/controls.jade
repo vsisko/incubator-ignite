@@ -430,8 +430,8 @@ mixin group(title, fields, dataSource)
     .panel.panel-default
         .panel-heading
             h3
-                a(bs-collapse-toggle) #{title}
-        .panel-collapse(bs-collapse-target)
+                a(bs-collapse-toggle ng-click='hidePopover()') #{title}
+        .panel-collapse(bs-collapse-target id='#{fields + "-data"}' number='0')
             .panel-body
                 .settings-row(ng-repeat='field in #{fields}')
                     +form-row(dataSource)
@@ -440,10 +440,10 @@ mixin groups(groups, dataSource)
     .panel.panel-default(ng-repeat='group in #{groups}' ng-click='triggerDigest=true')
         .panel-heading
             h3
-                a(bs-collapse-toggle) {{::group.label}}
+                a(bs-collapse-toggle ng-click='hidePopover()') {{::group.label}}
                 i.tipLabel.fa.fa-question-circle(ng-if='group.tip' bs-tooltip='joinTip(group.tip)' type='button')
                 i.tipLabel.fa.fa-question-circle.blank(ng-if='!group.tip')
-        .panel-collapse(role='tabpanel' bs-collapse-target)
+        .panel-collapse(role='tabpanel' bs-collapse-target id='{{::group.id}}' number='{{::group.number}}')
             .panel-body
                 .settings-row(ng-repeat='field in group.fields')
                     +form-row(dataSource)
