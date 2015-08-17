@@ -255,6 +255,14 @@ public class GridDhtPartitionDemander {
     }
 
     /**
+     * @param type Type.
+     * @param discoEvt Discovery event.
+     */
+    private void preloadEvent(int type, DiscoveryEvent discoEvt) {
+        preloadEvent(-1, type, discoEvt);
+    }
+
+    /**
      * @param part Partition.
      * @param type Type.
      * @param discoEvt Discovery event.
@@ -796,7 +804,10 @@ public class GridDhtPartitionDemander {
 
                 missed.clear();
 
-                cctx.shared().exchange().scheduleResendPartitions();//TODO: Is in necessary?
+                cctx.shared().exchange().scheduleResendPartitions();
+
+                if (cctx.events().isRecordable(EVT_CACHE_REBALANCE_STOPPED) && !cctx.isReplicated())
+                    preloadEvent(EVT_CACHE_REBALANCE_STOPPED, assigns.exchangeFuture().discoveryEvent());
 
                 onDone(cancelled);
             }
