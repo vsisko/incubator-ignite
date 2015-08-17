@@ -47,10 +47,9 @@ block container
                                 input(type='checkbox' ng-disabled='row.adminChanging || row._id == user._id'
                                     ng-model='row.admin' ng-change='toggleAdmin(row)')
                             td(style='text-align: center;')
-                                a(ng-click='removeUser(row)' ng-show='row._id != user._id' bs-tooltip data-title='Remove user')
-                                    i.fa.fa-remove
-                                a(style='margin-left: 5px' ng-href='admin/become?viewedUserId={{row._id}}' ng-show='row._id != user._id' bs-tooltip data-title='Become this user')
-                                    i.fa.fa-eye
+                                div(ng-show='row._id != user._id')
+                                    i.fa.fa-remove(ng-click='removeUser(row)' bs-tooltip data-title='Remove user')
+                                    i.fa.fa-eye(ng-click='becomeUser(row)' style='margin-left: 5px'  bs-tooltip data-title='Become this user')
                     tfoot
                         tr
                             td.text-right(colspan='5')

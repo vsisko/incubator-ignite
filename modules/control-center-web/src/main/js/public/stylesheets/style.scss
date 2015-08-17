@@ -1021,6 +1021,10 @@ label {
     margin-right: 0;
 }
 
+.fa-eye {
+    cursor: pointer;
+}
+
 .fa-plus {
     cursor: pointer;
 }
@@ -1164,8 +1168,13 @@ input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
     border-radius: 6px;
 }
 
-.nav-tabs > li > a {
+.theme-line .nav-tabs > li > a {
     padding: 5px 5px;
+    color: #555;
+}
+
+.theme-line .nav-tabs > li.active > a {
+    color: $ignite-red;
 }
 
 .viewedUser {

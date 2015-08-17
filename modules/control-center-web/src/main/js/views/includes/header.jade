@@ -32,11 +32,11 @@ header#header.header
                 li(ng-controller='notebooks')
                     a.dropdown-toggle(ng-hide='notebooks.length == 0' data-toggle='dropdown' bs-dropdown='notebookDropdown' data-placement='bottom-right') SQL
                         span.caret
-                    a(ng-hide='notebooks.length > 0' ng-class='{active: isActive("/sql")}' href='/notebooks/new') SQL
+                    a(ng-hide='notebooks.length > 0' href='/notebooks/new') SQL
                 //+header-item('/deploy', '/deploy', 'Deploy')
             ul.nav.navbar-nav.pull-right
                 li(ng-if='user')
-                    a.dropdown-toggle(data-toggle='dropdown' bs-dropdown='userDropdown' data-placement='bottom-right' data-ng-bind='::user.username')
+                    a.dropdown-toggle(data-toggle='dropdown' bs-dropdown='userDropdown' data-placement='bottom-right') {{::user.username}}
                         span.caret
                 li.nav-login(ng-if='!user')
                     a(ng-click='login()') Log In

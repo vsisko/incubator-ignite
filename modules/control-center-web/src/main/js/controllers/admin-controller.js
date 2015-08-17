@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('adminController', ['$scope', '$http', '$common', '$confirm', function ($scope, $http, $common, $confirm) {
+controlCenterModule.controller('adminController', ['$scope', '$window', '$http', '$common', '$confirm',
+    function ($scope, $window, $http, $common, $confirm) {
     $scope.users = null;
 
     function reload() {
@@ -29,6 +30,10 @@ controlCenterModule.controller('adminController', ['$scope', '$http', '$common',
     }
 
     reload();
+
+    $scope.becomeUser = function (user) {
+        $window.location = '/admin/become?viewedUserId=' + user._id;
+    };
 
     $scope.removeUser = function (user) {
         $confirm.show('Are you sure you want to remove user: "' + user.username + '"?').then(function () {
