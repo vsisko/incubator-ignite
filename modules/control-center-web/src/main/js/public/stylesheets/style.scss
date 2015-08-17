@@ -18,6 +18,7 @@
 $logo-path: "https://www.filepicker.io/api/file/QagunjDGRFul2JgNCAli";
 $input-height: 28px;
 $ignite-red: #ec1c24;
+$ignite-red-hover: #950d12;
 $ignite-block-callout-left: #248fb2;
 $ignite-block-callout-left-background: #f4f8fa;
 $ignite-block-callout-right: #50af51;
@@ -176,7 +177,7 @@ hr {
 }
 
 .theme-line .btn-primary:hover {
-    background-color: #950d12;
+    background-color: $ignite-red-hover;
 }
 
 .theme-line .main-content .nav-horizontal a {
@@ -390,7 +391,7 @@ hr {
 }
 
 .theme-line header a.btn:hover {
-    background-color: #950d12;
+    background-color: $ignite-red-hover;
 }
 
 .theme-line header .navbar-nav .tt-cursor {
@@ -407,7 +408,7 @@ hr {
 }
 
 .theme-line .navbar-nav .active a:hover {
-    color: #950d12;
+    color: $ignite-red-hover;
 }
 
 .theme-line .main-links .links a:hover {
@@ -419,7 +420,7 @@ hr {
 }
 
 .theme-line .main-content a:hover {
-    color: #950d12;
+    color: $ignite-red-hover;
 }
 
 .theme-line .sidebar-nav ul li a.active:before {
@@ -431,7 +432,7 @@ hr {
 }
 
 .theme-line .sidebar-nav ul li a:hover, .theme-line .sidebar-nav ul li a.active:hover {
-    color: #950d12;
+    color: $ignite-red-hover;
 }
 
 .theme-line .main-content .nav-horizontal a.active {
@@ -440,11 +441,11 @@ hr {
 }
 
 .theme-line .main-content .nav-horizontal a:hover {
-    color: #950d12;
+    color: $ignite-red-hover;
 }
 
 .theme-line .main-content .nav-horizontal a.active:hover {
-    border-color: #950d12;
+    border-color: $ignite-red-hover;
 }
 
 .theme-line header .navbar-nav a.active, .theme-line #versions-list li a:hover strong, .theme-line #versions-list li a.active .current, .theme-line #versions-list li a:active .current {
@@ -491,7 +492,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 div.submit-vote.submit-vote-parent.voted a.submit-vote-button:hover {
-    background-color: #950d12;
+    background-color: $ignite-red-hover;
 }
 
 a, .link .title {
@@ -499,7 +500,7 @@ a, .link .title {
 }
 
 a:hover, .link:hover .title {
-    color: #950d12;
+    color: $ignite-red-hover;
 }
 
 .header h1.navbar-brand a {
@@ -727,14 +728,6 @@ button .caret, .btn .caret {
         color: $ignite-red;
         font-weight: bold;
     }
-
-    a:hover {
-        color: #950d12;
-    }
-
-    a {
-        color: black;
-    }
 }
 
 .theme-line table.links-edit {
@@ -892,11 +885,6 @@ button .caret, .btn .caret {
 }
 
 .group-legend-tip {
-    background: white;
-    padding-right: 5px;
-}
-
-.group-legend-btn {
     background: white;
     float: right;
     line-height: 20px;
