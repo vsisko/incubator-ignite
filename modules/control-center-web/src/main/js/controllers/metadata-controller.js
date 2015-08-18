@@ -240,21 +240,6 @@ controlCenterModule.controller('metadataController', [
                     });
             };
 
-            $scope.downloadAgent = function () {
-                loadMetaModal.hide();
-
-                var lnk = document.createElement('a');
-
-                lnk.setAttribute('href', '/agent/agent.zip');
-                lnk.style.display = 'none';
-
-                document.body.appendChild(lnk);
-
-                lnk.click();
-
-                document.body.removeChild(lnk);
-            };
-
             $scope.saveSelectedMetadata = function (preset) {
                 loadMetaModal.hide();
 
