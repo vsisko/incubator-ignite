@@ -44,6 +44,8 @@ controlCenterModule.controller('metadataController', [
 
             $scope.compactJavaName = $common.compactJavaName;
 
+            $scope.hidePopover = $common.hidePopover;
+
             var presets = [
                 {
                     db: 'oracle',
@@ -329,66 +331,90 @@ controlCenterModule.controller('metadataController', [
                 $scope.backupItem = {space: $scope.spaces[0]._id};
             };
 
+            function queryConfigured(item) {
+                return !($common.isEmptyArray(item.queryFields)
+                    && $common.isEmptyArray(item.ascendingFields)
+                    && $common.isEmptyArray(item.descendingFields)
+                    && $common.isEmptyArray(item.textFields)
+                    && $common.isEmptyArray(item.groups))
+            }
+
+            function storeConfigured(item) {
+                return !($common.isEmptyString(item.databaseSchema)
+                    && $common.isEmptyString(item.databaseTable)
+                    && $common.isEmptyArray(item.keyFields)
+                    && $common.isEmptyArray(item.valueFields))
+            }
+
             // Check metadata logical consistency.
             function validate(item) {
-                /*
-                 if (!$common.isValidJavaClass('Key type', item.keyType, true)) {
-                 $focus('keyType');
+                if ($common.isEmptyString(item.name))
+                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'metadataName', 'Name should not be empty');
 
-                 return false;
-                 }
+                if ($common.isEmptyString(item.keyType))
+                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'keyType', 'Key type should not be empty');
+                else if (!$common.isValidJavaClass('Key type', item.keyType, true))
+                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'keyType', 'Key type should be valid Java class');
 
-                 if (!$common.isValidJavaClass('Value type', item.valueType, false)) {
-                 $focus('valueType');
+                if ($common.isEmptyString(item.valueType))
+                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'valueType', 'Value type should not be empty');
+                else if (!$common.isValidJavaClass('Value type', item.valueType, false))
+                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'valueType', 'Value type should valid Java class');
 
-                 return false;
-                 }
+                var qry = queryConfigured(item);
 
-                 if ($common.isEmptyArray(item.queryFields) && $common.isEmptyArray(item.ascendingFields) &&
-                 $common.isEmptyArray(item.descendingFields) && $common.isEmptyArray(item.textFields) &&
-                 $common.isEmptyArray(item.groups)) {
-                 $common.showError('SQL fields are not specified!');
+                if (qry) {
+                    var groups = item.groups;
 
-                 return false;
-                 }
+                    if (groups && groups.length > 0) {
+                        for (var i = 0; i < groups.length; i++) {
+                            var group = groups[i];
+                            var fields = group.fields;
 
-                 var groups = item.groups;
-                 if (groups && groups.length > 0) {
-                 for (var i = 0; i < groups.length; i++) {
-                 var group = groups[i];
-                 var fields = group.fields;
+                            if ($common.isEmptyArray(fields))
+                                return $common.showPopoverMessage($scope.panels, 'metadataQuery-data', 'groups' + i, 'Group fields are not specified');
 
-                 if ($common.isEmptyArray(fields)) {
-                 $common.showError('Group "' + group.name + '" has no fields.');
+                            if (fields.length == 1) {
+                                return $common.showPopoverMessage($scope.panels, 'metadataQuery-data', 'groups' + i, 'Group has only one field. Consider to use ascending or descending fields.');
+                            }
+                        }
+                    }
+                }
 
-                 return false;
-                 }
+                var str = storeConfigured(item);
 
-                 if (fields.length == 1) {
-                 $common.showError('Group "' + group.name + '" has only one field.<br/> Consider to use ascending or descending fields.');
+                if (str) {
+                    if ($common.isEmptyString(item.databaseSchema))
+                        return $common.showPopoverMessage($scope.panels, 'metadataCache-data', 'databaseSchema', 'Database schema should not be empty');
 
-                 return false;
-                 }
-                 }
-                 }
+                    if ($common.isEmptyString(item.databaseTable))
+                        return $common.showPopoverMessage($scope.panels, 'metadataCache-data', 'databaseTable', 'Database table should not be empty');
 
-                 if ($common.isEmptyArray(item.keyFields) && !$common.isJavaBuildInClass(item.keyType)) {
-                 $common.showError('Key fields are not specified!');
+                    if ($common.isEmptyArray(item.keyFields) && !$common.isJavaBuildInClass(item.keyType))
+                        return $common.showPopoverMessage($scope.panels, 'metadataCache-data', 'keyFields-add', 'Key fields are not specified');
 
-                 return false;
-                 }
-                 if ($common.isEmptyArray(item.valueFields)) {
-                 $common.showError('Value fields are not specified!');
-
-                 return false;
-                 }
-                 */
+                    if ($common.isEmptyArray(item.valueFields))
+                        return $common.showPopoverMessage($scope.panels, 'metadataCache-data', 'valueFields-add', 'Value fields are not specified');
+                }
+                else if (!qry) {
+                    return $common.showPopoverMessage($scope.panels, 'metadataQuery-data', 'metadataQuery-data-title', 'SQL query metadata should be configured');
+                }
 
                 return true;
             }
 
             // Save cache type metadata into database.
             function save(item) {
+                var qry = queryConfigured(item);
+                var str = storeConfigured(item);
+
+                item.kind = 'query';
+
+                if (qry && str)
+                    item.kind = 'both';
+                else if (str)
+                    item.kind = 'store';
+
                 $http.post('metadata/save', item)
                     .success(function (_id) {
                         $common.showInfo('Metadata "' + item.name + '" saved.');

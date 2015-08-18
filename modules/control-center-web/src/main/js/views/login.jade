@@ -49,7 +49,7 @@ mixin lbl(txt)
                                 input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' ng-required='action == "register"' on-enter='loginForm.$valid && auth(action, user_info)')
             .modal-footer(ng-show='action == "register"')
                 a.labelField(ng-click='action = "forgot_password"' on-click-focus='user_email') Forgot password?
-                a.labelLogin(ng-click='action = "login";' on-click-focus='user_email') Log In
+                a.labelLogin(ng-click='action = "login"' on-click-focus='user_email') Log In
                 button.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Sign Up
 
             .modal-footer(ng-show='action == "forgot_password"')
