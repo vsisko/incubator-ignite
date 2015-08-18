@@ -34,17 +34,17 @@
       "fields": [
         {
           "label": "Name",
+          "id": "metadataName",
           "type": "text",
           "model": "name",
           "required": true,
-          "placeholder": "Input name",
-          "id": "defaultFocusId"
+          "placeholder": "Input name"
         },
         {
           "label": "Key type",
+          "id": "keyType",
           "type": "withJavaBuildInTypes",
           "model": "keyType",
-          "id": "keyType",
           "required": true,
           "placeholder": "Full class name for Key",
           "tip": [
@@ -53,9 +53,9 @@
         },
         {
           "label": "Value type",
+          "id": "valueType",
           "type": "text",
           "model": "valueType",
-          "id": "valueType",
           "required": true,
           "placeholder": "Full class name for Value",
           "tip": [
@@ -66,10 +66,12 @@
     },
     {
       "label": "Metadata for SQL query",
+      "id": "metadataQuery-data",
       "tip": [],
       "fields": [
         {
           "label": "Not indexed fields",
+          "id": "queryFields",
           "ui": "table-pair",
           "type": "queryFieldsFirst",
           "model": "queryFields",
@@ -84,6 +86,7 @@
         },
         {
           "label": "Ascending indexed fields",
+          "id": "ascendingFields",
           "ui": "table-pair",
           "type": "queryFields",
           "model": "ascendingFields",
@@ -98,6 +101,7 @@
         },
         {
           "label": "Descending indexed fields",
+          "id": "descendingFields",
           "ui": "table-pair",
           "type": "queryFields",
           "model": "descendingFields",
@@ -112,6 +116,7 @@
         },
         {
           "label": "Text indexed fields",
+          "id": "textFields",
           "type": "table-simple",
           "model": "textFields",
           "placeholder": "Field name",
@@ -127,6 +132,7 @@
         },
         {
           "label": "Group indexes",
+          "id": "groups",
           "type": "table-query-groups",
           "model": "groups",
           "addTip": "Add new group.",
@@ -141,10 +147,12 @@
     },
     {
       "label": "Metadata for cache store",
+      "id": "metadataCache-data",
       "tip": [],
       "fields": [
         {
           "label": "Database schema",
+          "id": "databaseSchema",
           "type": "text",
           "model": "databaseSchema",
           "placeholder": "Input DB schema name",
@@ -154,6 +162,7 @@
         },
         {
           "label": "Database table",
+          "id": "databaseTable",
           "type": "text",
           "model": "databaseTable",
           "placeholder": "Input DB table name",
@@ -163,6 +172,7 @@
         },
         {
           "label": "Key fields",
+          "id": "keyFields",
           "type": "table-db-fields",
           "model": "keyFields",
           "keyName": "name",
@@ -177,6 +187,7 @@
         },
         {
           "label": "Value fields",
+          "id": "valueFields",
           "type": "table-db-fields",
           "model": "valueFields",
           "keyName": "name",
@@ -212,9 +223,9 @@
     },
     {
       "label": "JDBC URL",
+      "id": "jdbcUrl",
       "type": "text",
       "model": "jdbcUrl",
-      "id": "jdbcUrl",
       "placeholder": "JDBC URL",
       "tip": [
         "JDBC URL for connecting to database.",
