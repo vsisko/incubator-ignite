@@ -220,8 +220,7 @@ controlCenterModule.controller('cachesController', [
                                     });
                                 }
 
-                                $scope.selectedItem = cache;
-                                $scope.backupItem = restoredItem;
+                                $scope.selectItem(cache, restoredItem);
                             }
                             else
                                 sessionStorage.removeItem('cacheBackupItem');
@@ -241,13 +240,22 @@ controlCenterModule.controller('cachesController', [
                     $common.showError(errMsg);
                 });
 
-            $scope.selectItem = function (item) {
+            $scope.selectItem = function (item, backup) {
                 $table.tableReset();
 
                 $scope.selectedItem = item;
-                $scope.backupItem = angular.copy(item);
 
-                sessionStorage.cacheSelectedItem = angular.toJson(item);
+                if (backup)
+                    $scope.backupItem = backup;
+                else if (item)
+                    $scope.backupItem = angular.copy(item);
+                else
+                    $scope.backupItem = undefined;
+
+                if (item)
+                    sessionStorage.cacheSelectedItem = angular.toJson(item);
+                else
+                    sessionStorage.removeItem(cacheSelectedItem);
             };
 
             // Add new cache.
@@ -255,19 +263,18 @@ controlCenterModule.controller('cachesController', [
                 $table.tableReset();
                 $common.ensureActivePanel($scope.panels, 'general-data');
 
-                $scope.selectedItem = undefined;
-
-                $scope.backupItem = {
+                var newItem = {
+                    space: $scope.spaces[0]._id,
                     mode: 'PARTITIONED',
                     atomicityMode: 'ATOMIC',
                     readFromBackup: true,
-                    copyOnRead: true
+                    copyOnRead: true,
+                    clusters: [],
+                    queryMetadata: [],
+                    spaceMetadata: []
                 };
 
-                $scope.backupItem.space = $scope.spaces[0]._id;
-                $scope.backupItem.clusters = [];
-                $scope.backupItem.queryMetadata = [];
-                $scope.backupItem.spaceMetadata = [];
+                $scope.selectItem(undefined, newItem);
             };
 
             // Check cache logical consistency.
@@ -370,10 +377,8 @@ controlCenterModule.controller('cachesController', [
 
                                     if (caches.length > 0)
                                         $scope.selectItem(caches[0]);
-                                    else {
-                                        $scope.selectedItem = undefined;
-                                        $scope.backupItem = undefined;
-                                    }
+                                    else
+                                        $scope.selectItem(undefined, undefined);
                                 }
                             })
                             .error(function (errMsg) {
