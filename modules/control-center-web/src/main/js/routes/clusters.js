@@ -51,7 +51,7 @@ router.post('/list', function (req, res) {
             });
 
             // Get all caches for spaces.
-            db.Cache.find({space: {$in: space_ids}}, '_id name swapEnabled', function (err, caches) {
+            db.Cache.find({space: {$in: space_ids}}, '_id name swapEnabled').sort('name').exec(function (err, caches) {
                 if (_processed(err, res)) {
                     // Get all clusters for spaces.
                     db.Cluster.find({space: {$in: space_ids}}).sort('name').exec(function (err, clusters) {
