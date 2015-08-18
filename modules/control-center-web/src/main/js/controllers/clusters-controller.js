@@ -173,6 +173,14 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                         });
 
                         if (idx >= 0) {
+                            var cluster = $scope.clusters[idx];
+
+                            var restoredSelectedItem = angular.fromJson(sessionStorage.clusterSelectedBackupItem);
+
+                            if (restoredSelectedItem) {
+                                // TODO
+                            }
+
                             // Remove deleted caches.
                             restoredItem.caches = _.filter(restoredItem.caches, function (cacheId) {
                                 return _.findIndex($scope.caches, function (scopeCache) {
@@ -180,7 +188,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                                     }) >= 0;
                             });
 
-                            $scope.selectedItem = $scope.clusters[idx];
+                            $scope.selectedItem = cluster;
                             $scope.backupItem = restoredItem;
                         }
                         else
@@ -206,6 +214,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
             $scope.selectedItem = item;
             $scope.backupItem = angular.copy(item);
+
+            sessionStorage.slectedClusterBackupItem = angular.toJson(item);
         };
 
         // Add new cluster.

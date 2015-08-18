@@ -99,24 +99,20 @@ router.post('/list', function (req, res) {
 router.post('/save', function (req, res) {
     var params = req.body;
     var cacheId = params._id;
+    var clusters = params.clusters;
 
-    if (params._id)
-        db.Cache.update({_id: cacheId}, params, {upsert: true}, function (err, cache) {
-            if (_processed(err, res)) {
-                //_.forEach(params.clusters, function (cluster) {
-                //    db.Cluster.findOne({_id: cluster}, function (err, cluster) {
-                //        if (_processed(err, res))
-                //            cluster.caches.push(cacheId);
-                //
-                //            db.Cluster.update({_id: params._id}, cluster, {upsert: true}, function(err) {
-                //                _processed(err, res);
-                //            });
-                //    });
-                //});
-
-                res.send(params._id);
-            }
+    if (params._id){
+        db.Cache.update({_id: cacheId}, params, {upsert: true}, function (err) {
+            if (_processed(err, res))
+                db.Cluster.update({_id: {$in: clusters}}, {$addToSet: {caches: cacheId}}, {upsert: true, multi: true}, function(err) {
+                    if (_processed(err, res))
+                        db.Cluster.update({_id: {$nin: clusters}}, {$pull: {caches: cacheId}}, {upsert: true, multi: true}, function(err) {
+                            if (_processed(err, res))
+                                res.send(params._id);
+                        });
+                });
         });
+    }
     else
         db.Cache.findOne({space: params.space, name: params.name}, function (err, cache) {
             if (_processed(err, res)) {
@@ -124,8 +120,15 @@ router.post('/save', function (req, res) {
                     return res.status(500).send('Cache with name: "' + cache.name + '" already exist.');
 
                 (new db.Cache(params)).save(function (err, cache) {
-                    if (_processed(er, res))
-                        res.send(cache._id);
+                    if (_processed(err, res)) {
+                        cacheId = cache._id;
+
+                        db.Cluster.update({_id: {$in: clusters}}, {$addToSet: {caches: cacheId}}, {upsert: true, multi: true}, function(err) {
+                            if (_processed(err, res))
+                                res.send(cacheId);
+                        });
+                    }
+
                 });
             }
         });

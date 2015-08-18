@@ -240,9 +240,11 @@ controlCenterModule.controller('cachesController', [
                     readFromBackup: true,
                     copyOnRead: true
                 };
+
+                $scope.backupItem.space = $scope.spaces[0]._id;
+                $scope.backupItem.clusters = [];
                 $scope.backupItem.queryMetadata = [];
                 $scope.backupItem.spaceMetadata = [];
-                $scope.backupItem.space = $scope.spaces[0]._id;
             };
 
             // Check cache logical consistency.
