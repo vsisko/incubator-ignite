@@ -241,10 +241,22 @@ controlCenterModule.controller('metadataController', [
                     });
             };
 
-            $scope.saveSelectedMetadata = function (preset) {
+            $scope.saveSelectedMetadata = function () {
                 loadMetaModal.hide();
 
-                $common.showError("Saving selected metadata not ready yet!");
+                _.forEach($scope.loadMeta.tables, function (table) {
+                    var newItem = {
+                        name: table.tableName,
+                        databaseSchema: table.schemaName,
+                        databaseTable: table.tableName,
+                        keyType: table.tableName + 'Key',
+                        valueType: table.tableName,
+                        keyFields: [],
+                        valueFields: []
+                    };
+
+                    save(newItem);
+                });
             };
 
             // When landing on the page, get metadatas and show them.
