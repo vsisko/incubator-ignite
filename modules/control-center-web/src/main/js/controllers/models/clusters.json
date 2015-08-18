@@ -29,11 +29,11 @@
       "fields": [
         {
           "label": "Name",
+          "id": "clusterName",
           "type": "text",
           "model": "name",
           "required": true,
-          "placeholder": "Input name",
-          "id": "clusterName"
+          "placeholder": "Input name"
         },
         {
           "label": "Caches",

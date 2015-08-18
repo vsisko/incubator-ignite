@@ -24,11 +24,11 @@
       "fields": [
         {
           "label": "Name",
+          "id": "cacheName",
           "type": "text",
           "model": "name",
           "required": true,
-          "placeholder": "Input name",
-          "id": "cacheName"
+          "placeholder": "Input name"
         },
         {
           "label": "Clusters",
@@ -117,6 +117,7 @@
     },
     {
       "label": "Memory",
+      "id": "memory-data",
       "tip": [
         "Cache memory settings."
       ],
@@ -143,6 +144,7 @@
         },
         {
           "label": "Off-heap max memory",
+          "id": "offHeapMaxMemory",
           "type": "number",
           "model": "offHeapMaxMemory",
           "min": -1,
@@ -398,6 +400,7 @@
       "fields": [
         {
           "label": "Store factory",
+          "id": "cacheStoreFactory",
           "type": "dropdown-details",
           "settings": true,
           "path": "cacheStoreFactory",
@@ -424,6 +427,7 @@
                 },
                 {
                   "label": "Dialect",
+                  "id": "dialect",
                   "type": "dropdown",
                   "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
                   "model": "dialect",
@@ -459,7 +463,8 @@
               "expanded": true,
               "fields": [
                 {
-                  "label": "user",
+                  "label": "User",
+                  "id": "user",
                   "type": "text",
                   "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "user",
@@ -470,6 +475,7 @@
                 },
                 {
                   "label": "Data source bean",
+                  "id": "dataSourceBean",
                   "type": "text",
                   "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "dataSourceBean",
