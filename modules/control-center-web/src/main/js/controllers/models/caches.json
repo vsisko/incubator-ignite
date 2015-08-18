@@ -599,6 +599,66 @@
           "tip": [
             "Flag indicating whether write-through caching should be used."
           ]
+        },
+        {
+          "label": "Write behind",
+          "type": "panel-details",
+          "tip": [
+            "Cache write behind settings.",
+            "Write-behind is a special mode when updates to cache accumulated and then asynchronously flushed to persistent store as a bulk operation."
+          ],
+          "details": [
+            {
+              "label": "Enabled",
+              "type": "check",
+              "model": "writeBehindEnabled",
+              "tip": [
+                "Flag indicating whether Ignite should use write-behind behaviour for the cache store."
+              ]
+            },
+            {
+              "label": "Batch size",
+              "type": "number",
+              "model": "writeBehindBatchSize",
+              "disabled": "!backupItem.writeBehindEnabled",
+              "placeholder": 512,
+              "tip": [
+                "Maximum batch size for write-behind cache store operations.",
+                "Store operations (get or remove) are combined in a batch of this size to be passed to cache store."
+              ]
+            },
+            {
+              "label": "Flush size",
+              "type": "number",
+              "model": "writeBehindFlushSize",
+              "disabled": "!backupItem.writeBehindEnabled",
+              "placeholder": 10240,
+              "tip": [
+                "Maximum size of the write-behind cache.<br>",
+                "If cache size exceeds this value, all cached items are flushed to the cache store and write cache is cleared."
+              ]
+            },
+            {
+              "label": "Flush frequency",
+              "type": "number",
+              "model": "writeBehindFlushFrequency",
+              "disabled": "!backupItem.writeBehindEnabled",
+              "placeholder": 5000,
+              "tip": [
+                "Frequency with which write-behind cache is flushed to the cache store in milliseconds."
+              ]
+            },
+            {
+              "label": "Flush threads count",
+              "type": "number",
+              "model": "writeBehindFlushThreadCount",
+              "disabled": "!backupItem.writeBehindEnabled",
+              "placeholder": 1,
+              "tip": [
+                "Number of threads that will perform cache flushing."
+              ]
+            }
+          ]
         }
       ]
     }
@@ -912,65 +972,6 @@
           "model": "managementEnabled",
           "tip": [
             "Flag indicating whether management is enabled on this cache."
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Write behind",
-      "tip": [
-        "Cache write behind settings.",
-        "Write-behind is a special mode when updates to cache accumulated and then asynchronously flushed to persistent store as a bulk operation."
-      ],
-      "fields": [
-        {
-          "label": "Enabled",
-          "type": "check",
-          "model": "writeBehindEnabled",
-          "tip": [
-            "Flag indicating whether Ignite should use write-behind behaviour for the cache store."
-          ]
-        },
-        {
-          "label": "Batch size",
-          "type": "number",
-          "model": "writeBehindBatchSize",
-          "hide": "!backupItem.writeBehindEnabled",
-          "placeholder": 512,
-          "tip": [
-            "Maximum batch size for write-behind cache store operations.",
-            "Store operations (get or remove) are combined in a batch of this size to be passed to cache store."
-          ]
-        },
-        {
-          "label": "Flush size",
-          "type": "number",
-          "model": "writeBehindFlushSize",
-          "hide": "!backupItem.writeBehindEnabled",
-          "placeholder": 10240,
-          "tip": [
-            "Maximum size of the write-behind cache.<br>",
-            "If cache size exceeds this value, all cached items are flushed to the cache store and write cache is cleared."
-          ]
-        },
-        {
-          "label": "Flush frequency",
-          "type": "number",
-          "model": "writeBehindFlushFrequency",
-          "hide": "!backupItem.writeBehindEnabled",
-          "placeholder": 5000,
-          "tip": [
-            "Frequency with which write-behind cache is flushed to the cache store in milliseconds."
-          ]
-        },
-        {
-          "label": "Flush threads count",
-          "type": "number",
-          "model": "writeBehindFlushThreadCount",
-          "hide": "!backupItem.writeBehindEnabled",
-          "placeholder": 1,
-          "tip": [
-            "Number of threads that will perform cache flushing."
           ]
         }
       ]

@@ -113,6 +113,7 @@ mixin details-row
 
     - var detailMdl = 'getModel(backupItem, detail)[detail.model]';
     - var detailCommon = {'ng-model': detailMdl, 'ng-required': 'detail.required'};
+    - var detailDisabled = '{{detail.disable}}'
 
     - var customValidators = {'ng-attr-ipaddress': '{{detail.ipaddress}}'}
 
@@ -135,7 +136,7 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(name='{{detail.model}}' type='number' placeholder='{{::detail.placeholder}}' min='{{detail.min ? detail.min : 0}}' max='{{detail.max ? detail.max : Number.MAX_VALUE}}')&attributes(detailCommon)
+                    input.form-control(name='{{detail.model}}' type='number' ng-disabled=detailDisabled placeholder='{{::detail.placeholder}}' min='{{detail.min ? detail.min : 0}}' max='{{detail.max ? detail.max : Number.MAX_VALUE}}')&attributes(detailCommon)
                     +ico-exclamation('{{detail.model}}', 'min', 'Value is less than allowable minimum.')
                     +ico-exclamation('{{detail.model}}', 'max', 'Value is more than allowable maximum.')
                     +ico-exclamation('{{detail.model}}', 'number', 'Invalid value. Only numbers allowed.')
@@ -253,13 +254,14 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
     - var fieldCommon = {'ng-model': fieldMdl, 'ng-required': 'field.required || required(field)'};
     - var fieldRequiredClass = '{true: "required"}[field.required || required(field)]'
     - var fieldHide = '{{field.hide}}'
+    - var fieldDisabled = '{{field.disabled}}'
 
     div(ng-switch='field.type')
         div(ng-switch-when='label')
             label {{::field.label}}
         div.checkbox(ng-switch-when='check' ng-hide=fieldHide)
             label(id = '{{::field.id}}')
-                input(type='checkbox')&attributes(fieldCommon)
+                input(type='checkbox' ng-disabled=fieldDisabled)&attributes(fieldCommon)
                 | {{::field.label}}
                 +tipLabel('field.tip')
         div(ng-switch-when='text' ng-hide=fieldHide)
@@ -285,7 +287,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(name='{{field.model}}' type='number' placeholder='{{::field.placeholder}}' ng-focus='tableReset()' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}')&attributes(fieldCommon)
+                    input.form-control(name='{{field.model}}' type='number' ng-disabled=fieldDisabled placeholder='{{::field.placeholder}}' ng-focus='tableReset()' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}')&attributes(fieldCommon)
                     +ico-exclamation('{{field.model}}', 'min', 'Value is less than allowable minimum.')
                     +ico-exclamation('{{field.model}}', 'max', 'Value is more than allowable maximum.')
                     +ico-exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
@@ -294,7 +296,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
+                    button.form-control(bs-select ng-disabled=fieldDisabled data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
         div(ng-switch-when='dropdown-multiple' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
@@ -309,11 +311,19 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses id='{{::field.id}}')
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
+                    button.form-control(bs-select ng-disabled=fieldDisabled data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
             a.customize(ng-show='#{fieldMdl} && field.settings' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
             .col-sm-7.panel-details(ng-show='(#{expanded} || !field.settings) && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
+        .section(ng-switch-when='panel-details' ng-hide=fieldHide)&attributes(fieldCommon)
+            .col-sm-7.group
+                .group-legend
+                    label {{::field.label}}:
+                    +group-tip('field.tip')
+                .group-content
+                    .details-row(ng-repeat='detail in field.details')
+                        +details-row
         .group-section(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
             .col-sm-7.group
                 .group-legend
