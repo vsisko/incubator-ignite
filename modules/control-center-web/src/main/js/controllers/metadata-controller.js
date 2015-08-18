@@ -45,6 +45,7 @@ controlCenterModule.controller('metadataController', [
             $scope.compactJavaName = $common.compactJavaName;
 
             $scope.hidePopover = $common.hidePopover;
+            var showPopoverMessage = $common.showPopoverMessage;
 
             var presets = [
                 {
@@ -334,17 +335,17 @@ controlCenterModule.controller('metadataController', [
             // Check metadata logical consistency.
             function validate(item) {
                 if ($common.isEmptyString(item.name))
-                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'metadataName', 'Name should not be empty');
+                    return showPopoverMessage($scope.panels, 'metadata-data', 'metadataName', 'Name should not be empty');
 
                 if ($common.isEmptyString(item.keyType))
-                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'keyType', 'Key type should not be empty');
-                else if (!$common.isValidJavaClass('Key type', item.keyType, true))
-                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'keyType', 'Key type should be valid Java class');
+                    return showPopoverMessage($scope.panels, 'metadata-data', 'keyType', 'Key type should not be empty');
+                else if (!$common.isValidJavaClass('Key type', item.keyType, true, 'keyType'))
+                    return showPopoverMessage($scope.panels, 'metadata-data', 'keyType', 'Key type should be valid Java class');
 
                 if ($common.isEmptyString(item.valueType))
-                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'valueType', 'Value type should not be empty');
-                else if (!$common.isValidJavaClass('Value type', item.valueType, false))
-                    return $common.showPopoverMessage($scope.panels, 'metadata-data', 'valueType', 'Value type should valid Java class');
+                    return showPopoverMessage($scope.panels, 'metadata-data', 'valueType', 'Value type should not be empty');
+                else if (!$common.isValidJavaClass('Value type', item.valueType, false, 'valueType'))
+                    return showPopoverMessage($scope.panels, 'metadata-data', 'valueType', 'Value type should valid Java class');
 
                 var qry = queryConfigured(item);
 
@@ -357,10 +358,10 @@ controlCenterModule.controller('metadataController', [
                             var fields = group.fields;
 
                             if ($common.isEmptyArray(fields))
-                                return $common.showPopoverMessage($scope.panels, 'metadataQuery-data', 'groups' + i, 'Group fields are not specified');
+                                return showPopoverMessage($scope.panels, 'metadataQuery-data', 'groups' + i, 'Group fields are not specified');
 
                             if (fields.length == 1) {
-                                return $common.showPopoverMessage($scope.panels, 'metadataQuery-data', 'groups' + i, 'Group has only one field. Consider to use ascending or descending fields.');
+                                return showPopoverMessage($scope.panels, 'metadataQuery-data', 'groups' + i, 'Group has only one field. Consider to use ascending or descending fields.');
                             }
                         }
                     }
@@ -370,19 +371,19 @@ controlCenterModule.controller('metadataController', [
 
                 if (str) {
                     if ($common.isEmptyString(item.databaseSchema))
-                        return $common.showPopoverMessage($scope.panels, 'metadataCache-data', 'databaseSchema', 'Database schema should not be empty');
+                        return showPopoverMessage($scope.panels, 'metadataCache-data', 'databaseSchema', 'Database schema should not be empty');
 
                     if ($common.isEmptyString(item.databaseTable))
-                        return $common.showPopoverMessage($scope.panels, 'metadataCache-data', 'databaseTable', 'Database table should not be empty');
+                        return showPopoverMessage($scope.panels, 'metadataCache-data', 'databaseTable', 'Database table should not be empty');
 
                     if ($common.isEmptyArray(item.keyFields) && !$common.isJavaBuildInClass(item.keyType))
-                        return $common.showPopoverMessage($scope.panels, 'metadataCache-data', 'keyFields-add', 'Key fields are not specified');
+                        return showPopoverMessage($scope.panels, 'metadataCache-data', 'keyFields-add', 'Key fields are not specified');
 
                     if ($common.isEmptyArray(item.valueFields))
-                        return $common.showPopoverMessage($scope.panels, 'metadataCache-data', 'valueFields-add', 'Value fields are not specified');
+                        return showPopoverMessage($scope.panels, 'metadataCache-data', 'valueFields-add', 'Value fields are not specified');
                 }
                 else if (!qry) {
-                    return $common.showPopoverMessage($scope.panels, 'metadataQuery-data', 'metadataQuery-data-title', 'SQL query metadata should be configured');
+                    return showPopoverMessage($scope.panels, 'metadataQuery-data', 'metadataQuery-data-title', 'SQL query metadata should be configured');
                 }
 
                 return true;
@@ -486,12 +487,6 @@ controlCenterModule.controller('metadataController', [
                     });
             };
 
-            function focusInvalidField(index, id) {
-                $focus(index < 0 ? 'new' + id : 'cur' + id);
-
-                return false;
-            }
-
             $scope.tableSimpleValid = function (item, field, name, index) {
                 var model = item[field.model];
 
@@ -502,7 +497,7 @@ controlCenterModule.controller('metadataController', [
                     if (idx >= 0 && idx != index) {
                         $common.showError('Field with such name already exists!');
 
-                        return focusInvalidField(index, 'TextField');
+                        return $table.tableFocusInvalidField(index, 'TextField');
                     }
                 }
 
@@ -521,8 +516,8 @@ controlCenterModule.controller('metadataController', [
                 var pairValue = $table.tablePairValue(field, index);
 
                 if (pairField) {
-                    if (!$common.isValidJavaClass(pairField.msg, pairValue.value, true))
-                        return focusInvalidField(index, 'Value' + pairField.id);
+                    if (!$common.isValidJavaClass(pairField.msg, pairValue.value, true, $table.tableFieldId(index, 'Value' + pairField.id)))
+                        return $table.tableFocusInvalidField(index, 'Value' + pairField.id);
 
                     var model = item[field.model];
 
@@ -535,7 +530,7 @@ controlCenterModule.controller('metadataController', [
                         if (idx >= 0 && idx != index) {
                             $common.showError('Field with such name already exists!');
 
-                            return focusInvalidField(index, 'Key' + pairField.id);
+                            return $table.tableFocusInvalidField(index, 'Key' + pairField.id);
                         }
                     }
                 }
@@ -572,7 +567,7 @@ controlCenterModule.controller('metadataController', [
                     var model = item[field.model];
 
                     if (!$common.isValidJavaIdentifier(dbFieldTable.msg + ' java name', dbFieldValue.javaName))
-                        return focusInvalidField(index, 'JavaName' + dbFieldTable.id);
+                        return $table.tableFocusInvalidField(index, 'JavaName' + dbFieldTable.id);
 
                     if ($common.isDefined(model)) {
                         var idx = _.findIndex(model, function (dbMeta) {
@@ -583,7 +578,7 @@ controlCenterModule.controller('metadataController', [
                         if (idx >= 0 && index != idx) {
                             $common.showError('Field with such database name already exists!');
 
-                            return focusInvalidField(index, 'DatabaseName' + dbFieldTable.id);
+                            return $table.tableFocusInvalidField(index, 'DatabaseName' + dbFieldTable.id);
                         }
 
                         idx = _.findIndex(model, function (dbMeta) {
@@ -594,7 +589,7 @@ controlCenterModule.controller('metadataController', [
                         if (idx >= 0 && index != idx) {
                             $common.showError('Field with such java name already exists!');
 
-                            return focusInvalidField(index, 'JavaName' + dbFieldTable.id);
+                            return $table.tableFocusInvalidField(index, 'JavaName' + dbFieldTable.id);
                         }
 
                         if (index < 0) {
@@ -646,7 +641,7 @@ controlCenterModule.controller('metadataController', [
                     if (idx >= 0 && idx != index) {
                         $common.showError('Group with such name already exists!');
 
-                        return focusInvalidField(index, 'GroupName');
+                        return $table.tableFocusInvalidField(index, 'GroupName');
                     }
                 }
 
@@ -745,8 +740,8 @@ controlCenterModule.controller('metadataController', [
             $scope.tableGroupItemSave = function (field, groupIndex, index) {
                 var groupItemValue = tableGroupItemValue(field, index);
 
-                if (!$common.isValidJavaClass('Group field', groupItemValue.className, true))
-                    return focusInvalidField(index, 'ClassName');
+                if (!$common.isValidJavaClass('Group field', groupItemValue.className, true, $table.tableFieldId(index, 'ClassName')))
+                    return $table.tableFocusInvalidField(index, 'ClassName');
 
                 var fields = $scope.backupItem.groups[groupIndex].fields;
 
@@ -759,7 +754,7 @@ controlCenterModule.controller('metadataController', [
                     if (idx >= 0 && idx != index) {
                         $common.showError('Field with such name already exists in group!');
 
-                        return focusInvalidField(index, 'FieldName');
+                        return $table.tableFocusInvalidField(index, 'FieldName');
                     }
                 }
 

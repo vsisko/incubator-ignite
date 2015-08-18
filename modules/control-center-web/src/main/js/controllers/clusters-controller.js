@@ -34,6 +34,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
 
         $scope.hidePopover = $common.hidePopover;
+        var showPopoverMessage = $common.showPopoverMessage;
 
         $scope.templates = [
             {value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}},label: 'multicast'},
@@ -116,12 +117,6 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             zones: {msg: 'Such zone already exists!', id: 'Zone'}
         };
 
-        function focusInvalidField(index, id) {
-            $focus(index < 0 ? 'new' + id : 'cur' + id);
-
-            return false;
-        }
-
         $scope.tableSimpleValid = function (item, field, val, index) {
             var model = $common.getModel(item, field)[field.model];
 
@@ -135,7 +130,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                     if (simpleTable) {
                         $common.showError(simpleTable.msg);
 
-                        return focusInvalidField(index, simpleTable.id);
+                        return $table.tableFocusInvalidField(index, simpleTable.id);
                     }
                 }
             }
@@ -254,34 +249,34 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         // Check cluster logical consistency.
         function validate(item) {
             if ($common.isEmptyString(item.name))
-                return $common.showPopoverMessage($scope.panels, 'general-data', 'clusterName', 'Name should not be empty');
+                return showPopoverMessage($scope.panels, 'general-data', 'clusterName', 'Name should not be empty');
 
             if (item.discovery.kind == 'Vm' && item.discovery.Vm.addresses.length == 0)
-                return $common.showPopoverMessage($scope.panels, 'general-data', 'addresses', 'Addresses are not specified');
+                return showPopoverMessage($scope.panels, 'general-data', 'addresses', 'Addresses are not specified');
 
             if (item.discovery.kind == 'S3' && $common.isEmptyString(item.discovery.S3.bucketName))
-                return $common.showPopoverMessage($scope.panels, 'general-data', 'bucketName', 'Bucket name should not be empty');
+                return showPopoverMessage($scope.panels, 'general-data', 'bucketName', 'Bucket name should not be empty');
 
             if (item.discovery.kind == 'Cloud') {
                 if ($common.isEmptyString(item.discovery.Cloud.identity))
-                    return $common.showPopoverMessage($scope.panels, 'general-data', 'identity', 'Identity should not be empty');
+                    return showPopoverMessage($scope.panels, 'general-data', 'identity', 'Identity should not be empty');
 
                 if ($common.isEmptyString(item.discovery.Cloud.provider))
-                    return $common.showPopoverMessage($scope.panels, 'general-data', 'provider', 'Provider should not be empty');
+                    return showPopoverMessage($scope.panels, 'general-data', 'provider', 'Provider should not be empty');
             }
 
             if (item.discovery.kind == 'GoogleStorage') {
                 if ($common.isEmptyString(item.discovery.GoogleStorage.projectName))
-                    return $common.showPopoverMessage($scope.panels, 'general-data', 'projectName', 'Project name should not be empty');
+                    return showPopoverMessage($scope.panels, 'general-data', 'projectName', 'Project name should not be empty');
 
                 if ($common.isEmptyString(item.discovery.GoogleStorage.bucketName))
-                    return $common.showPopoverMessage($scope.panels, 'general-data', 'bucketName', 'Bucket name should not be empty');
+                    return showPopoverMessage($scope.panels, 'general-data', 'bucketName', 'Bucket name should not be empty');
 
                 if ($common.isEmptyString(item.discovery.GoogleStorage.serviceAccountP12FilePath))
-                    return $common.showPopoverMessage($scope.panels, 'general-data', 'serviceAccountP12FilePath', 'Private key path should not be empty');
+                    return showPopoverMessage($scope.panels, 'general-data', 'serviceAccountP12FilePath', 'Private key path should not be empty');
 
                 if ($common.isEmptyString(item.discovery.GoogleStorage.serviceAccountId))
-                    return $common.showPopoverMessage($scope.panels, 'general-data', 'serviceAccountId', 'Account ID should not be empty');
+                    return showPopoverMessage($scope.panels, 'general-data', 'serviceAccountId', 'Account ID should not be empty');
             }
 
             if (!item.swapSpaceSpi || !item.swapSpaceSpi.kind && item.caches) {
@@ -294,7 +289,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                         if (cache.swapEnabled) {
                             $scope.ui.expanded = true;
 
-                            return $common.showPopoverMessage($scope.panels, 'swap-data', 'swapSpaceSpi',
+                            return showPopoverMessage($scope.panels, 'swap-data', 'swapSpaceSpi',
                                 'Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!');
                         }
                     }

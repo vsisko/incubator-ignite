@@ -41,6 +41,7 @@ controlCenterModule.controller('cachesController', [
             $scope.compactJavaName = $common.compactJavaName;
 
             $scope.hidePopover = $common.hidePopover;
+            var showPopoverMessage = $common.showPopoverMessage;
 
             $scope.atomicities = $common.mkOptions(['ATOMIC', 'TRANSACTIONAL']);
 
@@ -124,15 +125,9 @@ controlCenterModule.controller('cachesController', [
                 return false;
             };
 
-            function focusInvalidField(index, id) {
-                $focus(index < 0 ? 'new' + id : 'cur' + id);
-
-                return false;
-            }
-
             $scope.tableSimpleValid = function (item, field, fx, index) {
-                if (!$common.isValidJavaClass('SQL function', fx, false))
-                    return focusInvalidField(index, 'SqlFx');
+                if (!$common.isValidJavaClass('SQL function', fx, false, $table.tableFieldId(index, 'SqlFx')))
+                    return $table.tableFocusInvalidField(index, 'SqlFx');
 
                 var model = item[field.model];
 
@@ -143,7 +138,7 @@ controlCenterModule.controller('cachesController', [
                     if (idx >= 0 && idx != index) {
                         $common.showError('SQL function with such class name already exists!');
 
-                        return focusInvalidField(index, 'SqlFx');
+                        return $table.tableFocusInvalidField(index, 'SqlFx');
                     }
                 }
 
@@ -153,11 +148,11 @@ controlCenterModule.controller('cachesController', [
             $scope.tablePairValid = function (item, field, index) {
                 var pairValue = $table.tablePairValue(field, index);
 
-                if (!$common.isValidJavaClass('Indexed type key', pairValue.key, true))
-                    return focusInvalidField(index, 'KeyIndexedType');
+                if (!$common.isValidJavaClass('Indexed type key', pairValue.key, true, $table.tableFieldId(index, 'KeyIndexedType')))
+                    return $table.tableFocusInvalidField(index, 'KeyIndexedType');
 
-                if (!$common.isValidJavaClass('Indexed type value', pairValue.value, true))
-                    return focusInvalidField(index, 'ValueIndexedType');
+                if (!$common.isValidJavaClass('Indexed type value', pairValue.value, true, $table.tableFieldId(index, 'ValueIndexedType')))
+                    return $table.tableFocusInvalidField(index, 'ValueIndexedType');
 
                 var model = item[field.model];
 
@@ -170,7 +165,7 @@ controlCenterModule.controller('cachesController', [
                     if (idx >= 0 && idx != index) {
                         $common.showError('Indexed type with such key class already exists!');
 
-                        return focusInvalidField(index, 'KeyIndexedType');
+                        return $table.tableFocusInvalidField(index, 'KeyIndexedType');
                     }
                 }
 
@@ -284,10 +279,10 @@ controlCenterModule.controller('cachesController', [
             // Check cache logical consistency.
             function validate(item) {
                 if ($common.isEmptyString(item.name))
-                    return $common.showPopoverMessage($scope.panels, 'general-data', 'cacheName', 'Name should not be empty');
+                    return showPopoverMessage($scope.panels, 'general-data', 'cacheName', 'Name should not be empty');
 
                 if (item.memoryMode == 'OFFHEAP_TIERED' && item.offHeapMaxMemory == null)
-                    return $common.showPopoverMessage($scope.panels, 'memory-data', 'offHeapMaxMemory',
+                    return showPopoverMessage($scope.panels, 'memory-data', 'offHeapMaxMemory',
                         'Off-heap max memory should be specified');
 
                 var cacheStoreFactorySelected = item.cacheStoreFactory && item.cacheStoreFactory.kind;
@@ -295,37 +290,37 @@ controlCenterModule.controller('cachesController', [
                 if (cacheStoreFactorySelected) {
                     if (item.cacheStoreFactory.kind == 'CacheJdbcPojoStoreFactory') {
                         if ($common.isEmptyString(item.cacheStoreFactory.CacheJdbcPojoStoreFactory.dataSourceBean))
-                            return $common.showPopoverMessage($scope.panels, 'store-data', 'dataSourceBean',
+                            return showPopoverMessage($scope.panels, 'store-data', 'dataSourceBean',
                                 'Data source bean should not be empty');
 
                         if (!item.cacheStoreFactory.CacheJdbcPojoStoreFactory.dialect)
-                            return $common.showPopoverMessage($scope.panels, 'store-data', 'dialect',
+                            return showPopoverMessage($scope.panels, 'store-data', 'dialect',
                                 'Dialect should not be empty');
                     }
 
                     if (item.cacheStoreFactory.kind == 'CacheJdbcBlobStoreFactory') {
                         if ($common.isEmptyString(item.cacheStoreFactory.CacheJdbcBlobStoreFactory.user))
-                            return $common.showPopoverMessage($scope.panels, 'store-data', 'user',
+                            return showPopoverMessage($scope.panels, 'store-data', 'user',
                                 'User should not be empty');
 
                         if ($common.isEmptyString(item.cacheStoreFactory.CacheJdbcBlobStoreFactory.dataSourceBean))
-                            return $common.showPopoverMessage($scope.panels, 'store-data', 'dataSourceBean',
+                            return showPopoverMessage($scope.panels, 'store-data', 'dataSourceBean',
                                 'Data source bean should not be empty');
                     }
                 }
 
                 if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
-                    return $common.showPopoverMessage($scope.panels, 'store-data', 'readThrough',
+                    return showPopoverMessage($scope.panels, 'store-data', 'readThrough',
                         'Store is configured but read/write through are not enabled!');
                 }
 
                 if ((item.readThrough || item.writeThrough) && !cacheStoreFactorySelected) {
-                    return $common.showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
+                    return showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
                         'Read / write through are enabled but store is not configured!');
                 }
 
                 if (item.writeBehindEnabled && !cacheStoreFactorySelected) {
-                    return $common.showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
+                    return showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
                         'Write behind enabled but store is not configured!');
                 }
 
