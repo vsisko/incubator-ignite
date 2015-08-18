@@ -51,7 +51,7 @@ router.post('/list', function (req, res) {
             });
 
             // Get all clusters for spaces.
-            db.Cluster.find({space: {$in: space_ids}}, '_id name', function (err, clusters) {
+            db.Cluster.find({space: {$in: space_ids}}, '_id name').sort('name').exec(function (err, clusters) {
                 if (_processed(err, res)) {
                     // Get all caches type metadata for spaces.
                     db.CacheTypeMetadata.find({space: {$in: space_ids}}, '_id name kind', function (err, metadatas) {
@@ -59,14 +59,23 @@ router.post('/list', function (req, res) {
                             // Get all caches for spaces.
                             db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
                                 if (_processed(err, res)) {
-                                    // Remove deleted metadata.
+
                                     _.forEach(caches, function (cache) {
+                                        // Remove deleted clusters.
+                                        cache.clusters = _.filter(cache.clusters, function (clusterId) {
+                                            return _.findIndex(clusters, function (cluster) {
+                                                    return cluster._id.equals(clusterId);
+                                                }) >= 0;
+                                        });
+
+                                        // Remove deleted metadata.
                                         cache.queryMetadata = _.filter(cache.queryMetadata, function (metaId) {
                                             return _.findIndex(metadatas, function (meta) {
                                                     return meta._id.equals(metaId);
                                                 }) >= 0;
                                         });
 
+                                        // Remove deleted metadata.
                                         cache.storeMetadata = _.filter(cache.storeMetadata, function (metaId) {
                                             return _.findIndex(metadatas, function (meta) {
                                                     return meta._id.equals(metaId);

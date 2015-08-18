@@ -12,7 +12,7 @@
     "whatsNextContent": [
       "<ul>",
       "  <li>Continue to <a href='/configuration/summary'>Summary</a></li>",
-      "  <li>Back to <a href='/configuration/metadata'>Metadata</a></li>",
+      "  <li>Continue to <a href='/configuration/metadata'>Metadata</a></li>",
       "  <li>Back to <a href='/configuration/clusters'>Clusters</a></li>",
       "</ul>"
     ]
@@ -24,11 +24,11 @@
       "fields": [
         {
           "label": "Name",
+          "id": "cacheName",
           "type": "text",
           "model": "name",
           "required": true,
-          "placeholder": "Input name",
-          "id": "cacheName"
+          "placeholder": "Input name"
         },
         {
           "label": "Clusters",
@@ -117,6 +117,7 @@
     },
     {
       "label": "Memory",
+      "id": "memory-data",
       "tip": [
         "Cache memory settings."
       ],
@@ -143,6 +144,7 @@
         },
         {
           "label": "Off-heap max memory",
+          "id": "offHeapMaxMemory",
           "type": "number",
           "model": "offHeapMaxMemory",
           "min": -1,
@@ -398,6 +400,7 @@
       "fields": [
         {
           "label": "Store factory",
+          "id": "cacheStoreFactory",
           "type": "dropdown-details",
           "settings": true,
           "path": "cacheStoreFactory",
@@ -424,6 +427,7 @@
                 },
                 {
                   "label": "Dialect",
+                  "id": "dialect",
                   "type": "dropdown",
                   "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
                   "model": "dialect",
@@ -459,7 +463,8 @@
               "expanded": true,
               "fields": [
                 {
-                  "label": "user",
+                  "label": "User",
+                  "id": "user",
                   "type": "text",
                   "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "user",
@@ -470,6 +475,7 @@
                 },
                 {
                   "label": "Data source bean",
+                  "id": "dataSourceBean",
                   "type": "text",
                   "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "dataSourceBean",
@@ -598,6 +604,66 @@
           "model": "writeThrough",
           "tip": [
             "Flag indicating whether write-through caching should be used."
+          ]
+        },
+        {
+          "label": "Write behind",
+          "type": "panel-details",
+          "tip": [
+            "Cache write behind settings.",
+            "Write-behind is a special mode when updates to cache accumulated and then asynchronously flushed to persistent store as a bulk operation."
+          ],
+          "details": [
+            {
+              "label": "Enabled",
+              "type": "check",
+              "model": "writeBehindEnabled",
+              "tip": [
+                "Flag indicating whether Ignite should use write-behind behaviour for the cache store."
+              ]
+            },
+            {
+              "label": "Batch size",
+              "type": "number",
+              "model": "writeBehindBatchSize",
+              "disabled": "!backupItem.writeBehindEnabled",
+              "placeholder": 512,
+              "tip": [
+                "Maximum batch size for write-behind cache store operations.",
+                "Store operations (get or remove) are combined in a batch of this size to be passed to cache store."
+              ]
+            },
+            {
+              "label": "Flush size",
+              "type": "number",
+              "model": "writeBehindFlushSize",
+              "disabled": "!backupItem.writeBehindEnabled",
+              "placeholder": 10240,
+              "tip": [
+                "Maximum size of the write-behind cache.<br>",
+                "If cache size exceeds this value, all cached items are flushed to the cache store and write cache is cleared."
+              ]
+            },
+            {
+              "label": "Flush frequency",
+              "type": "number",
+              "model": "writeBehindFlushFrequency",
+              "disabled": "!backupItem.writeBehindEnabled",
+              "placeholder": 5000,
+              "tip": [
+                "Frequency with which write-behind cache is flushed to the cache store in milliseconds."
+              ]
+            },
+            {
+              "label": "Flush threads count",
+              "type": "number",
+              "model": "writeBehindFlushThreadCount",
+              "disabled": "!backupItem.writeBehindEnabled",
+              "placeholder": 1,
+              "tip": [
+                "Number of threads that will perform cache flushing."
+              ]
+            }
           ]
         }
       ]
@@ -912,65 +978,6 @@
           "model": "managementEnabled",
           "tip": [
             "Flag indicating whether management is enabled on this cache."
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Write behind",
-      "tip": [
-        "Cache write behind settings.",
-        "Write-behind is a special mode when updates to cache accumulated and then asynchronously flushed to persistent store as a bulk operation."
-      ],
-      "fields": [
-        {
-          "label": "Enabled",
-          "type": "check",
-          "model": "writeBehindEnabled",
-          "tip": [
-            "Flag indicating whether Ignite should use write-behind behaviour for the cache store."
-          ]
-        },
-        {
-          "label": "Batch size",
-          "type": "number",
-          "model": "writeBehindBatchSize",
-          "hide": "!backupItem.writeBehindEnabled",
-          "placeholder": 512,
-          "tip": [
-            "Maximum batch size for write-behind cache store operations.",
-            "Store operations (get or remove) are combined in a batch of this size to be passed to cache store."
-          ]
-        },
-        {
-          "label": "Flush size",
-          "type": "number",
-          "model": "writeBehindFlushSize",
-          "hide": "!backupItem.writeBehindEnabled",
-          "placeholder": 10240,
-          "tip": [
-            "Maximum size of the write-behind cache.<br>",
-            "If cache size exceeds this value, all cached items are flushed to the cache store and write cache is cleared."
-          ]
-        },
-        {
-          "label": "Flush frequency",
-          "type": "number",
-          "model": "writeBehindFlushFrequency",
-          "hide": "!backupItem.writeBehindEnabled",
-          "placeholder": 5000,
-          "tip": [
-            "Frequency with which write-behind cache is flushed to the cache store in milliseconds."
-          ]
-        },
-        {
-          "label": "Flush threads count",
-          "type": "number",
-          "model": "writeBehindFlushThreadCount",
-          "hide": "!backupItem.writeBehindEnabled",
-          "placeholder": 1,
-          "tip": [
-            "Number of threads that will perform cache flushing."
           ]
         }
       ]

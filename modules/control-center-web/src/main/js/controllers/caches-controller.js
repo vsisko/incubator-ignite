@@ -40,6 +40,8 @@ controlCenterModule.controller('cachesController', [
 
             $scope.compactJavaName = $common.compactJavaName;
 
+            $scope.hidePopover = $common.hidePopover;
+
             $scope.atomicities = $common.mkOptions(['ATOMIC', 'TRANSACTIONAL']);
 
             $scope.modes = $common.mkOptions(['PARTITIONED', 'REPLICATED', 'LOCAL']);
@@ -78,6 +80,8 @@ controlCenterModule.controller('cachesController', [
 
             $scope.toggleExpanded = function () {
                 $scope.ui.expanded = !$scope.ui.expanded;
+
+                $common.hidePopover();
             };
 
             $scope.panels = {activePanels: [0]};
@@ -220,8 +224,7 @@ controlCenterModule.controller('cachesController', [
                                     });
                                 }
 
-                                $scope.selectedItem = cache;
-                                $scope.backupItem = restoredItem;
+                                $scope.selectItem(cache, restoredItem);
                             }
                             else
                                 sessionStorage.removeItem('cacheBackupItem');
@@ -241,13 +244,22 @@ controlCenterModule.controller('cachesController', [
                     $common.showError(errMsg);
                 });
 
-            $scope.selectItem = function (item) {
+            $scope.selectItem = function (item, backup) {
                 $table.tableReset();
 
                 $scope.selectedItem = item;
-                $scope.backupItem = angular.copy(item);
 
-                sessionStorage.cacheSelectedItem = angular.toJson(item);
+                if (backup)
+                    $scope.backupItem = backup;
+                else if (item)
+                    $scope.backupItem = angular.copy(item);
+                else
+                    $scope.backupItem = undefined;
+
+                if (item)
+                    sessionStorage.cacheSelectedItem = angular.toJson(item);
+                else
+                    sessionStorage.removeItem(cacheSelectedItem);
             };
 
             // Add new cache.
@@ -255,41 +267,66 @@ controlCenterModule.controller('cachesController', [
                 $table.tableReset();
                 $common.ensureActivePanel($scope.panels, 'general-data');
 
-                $scope.selectedItem = undefined;
-
-                $scope.backupItem = {
+                var newItem = {
+                    space: $scope.spaces[0]._id,
                     mode: 'PARTITIONED',
                     atomicityMode: 'ATOMIC',
                     readFromBackup: true,
-                    copyOnRead: true
+                    copyOnRead: true,
+                    clusters: [],
+                    queryMetadata: [],
+                    spaceMetadata: []
                 };
 
-                $scope.backupItem.space = $scope.spaces[0]._id;
-                $scope.backupItem.clusters = [];
-                $scope.backupItem.queryMetadata = [];
-                $scope.backupItem.spaceMetadata = [];
+                $scope.selectItem(undefined, newItem);
             };
 
             // Check cache logical consistency.
             function validate(item) {
+                if ($common.isEmptyString(item.name))
+                    return $common.showPopoverMessage($scope.panels, 'general-data', 'cacheName', 'Name should not be empty');
+
+                if (item.memoryMode == 'OFFHEAP_TIERED' && item.offHeapMaxMemory == null)
+                    return $common.showPopoverMessage($scope.panels, 'memory-data', 'offHeapMaxMemory',
+                        'Off-heap max memory should be specified');
+
                 var cacheStoreFactorySelected = item.cacheStoreFactory && item.cacheStoreFactory.kind;
 
-                if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
-                    $common.showError('Store is configured but read/write through are not enabled!');
+                if (cacheStoreFactorySelected) {
+                    if (item.cacheStoreFactory.kind == 'CacheJdbcPojoStoreFactory') {
+                        if ($common.isEmptyString(item.cacheStoreFactory.CacheJdbcPojoStoreFactory.dataSourceBean))
+                            return $common.showPopoverMessage($scope.panels, 'store-data', 'dataSourceBean',
+                                'Data source bean should not be empty');
 
-                    return false;
+                        if (!item.cacheStoreFactory.CacheJdbcPojoStoreFactory.dialect)
+                            return $common.showPopoverMessage($scope.panels, 'store-data', 'dialect',
+                                'Dialect should not be empty');
+                    }
+
+                    if (item.cacheStoreFactory.kind == 'CacheJdbcBlobStoreFactory') {
+                        if ($common.isEmptyString(item.cacheStoreFactory.CacheJdbcBlobStoreFactory.user))
+                            return $common.showPopoverMessage($scope.panels, 'store-data', 'user',
+                                'User should not be empty');
+
+                        if ($common.isEmptyString(item.cacheStoreFactory.CacheJdbcBlobStoreFactory.dataSourceBean))
+                            return $common.showPopoverMessage($scope.panels, 'store-data', 'dataSourceBean',
+                                'Data source bean should not be empty');
+                    }
+                }
+
+                if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
+                    return $common.showPopoverMessage($scope.panels, 'store-data', 'readThrough',
+                        'Store is configured but read/write through are not enabled!');
                 }
 
                 if ((item.readThrough || item.writeThrough) && !cacheStoreFactorySelected) {
-                    $common.showError('Read / write through are enabled but store is not configured!');
-
-                    return false;
+                    return $common.showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
+                        'Read / write through are enabled but store is not configured!');
                 }
 
                 if (item.writeBehindEnabled && !cacheStoreFactorySelected) {
-                    $common.showError('Write behind enabled but store is not configured!');
-
-                    return false;
+                    return $common.showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
+                        'Write behind enabled but store is not configured!');
                 }
 
                 return true;
@@ -370,10 +407,8 @@ controlCenterModule.controller('cachesController', [
 
                                     if (caches.length > 0)
                                         $scope.selectItem(caches[0]);
-                                    else {
-                                        $scope.selectedItem = undefined;
-                                        $scope.backupItem = undefined;
-                                    }
+                                    else
+                                        $scope.selectItem(undefined, undefined);
                                 }
                             })
                             .error(function (errMsg) {

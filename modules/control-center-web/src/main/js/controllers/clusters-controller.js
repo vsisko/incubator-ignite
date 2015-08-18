@@ -194,8 +194,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                                 });
                             }
 
-                            $scope.selectedItem = cluster;
-                            $scope.backupItem = restoredItem;
+                            $scope.selectItem(cluster, restoredItem);
                         }
                         else
                             sessionStorage.removeItem('clusterBackupItem');
@@ -215,13 +214,23 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                 $common.showError(errMsg);
             });
 
-        $scope.selectItem = function (item) {
+        $scope.selectItem = function (item, backup) {
             $table.tableReset();
 
             $scope.selectedItem = item;
-            $scope.backupItem = angular.copy(item);
 
-            sessionStorage.clusterSelectedItem = angular.toJson(item);
+            if (backup)
+                $scope.backupItem = backup;
+            else if (item)
+                $scope.backupItem = angular.copy(item);
+            else
+                $scope.backupItem = undefined;
+
+
+            if (item)
+                sessionStorage.clusterSelectedItem = angular.toJson(item);
+            else
+                sessionStorage.removeItem('clusterSelectedItem');
         };
 
         // Add new cluster.
@@ -229,11 +238,11 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             $table.tableReset();
             $common.ensureActivePanel($scope.panels, "general-data");
 
-            $scope.selectedItem = undefined;
+            var newItem = angular.copy($scope.template);
+            newItem.caches = [];
+            newItem.space = $scope.spaces[0]._id;
 
-            $scope.backupItem = angular.copy($scope.template);
-            $scope.backupItem.caches = [];
-            $scope.backupItem.space = $scope.spaces[0]._id;
+            $scope.selectItem(undefined, newItem);
         };
 
         $scope.indexOfCache = function (cacheId) {
@@ -370,10 +379,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
                                 if (clusters.length > 0)
                                     $scope.selectItem(clusters[0]);
-                                else {
-                                    $scope.selectedItem = undefined;
-                                    $scope.backupItem = undefined;
-                                }
+                                else
+                                    $scope.selectItem(undefined, undefined);
                             }
                         })
                         .error(function (errMsg) {
