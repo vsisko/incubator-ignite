@@ -144,13 +144,13 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    button.form-control(bs-select data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
+                    button.form-control(bs-select data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}' tabindex='0')&attributes(detailCommon)
         div(ng-switch-when='dropdown-multiple')
             label(class=lblDetailClasses ng-class='{required: detail.required}') {{::detail.label}}:
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    button.form-control(bs-select data-multiple='1' data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
+                    button.form-control(bs-select data-multiple='1' data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}' tabindex='-1')&attributes(detailCommon)
         .group-section(ng-switch-when='table-simple')&attributes(detailCommon)
             .col-sm-12.group(id='{{::detail.model}}')
                 .group-legend
@@ -205,7 +205,7 @@ mixin table-db-field-edit(prefix, focusId, index)
     .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
-            select.form-control(id=databaseTypeId enter-focus-next=javaNameId ng-model=databaseTypeModel ng-options='item.value as item.label for item in {{jdbcTypes}}' on-escape='tableReset()')
+            button.form-control(id=databaseTypeId enter-focus-next=javaNameId ng-model=databaseTypeModel bs-select bs-options='item.value as item.label for item in {{jdbcTypes}}' on-escape='tableReset()' tabindex='0')
     .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
@@ -217,7 +217,7 @@ mixin table-db-field-edit(prefix, focusId, index)
 
         +btn-save(btnVisible, btnSave)
         .input-tip
-            select.form-control(id=javaTypeId ng-model=javaTypeModel ng-options='item.value as item.label for item in {{javaTypes}}' on-enter=btnVisibleAndSave on-escape='tableReset()')
+            button.form-control(id=javaTypeId ng-model=javaTypeModel bs-select bs-options='item.value as item.label for item in {{javaTypes}}' on-enter=btnVisibleAndSave on-escape='tableReset()' tabindex='0')
 
 mixin table-group-item-edit(prefix, index)
     -var fieldName = prefix + 'FieldName'
@@ -243,7 +243,7 @@ mixin table-group-item-edit(prefix, index)
     .col-xs-3.col-sm-3.col-md-3
         +btn-save(btnVisible, btnSave)
         .input-tip
-            select.form-control(id=direction ng-model=directionModel ng-options='item.value as item.label for item in {{sortDirections}}' on-enter=btnVisibleAndSave on-escape='tableReset()')
+            button.form-control(id=direction ng-model=directionModel ng-options='item.value as item.label for item in {{sortDirections}}' on-enter=btnVisibleAndSave on-escape='tableReset()' tabindex='0')
 
 mixin form-row(dataSource)
     +form-row-custom(['col-xs-3 col-sm-2 col-md-2'], ['col-xs-6 col-sm-5 col-md-5'], dataSource)
@@ -289,24 +289,18 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                     +ico-exclamation('{{field.model}}', 'min', 'Value is less than allowable minimum.')
                     +ico-exclamation('{{field.model}}', 'max', 'Value is more than allowable maximum.')
                     +ico-exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
-        div(ng-switch-when='select' ng-hide=fieldHide)
-            label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
-            div(class=fieldClasses)
-                +tipField('field.tip')
-                .input-tip
-                    select.form-control(id='{{::field.model}}' ng-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
         div(ng-switch-when='dropdown' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
+                    button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
         div(ng-switch-when='dropdown-multiple' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
+                    button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='-1')&attributes(fieldCommon)
             a.customize(ng-show='field.addLink' ng-href='{{field.addLink.ref}}') {{field.addLink.label}}
         div(ng-switch-when='dropdown-details' ng-hide=fieldHide)
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
@@ -315,7 +309,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses id='{{::field.id}}')
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
+                    button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
             a.customize(ng-show='#{fieldMdl} && field.settings' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
             .col-sm-7.panel-details(ng-show='(#{expanded} || !field.settings) && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')

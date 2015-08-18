@@ -46,7 +46,7 @@
         },
         {
           "label": "Mode",
-          "type": "select",
+          "type": "dropdown",
           "model": "mode",
           "placeholder": "PARTITIONED",
           "items": "modes",
@@ -61,7 +61,7 @@
         },
         {
           "label": "Atomicity",
-          "type": "select",
+          "type": "dropdown",
           "model": "atomicityMode",
           "placeholder": "ATOMIC",
           "items": "atomicities",

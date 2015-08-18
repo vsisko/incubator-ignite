@@ -194,7 +194,7 @@
   "metadataDb": [
     {
       "label": "Driver JAR",
-      "type": "select",
+      "type": "dropdown",
       "model": "jdbcDriverJar",
       "items": "jdbcDriverJars",
       "tip": [
