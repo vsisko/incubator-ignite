@@ -175,18 +175,24 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                         if (idx >= 0) {
                             var cluster = $scope.clusters[idx];
 
-                            var restoredSelectedItem = angular.fromJson(sessionStorage.clusterSelectedBackupItem);
+                            var restoredSelectedItem = angular.fromJson(sessionStorage.clusterSelectedItem);
 
-                            if (restoredSelectedItem) {
-                                // TODO
+                            // Caches not changed by user. We should take caches from server as they could be changed on Caches screen.
+                            if (restoredSelectedItem && _.isEqual(restoredItem.caches, restoredSelectedItem.caches)) {
+                                restoredItem.caches = [];
+
+                                _.forEach(cluster.caches, function (cache) {
+                                    restoredItem.caches.push(cache)
+                                });
                             }
-
-                            // Remove deleted caches.
-                            restoredItem.caches = _.filter(restoredItem.caches, function (cacheId) {
-                                return _.findIndex($scope.caches, function (scopeCache) {
-                                        return scopeCache.value == cacheId;
-                                    }) >= 0;
-                            });
+                            else {
+                                // Caches changed by user. We need to remove deleted caches (if any).
+                                restoredItem.caches = _.filter(restoredItem.caches, function (cacheId) {
+                                    return _.findIndex($scope.caches, function (scopeCache) {
+                                            return scopeCache.value == cacheId;
+                                        }) >= 0;
+                                });
+                            }
 
                             $scope.selectedItem = cluster;
                             $scope.backupItem = restoredItem;
@@ -215,7 +221,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             $scope.selectedItem = item;
             $scope.backupItem = angular.copy(item);
 
-            sessionStorage.slectedClusterBackupItem = angular.toJson(item);
+            sessionStorage.clusterSelectedItem = angular.toJson(item);
         };
 
         // Add new cluster.

@@ -199,7 +199,28 @@ controlCenterModule.controller('cachesController', [
                             });
 
                             if (idx >= 0) {
-                                $scope.selectedItem = $scope.caches[idx];
+                                var cache = $scope.caches[idx];
+
+                                var restoredSelectedItem = angular.fromJson(sessionStorage.cacheSelectedItem);
+
+                                // Clusters not changed by user. We should take clusters from server as they could be changed on Clusters screen.
+                                if (restoredSelectedItem && _.isEqual(restoredItem.clusters, restoredSelectedItem.clusters)) {
+                                    restoredItem.clusters = [];
+
+                                    _.forEach(cache.clusters, function (cache) {
+                                        restoredItem.clusters.push(cache)
+                                    });
+                                }
+                                else {
+                                    // Clusters changed by user. We need to remove deleted clusters (if any).
+                                    restoredItem.clusters = _.filter(restoredItem.clusters, function (clusterId) {
+                                        return _.findIndex($scope.clusters, function (scopeCcluster) {
+                                                return scopeCcluster.value == clusterId;
+                                            }) >= 0;
+                                    });
+                                }
+
+                                $scope.selectedItem = cache;
                                 $scope.backupItem = restoredItem;
                             }
                             else
@@ -225,6 +246,8 @@ controlCenterModule.controller('cachesController', [
 
                 $scope.selectedItem = item;
                 $scope.backupItem = angular.copy(item);
+
+                sessionStorage.cacheSelectedItem = angular.toJson(item);
             };
 
             // Add new cache.
