@@ -145,15 +145,15 @@ controlCenterModule.service('$common', [
 
         var VALID_JAVA_IDENTIFIER = new RegExp('^[a-zA-Z_$][a-zA-Z\d_$]*');
 
-        function isValidJavaIdentifier(msg, ident) {
+        function isValidJavaIdentifier(msg, ident, elemId) {
             if (isEmptyString(ident))
-                return showError(msg + ' could not be empty!');
+                return showPopoverMessage(null, null, elemId, msg + ' could not be empty!');
 
             if (_.contains(JAVA_KEYWORDS, ident))
-                return showError(msg + ' could not contains reserved java keyword: "' + ident + '"!');
+                return showPopoverMessage(null, null, elemId, msg + ' could not contains reserved java keyword: "' + ident + '"!');
 
             if (!VALID_JAVA_IDENTIFIER.test(ident))
-                return showError(msg + ' contains invalid identifier: "' + ident + '"!');
+                return showPopoverMessage(null, null, elemId, msg + ' contains invalid identifier: "' + ident + '"!');
 
             return true;
         }
@@ -415,6 +415,31 @@ controlCenterModule.service('$common', [
             }
         }
 
+        function showPopoverMessage(panels, panelId, id, message) {
+            ensureActivePanel(panels, panelId);
+
+            var el = $('body').find('#' + id);
+
+            if (popover)
+                popover.hide();
+
+            var newPopover = $popover(el, {content: message});
+
+            $timeout(function () {
+                $focus(id);
+            }, 50);
+
+            $timeout(function () {
+                newPopover.show();
+
+                popover = newPopover;
+            }, 100);
+
+            $timeout(function () { newPopover.hide() }, 3000);
+
+            return false;
+        }
+
         return {
             getModel: function (obj, field) {
                 var path = field.path;
@@ -480,19 +505,19 @@ controlCenterModule.service('$common', [
             javaBuildInClasses: javaBuildInClasses,
             isJavaBuildInClass: isJavaBuildInClass,
             isValidJavaIdentifier: isValidJavaIdentifier,
-            isValidJavaClass: function (msg, ident, allowBuildInClass) {
+            isValidJavaClass: function (msg, ident, allowBuildInClass, elemId) {
                 if (isEmptyString(ident))
-                    return showError(msg + ' could not be empty!');
+                    return showPopoverMessage(null, null, elemId, msg + ' could not be empty!');
 
                 var parts = ident.split('.');
 
                 var len = parts.length;
 
                 if (!allowBuildInClass && isJavaBuildInClass(ident))
-                    return showError(msg + ' should not be the Java build-in class!');
+                    return showPopoverMessage(null, null, elemId, msg + ' should not be the Java build-in class!');
 
                 if (len < 2 && !isJavaBuildInClass(ident))
-                    return showError(msg + ' does not have package specified!');
+                    return showPopoverMessage(null, null, elemId, msg + ' does not have package specified!');
 
                 for (var i = 0; i < parts.length; i++) {
                     var part = parts[i];
@@ -541,28 +566,7 @@ controlCenterModule.service('$common', [
                 ensureActivePanel(panels, id);
             },
             showPopoverMessage: function (panels, panelId, id, message) {
-                ensureActivePanel(panels, panelId);
-
-                var el = $('body').find('#' + id);
-
-                if (popover)
-                    popover.hide();
-
-                var newPopover = $popover(el, {content: message});
-
-                $timeout(function () {
-                    $focus(id);
-                }, 50);
-
-                $timeout(function () {
-                    newPopover.show();
-
-                    popover = newPopover;
-                }, 100);
-
-                $timeout(function () { newPopover.hide() }, 3000);
-
-                return false;
+                return showPopoverMessage(panels, panelId, id, message)
             },
             hidePopover: function () {
                 if (popover)
@@ -839,6 +843,14 @@ controlCenterModule.service('$table', [
                 var pairValue = _tablePairValue(field, index);
 
                 return !$common.isEmptyString(pairValue.key) && !$common.isEmptyString(pairValue.value);
+            },
+            tableFocusInvalidField: function (index, id) {
+                _tableFocus(id, index);
+
+                return false;
+            },
+            tableFieldId: function(index, id) {
+                return (index < 0 ? 'new' : 'cur') + id;
             }
         }
     }]);
