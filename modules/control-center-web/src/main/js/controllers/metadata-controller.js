@@ -16,8 +16,11 @@
  */
 
 controlCenterModule.controller('metadataController', [
-        '$scope', '$http', '$modal', '$common', '$timeout', '$focus', '$confirm', '$copy', '$table',
-        function ($scope, $http, $modal, $common, $timeout, $focus, $confirm, $copy, $table) {
+        '$scope', '$controller', '$http', '$modal', '$common', '$timeout', '$focus', '$confirm', '$copy', '$table',
+        function ($scope, $controller, $http, $modal, $common, $timeout, $focus, $confirm, $copy, $table) {
+            // Initialize the super class and extend it.
+            angular.extend(this, $controller('agent-download', {$scope: $scope}));
+
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
             $scope.javaBuildInClasses = $common.javaBuildInClasses;
@@ -216,12 +219,7 @@ controlCenterModule.controller('metadataController', [
                     })
                     .error(function (errMsg, status) {
                         if (status == 503)
-                            loadMetaModal.$promise.then(function () {
-                                $scope.loadMeta.action = 'download';
-                                $scope.loadMeta.tables = [];
-
-                                loadMetaModal.show();
-                            });
+                            $scope.showDownloadAgent();
                         else
                             $common.showError(errMsg);
                     });

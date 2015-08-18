@@ -1111,6 +1111,32 @@ controlCenterModule.controller('auth', [
         }
     }]);
 
+// Download agent controller.
+controlCenterModule.controller('agent-download', [
+    '$scope', '$modal', function ($scope, $modal) {
+        // Pre-fetch modal dialogs.
+        var _agentDownloadModal = $modal({scope: $scope, templateUrl: '/agent/agent-download', show: false});
+
+        $scope.downloadAgent = function () {
+            _agentDownloadModal.hide();
+
+            var lnk = document.createElement('a');
+
+            lnk.setAttribute('href', '/agent/agent.zip');
+            lnk.style.display = 'none';
+
+            document.body.appendChild(lnk);
+
+            lnk.click();
+
+            document.body.removeChild(lnk);
+        };
+
+        $scope.showDownloadAgent = function () {
+            _agentDownloadModal.$promise.then(_agentDownloadModal.show);
+        };
+}]);
+
 // Navigation bar controller.
 controlCenterModule.controller('notebooks', [
     '$scope', '$http', '$common', function ($scope, $http, $common) {

@@ -19,6 +19,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     function ($scope, $controller, $http, $common) {
     // Initialize the super class and extend it.
     angular.extend(this, $controller('notebooks', {$scope: $scope}));
+    angular.extend(this, $controller('agent-download', {$scope: $scope}));
 
     $scope.joinTip = $common.joinTip;
 
@@ -84,7 +85,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
         .error(function (errMsg) {
             $scope.caches = undefined;
 
-            $common.showError(errMsg);
+            $scope.showDownloadAgent();
         });
 
     $scope.execute = function(tab) {
@@ -130,7 +131,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     };
 
     $scope.nextPage = function(tab) {
-        $http.post('/agent/next_page', {queryId: tab.queryId, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
+        $http.post('/agent/query_fetch', {queryId: tab.queryId, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
             .success(function (res) {
                 tab.page++;
 

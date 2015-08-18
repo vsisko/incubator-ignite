@@ -22,14 +22,6 @@ include ../includes/controls
             #errors-container.modal-header.header
                 button.close(type='button' ng-click='$hide()' aria-hidden='true') &times;
                 h4.modal-title Load metadata from database
-            .metadata-download(ng-show='loadMeta.action == "download"')
-                |Connection to Web Agent is not established!<br/><br/>
-                |How to load metadata from database:
-                ul
-                    li Download Web Agent.
-                    li Unzip Web Agent to some folder.
-                    li Please refer to the README.txt how to configure and start Web Agent.
-
             div(ng-show='loadMeta.action == "connect"')
                 form.form-horizontal(name='loadForm' novalidate)
                     .modal-body
@@ -59,7 +51,6 @@ include ../includes/controls
                                 div(st-pagination st-items-by-page='10' st-displayed-pages='5')
 
             .modal-footer
-                button.btn.btn-primary(ng-show='loadMeta.action == "download"' ng-click='downloadAgent()') Download
                 button.btn.btn-primary(ng-show='loadMeta.action == "connect"' ng-disabled='loadForm.$invalid' ng-click='loadMetadataFromDb()') Load metadata
                 button.btn.btn-primary(ng-show='loadMeta.action == "tables"' ng-click='loadMeta.action = "connect"') Prev
                 button.btn.btn-primary(ng-show='loadMeta.action == "tables"' ng-click='saveSelectedMetadata()') Save
