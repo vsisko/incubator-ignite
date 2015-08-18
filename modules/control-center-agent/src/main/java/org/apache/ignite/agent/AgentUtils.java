@@ -18,7 +18,7 @@
 package org.apache.ignite.agent;
 
 import java.io.*;
-import java.net.*;
+import java.nio.file.*;
 
 /**
  * Utility methods.
@@ -32,25 +32,9 @@ public class AgentUtils {
     }
 
     /**
-     * @return Folder where agent.jar is located.
+     * @return App folder.
      */
     public static File getAgentHome() {
-        URL jarLogCfgUrl = AgentLauncher.class.getResource("/logging.properties");
-
-        String path = jarLogCfgUrl.getFile();
-
-        int jarSeparatorIdx = path.lastIndexOf("!/");
-
-        if (jarSeparatorIdx == -1)
-            return null;
-
-        path = path.substring(0, jarSeparatorIdx);
-
-        if (path.startsWith("file:"))
-            path = path.substring("file:".length());
-
-        File jarFile = new File(path);
-
-        return jarFile.getParentFile();
+        return Paths.get("").toAbsolutePath().toFile();
     }
 }

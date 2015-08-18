@@ -58,7 +58,6 @@ public class DatabaseMetadataExtractor {
      * @param jdbcDriverCls JDBC driver class.
      * @param jdbcUrl JDBC URL.
      * @param jdbcInfo Properties to connect to database.
-     *
      * @return Collection of tables.
      */
     @Remote
@@ -98,20 +97,30 @@ public class DatabaseMetadataExtractor {
     }
 
     /**
+     * @param path Path to normalize.
+     * @return Normalized file path.
+     */
+    private String normalizePath(String path) {
+        return path != null ? path.replace('\\', '/') : null;
+    }
+
+    /**
      * @return Drivers in drivers folder
      * @see AgentConfiguration#driversFolder
      */
     @Remote
     public List<JdbcDriver> availableDrivers() {
-        log.log(Level.INFO, "Collecting JDBC drivers in folder: " + driversFolder);
+        String drvFolder = normalizePath(driversFolder);
 
-        if (driversFolder == null) {
+        log.log(Level.INFO, "Collecting JDBC drivers in folder: " + drvFolder);
+
+        if (drvFolder == null) {
             log.log(Level.INFO, "JDBC drivers folder not specified, returning empty list");
 
             return Collections.emptyList();
         }
 
-        String[] list = new File(driversFolder).list();
+        String[] list = new File(drvFolder).list();
 
         if (list == null) {
             log.log(Level.INFO, "JDBC drivers folder has no files, returning empty list");
@@ -124,17 +133,20 @@ public class DatabaseMetadataExtractor {
         for (String fileName : list) {
             if (fileName.endsWith(".jar")) {
                 try {
-                    String spec = "jar:file:/" + driversFolder + '/' + fileName + "!/META-INF/services/java.sql.Driver";
+                    String spec = normalizePath("jar:file:/" + drvFolder + '/' + fileName +
+                        "!/META-INF/services/java.sql.Driver");
 
-                    URL url = new URL(spec.replace('\\', '/'));
+                    URL url = new URL(spec);
 
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
                         String jdbcDriverClass = reader.readLine();
+
                         res.add(new JdbcDriver(jdbcDriverClass, fileName));
 
                         log.log(Level.INFO, "Found: [driver=" + fileName + ", class=" + jdbcDriverClass + "]");
                     }
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     res.add(new JdbcDriver(null, fileName));
 
                     log.log(Level.INFO, "Found: [driver=" + fileName + "]");
