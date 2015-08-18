@@ -15,8 +15,12 @@
  * limitations under the License.
  */
 
+var _ = require('lodash');
 var router = require('express').Router();
+var nodemailer = require('nodemailer');
+
 var db = require('../db');
+var config = require('../helpers/configuration-loader.js');
 
 router.get('/', function (req, res) {
     res.render('settings/admin');
@@ -37,11 +41,49 @@ router.post('/list', function (req, res) {
 router.post('/remove', function (req, res) {
     var userId = req.body.userId;
 
-    db.Account.findByIdAndRemove(userId, function (err) {
+    db.Account.findByIdAndRemove(userId, function (err, user) {
         if (err)
-            return res.status(500).send(err);
+            return res.status(500).send(err.message);
 
-        res.sendStatus(200);
+        db.Space.find({owner: userId}, function(err, spaces) {
+            _.forEach(spaces, function (space) {
+                db.Cluster.remove({space: space._id}).exec();
+                db.Cache.remove({space: space._id}).exec();
+                db.Persistence.remove({space: space._id}).exec();
+                db.Notebook.remove({space: space._id}).exec();
+                db.Space.remove({owner: space._id}).exec();
+            });
+        });
+
+        var transporter = {
+            service: config.get('smtp:service'),
+            auth: {
+                user:config.get('smtp:username'),
+                pass: config.get('smtp:password')
+            }
+        };
+
+        if (transporter.service != '' || transporter.auth.user != '' || transporter.auth.pass != '') {
+            var mailer  = nodemailer.createTransport(transporter);
+
+            var mailOptions = {
+                from: transporter.auth.user,
+                to: user.email,
+                subject: 'Your account was deleted',
+                text: 'You are receiving this e-mail because admin removed your account.\n\n' +
+                '--------------\n' +
+                'Apache Ignite Web Control Center http://' + req.headers.host + '\n'
+            };
+
+            mailer.sendMail(mailOptions, function(err){
+                if (err)
+                    return res.status(500).send('Failed to send e-mail notification to user!<br />' + err);
+
+                res.sendStatus(200);
+            });
+        }
+        else
+            res.sendStatus(200);
     });
 });
 
