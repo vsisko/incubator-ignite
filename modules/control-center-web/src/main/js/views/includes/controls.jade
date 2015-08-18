@@ -244,7 +244,7 @@ mixin table-group-item-edit(prefix, index)
     .col-xs-3.col-sm-3.col-md-3
         +btn-save(btnVisible, btnSave)
         .input-tip
-            button.form-control(id=direction ng-model=directionModel ng-options='item.value as item.label for item in {{sortDirections}}' on-enter=btnVisibleAndSave on-escape='tableReset()' tabindex='0')
+            button.form-control(id=direction ng-model=directionModel bs-select bs-options='item.value as item.label for item in {{sortDirections}}' on-enter=btnVisibleAndSave on-escape='tableReset()' tabindex='0')
 
 mixin form-row(dataSource)
     +form-row-custom(['col-xs-3 col-sm-2 col-md-2'], ['col-xs-6 col-sm-5 col-md-5'], dataSource)

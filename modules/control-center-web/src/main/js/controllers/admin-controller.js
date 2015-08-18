@@ -47,8 +47,11 @@ controlCenterModule.controller('adminController', ['$scope', '$window', '$http',
                         $scope.users.splice(i, 1);
 
                     $common.showInfo('User has been removed: "' + user.username + '"');
-                }).error(function (errMsg) {
-                    $common.showError('Failed to remove user: "' + $common.errorMessage(errMsg) + '"');
+                }).error(function (errMsg, status) {
+                    if (status == 503)
+                        $common.showInfo(errMsg);
+                    else
+                        $common.showError('Failed to remove user: "' + $common.errorMessage(errMsg) + '"');
                 });
         });
     };

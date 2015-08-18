@@ -70,14 +70,14 @@ router.post('/remove', function (req, res) {
                 from: transporter.auth.user,
                 to: user.email,
                 subject: 'Your account was deleted',
-                text: 'You are receiving this e-mail because admin removed your account.\n\n' +
+                text: 'You are receiving this e-mail because admin remove your account.\n\n' +
                 '--------------\n' +
                 'Apache Ignite Web Control Center http://' + req.headers.host + '\n'
             };
 
             mailer.sendMail(mailOptions, function(err){
                 if (err)
-                    return res.status(500).send('Failed to send e-mail notification to user!<br />' + err);
+                    return res.status(503).send('Account was removed, but failed to send e-mail notification to user!<br />' + err);
 
                 res.sendStatus(200);
             });
