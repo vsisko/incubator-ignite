@@ -18,7 +18,7 @@
     .modal-dialog
         .modal-content
             .modal-header
-                button.close(type='button' ng-click='$hide()')
+                button.close(type='button' ng-click='$hide()' aria-hidden='true') &times;
                 h4.modal-title Confirmation
             .modal-body(ng-show='content')
                 p(ng-bind-html='content' style='text-align: center;')
