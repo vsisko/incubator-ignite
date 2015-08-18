@@ -12,7 +12,7 @@
     "whatsNextContent": [
       "<ul>",
       "  <li>Continue to <a href='/configuration/summary'>Summary</a></li>",
-      "  <li>Back to <a href='/configuration/metadata'>Metadata</a></li>",
+      "  <li>Continue to <a href='/configuration/metadata'>Metadata</a></li>",
       "  <li>Back to <a href='/configuration/clusters'>Clusters</a></li>",
       "</ul>"
     ]

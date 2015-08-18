@@ -314,7 +314,6 @@ controlCenterModule.controller('cachesController', [
                     }
                 }
 
-
                 if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
                     return $common.showPopoverMessage($scope.panels, 'store-data', 'readThrough',
                         'Store is configured but read/write through are not enabled!');
