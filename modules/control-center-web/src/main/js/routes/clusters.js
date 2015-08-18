@@ -24,6 +24,16 @@ router.get('/', function (req, res) {
     res.render('configuration/clusters');
 });
 
+function _processed(err, res) {
+    if (err) {
+        res.status(500).send(err.message);
+
+        return false;
+    }
+
+    return true;
+}
+
 /**
  * Get spaces and clusters accessed for user account.
  *
@@ -35,38 +45,38 @@ router.post('/list', function (req, res) {
 
     // Get owned space and all accessed space.
     db.Space.find({$or: [{owner: user_id}, {usedBy: {$elemMatch: {account: user_id}}}]}, function (err, spaces) {
-        if (err)
-            return res.status(500).send(err.message);
-
-        var space_ids = spaces.map(function (value) {
-            return value._id;
-        });
-
-        db.Cache.find({space: {$in: space_ids}}, '_id name swapEnabled', function (err, caches) {
-            if (err)
-                return res.status(500).send(err);
-
-            // Get all clusters for spaces.
-            db.Cluster.find({space: {$in: space_ids}}).sort('name').exec(function (err, clusters) {
-                if (err)
-                    return res.status(500).send(err.message);
-
-                // Remove deleted caches.
-                _.forEach(clusters, function (cluster) {
-                    cluster.caches = _.filter(cluster.caches, function (cacheId) {
-                        return _.findIndex(caches, function (cache) {
-                            return cache._id.equals(cacheId);
-                        }) >= 0;
-                    });
-                });
-
-                var cachesJson = caches.map(function (cache) {
-                    return {value: cache._id, label: cache.name, swapEnabled: cache.swapEnabled};
-                });
-
-                res.json({spaces: spaces, caches: cachesJson, clusters: clusters});
+        if (_processed(err, res)) {
+            var space_ids = spaces.map(function (value) {
+                return value._id;
             });
-        });
+
+            // Get all caches for spaces.
+            db.Cache.find({space: {$in: space_ids}}, '_id name swapEnabled', function (err, caches) {
+                if (_processed(err, res)) {
+                    // Get all clusters for spaces.
+                    db.Cluster.find({space: {$in: space_ids}}).sort('name').exec(function (err, clusters) {
+                        if (_processed(err, res)) {
+                            // Remove deleted caches.
+                            _.forEach(clusters, function (cluster) {
+                                cluster.caches = _.filter(cluster.caches, function (cacheId) {
+                                    return _.findIndex(caches, function (cache) {
+                                            return cache._id.equals(cacheId);
+                                        }) >= 0;
+                                });
+                            });
+
+                            res.json({
+                                spaces: spaces,
+                                caches: caches.map(function (cache) {
+                                    return {value: cache._id, label: cache.name, swapEnabled: cache.swapEnabled};
+                                }),
+                                clusters: clusters
+                            });
+                        }
+                    });
+                }
+            });
+        }
     });
 });
 
@@ -75,28 +85,38 @@ router.post('/list', function (req, res) {
  */
 router.post('/save', function (req, res) {
     var params = req.body;
+    var clusterId = params._id;
+    var caches = params.caches;
 
     if (params._id)
         db.Cluster.update({_id: params._id}, params, {upsert: true}, function (err) {
-            if (err)
-                return res.status(500).send(err.message);
-
-            res.send(params._id);
+            if (_processed(err, res))
+                db.Cache.update({_id: {$in: caches}}, {$addToSet: {clusters: clusterId}}, {upsert: true, multi: true}, function(err) {
+                    if (_processed(err, res)) {
+                        db.Cache.update({_id: {$nin: caches}}, {$pull: {clusters: clusterId}}, {upsert: true, multi: true}, function(err) {
+                            if (_processed(err, res))
+                                res.send(params._id);
+                        });
+                    }
+                });
         });
     else {
         db.Cluster.findOne({space: params.space, name: params.name}, function (err, cluster) {
-            if (err)
-                return res.status(500).send(err.message);
+            if (_processed(err, res)) {
+                if (cluster)
+                    return res.status(500).send('Cluster with name: "' + cluster.name + '" already exist.');
 
-            if (cluster)
-                return res.status(500).send('Cluster with name: "' + cluster.name + '" already exist.');
+                (new db.Cluster(params)).save(function (err, cluster) {
+                    if (_processed(err, res)) {
+                        clusterId = cluster._id;
 
-            (new db.Cluster(params)).save(function (err, cluster) {
-                if (err)
-                    return res.status(500).send(err.message);
-
-                res.send(cluster._id);
-            });
+                        db.Cache.update({_id: {$in: caches}}, {$addToSet: {clusters: clusterId}}, {upsert: true, multi: true}, function (err) {
+                            if (_processed(err, res))
+                                res.send(clusterId);
+                        });
+                    }
+                });
+            }
         });
     }
 });
