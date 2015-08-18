@@ -40,14 +40,15 @@
         <fileSet>
             <directory>${basedir}/bin</directory>
             <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
             <includes>
                 <include>**/*.bat</include>
-                <include>**/*.exe</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${basedir}/bin</directory>
             <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
             <fileMode>0755</fileMode>
             <includes>
                 <include>**/*.sh</include>
