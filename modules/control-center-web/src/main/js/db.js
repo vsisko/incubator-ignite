@@ -28,7 +28,7 @@ var deepPopulate = require('mongoose-deep-populate')( mongoose);
 // Connect to mongoDB database.
 mongoose.connect(config.get('mongoDB:url'), {server: {poolSize: 4}});
 
-// Define account model.
+// Define Account schema.
 var AccountSchema = new Schema({
     username: String,
     email: String,
@@ -37,9 +37,11 @@ var AccountSchema = new Schema({
     resetPasswordToken: String
 });
 
+// Install passport plugin.
 AccountSchema.plugin(passportLocalMongoose, {usernameField: 'email', limitAttempts: true, lastLoginField: 'lastLogin',
     usernameLowerCase: true});
 
+// Configure transformation to JSON.
 AccountSchema.set('toJSON', {
     transform: function(doc, ret) {
         return {
@@ -52,9 +54,10 @@ AccountSchema.set('toJSON', {
     }
 });
 
+// Define Account model.
 exports.Account = mongoose.model('Account', AccountSchema);
 
-// Define space model.
+// Define Space model.
 exports.Space = mongoose.model('Space', new Schema({
     name: String,
     owner: {type: ObjectId, ref: 'Account'},
@@ -64,7 +67,7 @@ exports.Space = mongoose.model('Space', new Schema({
     }]
 }));
 
-// Define cache type metadata model.
+// Define Cache type metadata schema.
 var CacheTypeMetadataSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
@@ -82,9 +85,10 @@ var CacheTypeMetadataSchema = new Schema({
     groups: [{name: String, fields: [{name: String, className: String, direction: Boolean}]}]
 });
 
+// Define Cache type metadata model.
 exports.CacheTypeMetadata = mongoose.model('CacheTypeMetadata', CacheTypeMetadataSchema);
 
-// Define cache model.
+// Define Cache schema.
 var CacheSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
@@ -206,9 +210,10 @@ var CacheSchema = new Schema({
     }
 });
 
+// Define Cache model.
 exports.Cache = mongoose.model('Cache', CacheSchema);
 
-// Define cluster schema.
+// Define Cluster schema.
 var ClusterSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
@@ -317,6 +322,7 @@ var ClusterSchema = new Schema({
     waitForSegmentOnStart: Boolean
 });
 
+// Install deep populate plugin.
 ClusterSchema.plugin(deepPopulate, {
     whitelist: [
         'caches',
@@ -325,40 +331,10 @@ ClusterSchema.plugin(deepPopulate, {
     ]
 });
 
-// Define cluster model.
+// Define Cluster model.
 exports.Cluster = mongoose.model('Cluster', ClusterSchema);
 
-// Define persistence schema.
-var PersistenceSchema = new Schema({
-    space: {type: ObjectId, ref: 'Space'},
-    name: String,
-    rdbms: {type: String, enum: ['oracle', 'db2', 'mssql', 'postgre', 'mysql', 'h2']},
-    dbName: String,
-    host: String,
-    user: String,
-    tables: [{
-        use: Boolean,
-        schemaName: String,
-        tableName: String,
-        keyClass: String,
-        valueClass: String,
-        columns: [{
-            use: Boolean,
-            pk: Boolean,
-            ak: Boolean,
-            notNull: Boolean,
-            databaseName: String,
-            databaseType: Number,
-            javaName: String,
-            javaType: String
-        }]
-    }]
-});
-
-// Define persistence model.
-exports.Persistence = mongoose.model('Persistence', PersistenceSchema);
-
-// Define persistence schema.
+// Define Notebook schema.
 var NotebookSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
@@ -367,8 +343,20 @@ var NotebookSchema = new Schema({
     }]
 });
 
-// Define persistence model.
+// Define Notebook model.
 exports.Notebook = mongoose.model('Notebook', NotebookSchema);
+
+// Define Database preset schema.
+var DatabasePresetSchema = new Schema({
+    space: {type: ObjectId, ref: 'Space'},
+    jdbcDriverJar: String,
+    jdbcDriverClass: String,
+    jdbcUrl: String,
+    user: String
+});
+
+// Define Database preset model.
+exports.DatabasePreset = mongoose.model('DatabasePreset', DatabasePresetSchema);
 
 exports.upsert = function (model, data, cb) {
     if (data._id) {
@@ -380,6 +368,16 @@ exports.upsert = function (model, data, cb) {
     }
     else
         new model(data).save(cb);
+};
+
+exports.processed = function(err, res) {
+    if (err) {
+        res.status(500).send(err.message);
+
+        return false;
+    }
+
+    return true;
 };
 
 exports.mongoose = mongoose;

@@ -248,7 +248,7 @@ controlCenterModule.controller('cachesController', [
                 if (item)
                     sessionStorage.cacheSelectedItem = angular.toJson(item);
                 else
-                    sessionStorage.removeItem(cacheSelectedItem);
+                    sessionStorage.removeItem('cacheSelectedItem');
             };
 
             // Add new cache.
