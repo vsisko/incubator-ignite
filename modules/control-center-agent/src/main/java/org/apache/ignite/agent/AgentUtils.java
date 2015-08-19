@@ -59,7 +59,7 @@ public class AgentUtils {
             if (windows && classesUri.getAuthority() != null)
                 classesUri = new URI(classesUri.toString().replace("file://", "file:/"));
 
-            return new File(classesUri);
+            return new File(classesUri).getParentFile();
         }
         catch (URISyntaxException | SecurityException ignored) {
             log.log(Level.WARNING, "Failed to resolve agent jar location!");
