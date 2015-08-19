@@ -27,6 +27,12 @@ import java.util.*;
  * Agent configuration.
  */
 public class AgentConfiguration {
+    /** Default server URI. */
+    private static final String DFLT_SERVER_URI = "wss://localhost:3001";
+
+    /** Default Ignite node HTTP URI. */
+    private static final String DFLT_NODE_URI = "http://localhost:8080";
+
     /** */
     @Parameter(names = {"-l", "--login"}, description = "User's login (email) on Ignite Web Control Center")
     private String login;
@@ -37,8 +43,8 @@ public class AgentConfiguration {
 
     /** */
     @Parameter(names = {"-s", "--serverUri"}, description = "URI for connect to Ignite Web Control Center via " +
-        "web-socket protocol, for example: wss://control-center.my-company.com")
-    private String srvUri = "wss://localhost:3001";
+        "web-socket protocol, for example: wss://control-center.my-company.com:3001")
+    private String srvUri;
 
     /** */
     @Parameter(names = {"-n", "--nodeUri"}, description = "URI for connect to Ignite REST server, " +
@@ -191,11 +197,14 @@ public class AgentConfiguration {
         if (cmd.getServerUri() != null)
             setServerUri(cmd.getServerUri());
 
+        if (srvUri == null)
+            setServerUri(DFLT_SERVER_URI);
+
         if (cmd.getNodeUri() != null)
             setNodeUri(cmd.getNodeUri());
 
-        if (cmd.getConfigPath() != null)
-            setNodeUri(cmd.getNodeUri());
+        if (nodeUri == null)
+            setNodeUri(DFLT_NODE_URI);
 
         if (cmd.getDriversFolder() != null)
             setDriversFolder(cmd.getDriversFolder());

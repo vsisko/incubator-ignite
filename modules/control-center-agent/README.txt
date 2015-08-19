@@ -25,7 +25,7 @@ Configuration file:
 
     Example configuration file:
         login=john.smith@gmail.com
-        serverURI=wss://control-center.example.com
+        serverURI=wss://control-center.example.com:3001
 
 Options:
     -h, --help
@@ -49,7 +49,7 @@ Options:
        User's password.
 
     -s, --serverUri
-       URI for connect to Ignite Web Control Center, for example: "wss://control-center.example.com".
+       URI for connect to Ignite Web Control Center, for example: "wss://control-center.example.com:3001".
        Default: "wss://localhost:3001".
 
 
