@@ -18,12 +18,17 @@
 package org.apache.ignite.agent;
 
 import java.io.*;
-import java.nio.file.*;
+import java.net.*;
+import java.security.*;
+import java.util.logging.*;
 
 /**
  * Utility methods.
  */
 public class AgentUtils {
+    /** */
+    private static final Logger log = Logger.getLogger(AgentUtils.class.getName());
+
     /**
      * Default constructor.
      */
@@ -35,6 +40,31 @@ public class AgentUtils {
      * @return App folder.
      */
     public static File getAgentHome() {
-        return Paths.get("").toAbsolutePath().toFile();
+        try {
+            ProtectionDomain domain = AgentLauncher.class.getProtectionDomain();
+
+            // Should not happen, but to make sure our code is not broken.
+            if (domain == null || domain.getCodeSource() == null || domain.getCodeSource().getLocation() == null) {
+                log.log(Level.WARNING, "Failed to resolve agent jar location!");
+
+                return null;
+            }
+
+            // Resolve path to class-file.
+            URI classesUri = domain.getCodeSource().getLocation().toURI();
+
+            boolean windows = System.getProperty("os.name").toLowerCase().contains("win");
+
+            // Overcome UNC path problem on Windows (http://www.tomergabel.com/JavaMishandlesUNCPathsOnWindows.aspx)
+            if (windows && classesUri.getAuthority() != null)
+                classesUri = new URI(classesUri.toString().replace("file://", "file:/"));
+
+            return new File(classesUri);
+        }
+        catch (URISyntaxException | SecurityException ignored) {
+            log.log(Level.WARNING, "Failed to resolve agent jar location!");
+
+            return null;
+        }
     }
 }
