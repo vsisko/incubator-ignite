@@ -27,6 +27,15 @@ import java.util.*;
  */
 public abstract class DatabaseMetadataDialect {
     /**
+     * Gets schemas from database.
+     *
+     * @param conn Database connection.
+     * @return Collection of schema names.
+     * @throws SQLException If failed to get schemas.
+     */
+    public abstract List<String> schemas(Connection conn) throws SQLException;
+
+    /**
      * Gets tables from database.
      *
      * @param conn Database connection.

@@ -32,6 +32,28 @@ public class DatabaseMetadataParser {
     /** Logger. */
     private static final Logger log = Logger.getLogger(DatabaseMetadataParser.class.getName());
 
+    private static DatabaseMetadataDialect dialect(Connection conn) {
+        try {
+            String dbProductName = conn.getMetaData().getDatabaseProductName();
+
+            if ("Oracle".equals(dbProductName))
+                return new OracleMetadataDialect();
+            else if (dbProductName.startsWith("DB2/"))
+                return new DB2MetadataDialect();
+            else
+                return new JdbcMetadataDialect();
+        }
+        catch (SQLException e) {
+            log.log(Level.SEVERE, "Failed to resolve dialect (JdbcMetaDataDialect will be used.", e);
+
+            return new JdbcMetadataDialect();
+        }
+    }
+
+    public static ObservableList<String> schemas(Connection conn) throws SQLException  {
+        return FXCollections.observableList(dialect(conn).schemas(conn));
+    }
+
     /**
      * Parse database metadata.
      *
@@ -41,23 +63,7 @@ public class DatabaseMetadataParser {
      * @throws SQLException If parsing failed.
      */
     public static ObservableList<PojoDescriptor> parse(Connection conn, boolean tblsOnly) throws SQLException {
-        DatabaseMetadataDialect dialect;
-
-        try {
-            String dbProductName = conn.getMetaData().getDatabaseProductName();
-
-            if ("Oracle".equals(dbProductName))
-                dialect = new OracleMetadataDialect();
-            else if (dbProductName.startsWith("DB2/"))
-                dialect = new DB2MetadataDialect();
-            else
-                dialect = new JdbcMetadataDialect();
-        }
-        catch (SQLException e) {
-            log.log(Level.SEVERE, "Failed to resolve dialect (JdbcMetaDataDialect will be used.", e);
-
-            dialect = new JdbcMetadataDialect();
-        }
+        DatabaseMetadataDialect dialect = dialect(conn);
 
         Map<String, PojoDescriptor> parents = new HashMap<>();
 

@@ -352,12 +352,24 @@ public class Controls {
      * @param node Node.
      * @return New {@code TitledPane} instance.
      */
-    public static TitledPane titledPane(String title, Node node) {
+    public static TitledPane titledPane(String title, Node node, boolean collapsible) {
         TitledPane tp = new TitledPane(title, node);
 
+        tp.setCollapsible(collapsible);
         tp.setExpanded(false);
 
         return tp;
+    }
+
+    public static ListView<String> list(String tip) {
+        ListView<String> lst = new ListView<String>();
+
+        lst.setMinHeight(70);
+        lst.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        tooltip(lst, tip);
+
+        return lst;
     }
 
     /**

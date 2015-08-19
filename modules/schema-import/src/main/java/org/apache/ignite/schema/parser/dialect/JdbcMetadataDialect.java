@@ -62,6 +62,26 @@ public class JdbcMetadataDialect extends DatabaseMetadataDialect {
     /** Index column descend index. */
     private static final int IDX_ASC_OR_DESC_IDX = 10;
 
+    @Override public List<String> schemas(Connection conn) throws SQLException {
+        List<String> schemas = new ArrayList<>();
+
+        ResultSet rs = conn.getMetaData().getSchemas();
+
+        Set<String> sys = systemSchemas();
+
+        while(rs.next()) {
+            String schema = rs.getString(1);
+
+            // Skip system schemas.
+            if (sys.contains(schema))
+                continue;
+
+            schemas.add(schema);
+        }
+
+        return schemas;
+    }
+
     /** {@inheritDoc} */
     @Override public Collection<DbTable> tables(Connection conn, boolean tblsOnly) throws SQLException {
         DatabaseMetaData dbMeta = conn.getMetaData();

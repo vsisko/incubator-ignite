@@ -28,6 +28,17 @@ import static java.sql.Types.*;
  * Oracle specific metadata dialect.
  */
 public class OracleMetadataDialect extends DatabaseMetadataDialect {
+    @Override public List<String> schemas(Connection conn) throws SQLException {
+        List<String> schemas = new ArrayList<>();
+
+        ResultSet rs = conn.getMetaData().getSchemas();
+
+        while(rs.next())
+            schemas.add(rs.getString(1));
+
+        return schemas;
+    }
+
     /** SQL to get columns metadata. */
     private static final String SQL_COLUMNS = "SELECT a.owner, a.table_name, a.column_name, a.nullable," +
         " a.data_type, a.data_precision, a.data_scale " +
@@ -238,7 +249,7 @@ public class OracleMetadataDialect extends DatabaseMetadataDialect {
             String user = conn.getMetaData().getUserName().toUpperCase();
 
             String sql = String.format(SQL_COLUMNS,
-                tblsOnly ? "INNER JOIN all_tables b on a.table_name = b.table_name and a.owner = b.owner" : "", user);
+                tblsOnly ? "INNER JOIN all_tables b on a.table_name = b.table_name and a.owner = b.owner" : "");
 
             try (ResultSet colsRs = colsStmt.executeQuery(sql)) {
                 String prevSchema = "";
