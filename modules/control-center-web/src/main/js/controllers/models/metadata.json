@@ -10,8 +10,8 @@
     "whatsNextTitle": "What's next:",
     "whatsNextContent": [
       "<ul>",
-      "  <li>Continue to <a href='/configuration/caches'>Caches</a></li>",
       "  <li>Continue to <a href='/configuration/summary'>Summary</a></li>",
+      "  <li>Back to <a href='/configuration/caches'>Caches</a></li>",
       "  <li>Back to <a href='/configuration/clusters'>Clusters</a></li>",
       "</ul>"
     ]
