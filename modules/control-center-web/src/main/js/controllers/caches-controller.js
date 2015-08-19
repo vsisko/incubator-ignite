@@ -135,11 +135,8 @@ controlCenterModule.controller('cachesController', [
                     var idx = _.indexOf(model, fx);
 
                     // Found duplicate.
-                    if (idx >= 0 && idx != index) {
-                        $common.showError('SQL function with such class name already exists!');
-
-                        return $table.tableFocusInvalidField(index, 'SqlFx');
-                    }
+                    if (idx >= 0 && idx != index)
+                        return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'SqlFx'), 'SQL function with such class name already exists!');
                 }
 
                 return true;
@@ -162,11 +159,8 @@ controlCenterModule.controller('cachesController', [
                     });
 
                     // Found duplicate.
-                    if (idx >= 0 && idx != index) {
-                        $common.showError('Indexed type with such key class already exists!');
-
-                        return $table.tableFocusInvalidField(index, 'KeyIndexedType');
-                    }
+                    if (idx >= 0 && idx != index)
+                        return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'KeyIndexedType'), 'Indexed type with such key class already exists!');
                 }
 
                 return true;
@@ -254,7 +248,7 @@ controlCenterModule.controller('cachesController', [
                 if (item)
                     sessionStorage.cacheSelectedItem = angular.toJson(item);
                 else
-                    sessionStorage.removeItem(cacheSelectedItem);
+                    sessionStorage.removeItem('cacheSelectedItem');
             };
 
             // Add new cache.
@@ -309,20 +303,17 @@ controlCenterModule.controller('cachesController', [
                     }
                 }
 
-                if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
-                    return showPopoverMessage($scope.panels, 'store-data', 'readThrough',
-                        'Store is configured but read/write through are not enabled!');
-                }
-
-                if ((item.readThrough || item.writeThrough) && !cacheStoreFactorySelected) {
+                if ((item.readThrough || item.writeThrough) && !cacheStoreFactorySelected)
                     return showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
-                        'Read / write through are enabled but store is not configured!');
-                }
+                        (item.readThrough ? 'Read' : 'Write') + ' through are enabled but store is not configured!');
 
-                if (item.writeBehindEnabled && !cacheStoreFactorySelected) {
+                if (item.writeBehindEnabled && !cacheStoreFactorySelected)
                     return showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
                         'Write behind enabled but store is not configured!');
-                }
+
+                if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough))
+                    return showPopoverMessage($scope.panels, 'store-data', 'readThrough',
+                        'Store is configured but read/write through are not enabled!');
 
                 return true;
             }

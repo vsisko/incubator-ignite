@@ -28,6 +28,10 @@ include ../includes/controls
                         .settings-row(ng-repeat='field in metadataDb')
                             +form-row-custom(['col-xs-4 col-sm-3 col-md-3'], ['col-xs-8 col-sm-9 col-md-9'], 'preset')
             div(ng-show='loadMeta.action == "tables"' style='margin: 15px')
+                .settings-row
+                    label.col-sm-2.required Package:
+                    .col-sm-4
+                        input.form-control(type="text")
                 table.table.table-condensed.table-stripped.admin(st-table='displayedTables' st-safe-src='loadMeta.tables')
                     thead
                         tr
@@ -49,7 +53,6 @@ include ../includes/controls
                         tr
                             td.text-right(colspan='2')
                                 div(st-pagination st-items-by-page='10' st-displayed-pages='5')
-
             .modal-footer
                 button.btn.btn-primary(ng-show='loadMeta.action == "connect"' ng-disabled='loadForm.$invalid' ng-click='loadMetadataFromDb()') Load metadata
                 button.btn.btn-primary(ng-show='loadMeta.action == "tables"' ng-click='loadMeta.action = "connect"') Prev

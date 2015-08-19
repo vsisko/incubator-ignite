@@ -652,6 +652,8 @@ controlCenterModule.service('$table', [
         function _tableReset() {
             table.name = 'none';
             table.editIndex = -1;
+
+            $common.hidePopover();
         }
 
         function _tableState(name, editIndex) {

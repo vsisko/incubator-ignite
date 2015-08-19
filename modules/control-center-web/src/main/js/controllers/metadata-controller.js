@@ -506,11 +506,8 @@ controlCenterModule.controller('metadataController', [
                     var idx = _.indexOf(model, name);
 
                     // Found duplicate.
-                    if (idx >= 0 && idx != index) {
-                        $common.showError('Field with such name already exists!');
-
-                        return $table.tableFocusInvalidField(index, 'TextField');
-                    }
+                    if (idx >= 0 && idx != index)
+                        return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'TextField'), 'Field with such name already exists!');
                 }
 
                 return true;
@@ -539,11 +536,8 @@ controlCenterModule.controller('metadataController', [
                         });
 
                         // Found duplicate.
-                        if (idx >= 0 && idx != index) {
-                            $common.showError('Field with such name already exists!');
-
-                            return $table.tableFocusInvalidField(index, 'Key' + pairField.id);
-                        }
+                        if (idx >= 0 && idx != index)
+                            return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'Key' + pairField.id), 'Field with such name already exists!');
                     }
                 }
 
@@ -587,22 +581,16 @@ controlCenterModule.controller('metadataController', [
                         });
 
                         // Found duplicate.
-                        if (idx >= 0 && index != idx) {
-                            $common.showError('Field with such database name already exists!');
-
-                            return $table.tableFocusInvalidField(index, 'DatabaseName' + dbFieldTable.id);
-                        }
+                        if (idx >= 0 && index != idx)
+                            return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'DatabaseName' + dbFieldTable.id), 'Field with such database name already exists!');
 
                         idx = _.findIndex(model, function (dbMeta) {
                             return dbMeta.javaName == dbFieldValue.javaName;
                         });
 
                         // Found duplicate.
-                        if (idx >= 0 && index != idx) {
-                            $common.showError('Field with such java name already exists!');
-
-                            return $table.tableFocusInvalidField(index, 'JavaName' + dbFieldTable.id);
-                        }
+                        if (idx >= 0 && index != idx)
+                            return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'JavaName' + dbFieldTable.id), 'Field with such java name already exists!');
 
                         if (index < 0) {
                                 model.push(dbFieldValue);
@@ -650,11 +638,8 @@ controlCenterModule.controller('metadataController', [
                     });
 
                     // Found duplicate.
-                    if (idx >= 0 && idx != index) {
-                        $common.showError('Group with such name already exists!');
-
-                        return $table.tableFocusInvalidField(index, 'GroupName');
-                    }
+                    if (idx >= 0 && idx != index)
+                        return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'GroupName'), 'Group with such name already exists!');
                 }
 
                 var item = $scope.backupItem;
@@ -763,11 +748,8 @@ controlCenterModule.controller('metadataController', [
                     });
 
                     // Found duplicate.
-                    if (idx >= 0 && idx != index) {
-                        $common.showError('Field with such name already exists in group!');
-
-                        return $table.tableFocusInvalidField(index, 'FieldName');
-                    }
+                    if (idx >= 0 && idx != index)
+                        return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'FieldName'), 'Field with such name already exists in group!');
                 }
 
                 var group = $scope.backupItem.groups[groupIndex];

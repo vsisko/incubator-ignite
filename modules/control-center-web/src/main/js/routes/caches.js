@@ -24,16 +24,6 @@ router.get('/', function (req, res) {
     res.render('configuration/caches');
 });
 
-function _processed(err, res) {
-    if (err) {
-        res.status(500).send(err.message);
-
-        return false;
-    }
-
-    return true;
-}
-
 /**
  * Get spaces and caches accessed for user account.
  *
@@ -45,20 +35,20 @@ router.post('/list', function (req, res) {
 
     // Get owned space and all accessed space.
     db.Space.find({$or: [{owner: user_id}, {usedBy: {$elemMatch: {account: user_id}}}]}, function (err, spaces) {
-        if (_processed(err, res)) {
+        if (db.processed(err, res)) {
             var space_ids = spaces.map(function (value) {
                 return value._id;
             });
 
             // Get all clusters for spaces.
             db.Cluster.find({space: {$in: space_ids}}, '_id name').sort('name').exec(function (err, clusters) {
-                if (_processed(err, res)) {
+                if (db.processed(err, res)) {
                     // Get all caches type metadata for spaces.
                     db.CacheTypeMetadata.find({space: {$in: space_ids}}, '_id name kind', function (err, metadatas) {
-                        if (_processed(err, res)) {
+                        if (db.processed(err, res)) {
                             // Get all caches for spaces.
                             db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
-                                if (_processed(err, res)) {
+                                if (db.processed(err, res)) {
 
                                     _.forEach(caches, function (cache) {
                                         // Remove deleted clusters.
@@ -112,11 +102,11 @@ router.post('/save', function (req, res) {
 
     if (params._id){
         db.Cache.update({_id: cacheId}, params, {upsert: true}, function (err) {
-            if (_processed(err, res))
+            if (db.processed(err, res))
                 db.Cluster.update({_id: {$in: clusters}}, {$addToSet: {caches: cacheId}}, {upsert: true, multi: true}, function(err) {
-                    if (_processed(err, res))
+                    if (db.processed(err, res))
                         db.Cluster.update({_id: {$nin: clusters}}, {$pull: {caches: cacheId}}, {upsert: true, multi: true}, function(err) {
-                            if (_processed(err, res))
+                            if (db.processed(err, res))
                                 res.send(params._id);
                         });
                 });
@@ -124,16 +114,16 @@ router.post('/save', function (req, res) {
     }
     else
         db.Cache.findOne({space: params.space, name: params.name}, function (err, cache) {
-            if (_processed(err, res)) {
+            if (db.processed(err, res)) {
                 if (cache)
                     return res.status(500).send('Cache with name: "' + cache.name + '" already exist.');
 
                 (new db.Cache(params)).save(function (err, cache) {
-                    if (_processed(err, res)) {
+                    if (db.processed(err, res)) {
                         cacheId = cache._id;
 
                         db.Cluster.update({_id: {$in: clusters}}, {$addToSet: {caches: cacheId}}, {upsert: true, multi: true}, function(err) {
-                            if (_processed(err, res))
+                            if (db.processed(err, res))
                                 res.send(cacheId);
                         });
                     }
@@ -148,7 +138,7 @@ router.post('/save', function (req, res) {
  */
 router.post('/remove', function (req, res) {
     db.Cache.remove(req.body, function (err) {
-        if (_processed(err, res))
+        if (db.processed(err, res))
             res.sendStatus(200);
     })
 });
