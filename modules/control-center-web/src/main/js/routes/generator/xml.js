@@ -357,7 +357,7 @@ function addCacheTypeMetadataDatabaseFields(res, meta, fieldProperty) {
 
             addProperty(res, field, 'javaName');
 
-            addElement(res, 'property', 'name', 'javaType', 'value', generatorCommon.javaBuildInClass(field.javaType));
+            addClassNameProperty(res, field, 'javaType');
 
             res.endBlock('</bean>');
         });
@@ -428,7 +428,8 @@ function generateCacheTypeMetadataConfiguration(res, meta) {
 
     var kind = meta.kind;
 
-    var keyType = addProperty(res, meta, 'keyType');
+    var keyType = addClassNameProperty(res, meta, 'keyType');
+
     addProperty(res, meta, 'valueType');
 
     if (kind != 'query') {
@@ -655,6 +656,15 @@ function addProperty(res, obj, propName, setterName) {
     return val;
 }
 
+function addClassNameProperty(res, obj, propName) {
+    var val = obj[propName];
+
+    if (generatorCommon.isDefined(val))
+        addElement(res, 'property', 'name', propName, 'value', generatorCommon.javaBuildInClass(val));
+
+    return val;
+}
+
 function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
     if (bean && generatorCommon.hasProperty(bean, props)) {
         res.emptyLineIfNeeded();
@@ -715,6 +725,7 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, create
         res.line('</property>');
     }
 }
+
 function addListProperty(res, obj, propName, listType, rowFactory) {
     var val = obj[propName];
 

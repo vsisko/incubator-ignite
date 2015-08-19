@@ -449,7 +449,6 @@
                 {
                   "label": "Metadata",
                   "type": "dropdown-multiple",
-                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
                   "model": "storeMetadata",
                   "placeholder": "Choose metadata",
                   "items": "storeMetadata",

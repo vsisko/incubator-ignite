@@ -39,20 +39,17 @@ router.post('/list', function (req, res) {
 
     // Get owned space and all accessed space.
     db.Space.find({$or: [{owner: user_id}, {usedBy: {$elemMatch: {account: user_id}}}]}, function (err, spaces) {
-        if (err)
-            return res.status(500).send(err.message);
+        if (db.processed(err, res)) {
+            var space_ids = spaces.map(function (value) {
+                return value._id;
+            });
 
-        var space_ids = spaces.map(function (value) {
-            return value._id;
-        });
-
-        // Get all metadata for spaces.
-        db.CacheTypeMetadata.find({space: {$in: space_ids}}).sort('name').exec(function (err, metadatas) {
-            if (err)
-                return res.status(500).send(err.message);
-
-            res.json({spaces: spaces, metadatas: metadatas});
-        });
+            // Get all metadata for spaces.
+            db.CacheTypeMetadata.find({space: {$in: space_ids}}).sort('name').exec(function (err, metadatas) {
+                if (db.processed(err, res))
+                    res.json({spaces: spaces, metadatas: metadatas});
+            });
+        }
     });
 });
 
@@ -62,25 +59,22 @@ router.post('/list', function (req, res) {
 router.post('/save', function (req, res) {
     if (req.body._id)
         db.CacheTypeMetadata.update({_id: req.body._id}, req.body, {upsert: true}, function (err) {
-            if (err)
-                return res.status(500).send(err.message);
-
-            res.send(req.body._id);
+            if (db.processed(err, res))
+                res.send(req.body._id);
         });
     else {
         db.CacheTypeMetadata.findOne({space: req.body.space, name: req.body.name}, function (err, metadata) {
-            if (err)
-                return res.status(500).send(err.message);
+            if (db.processed(err, res)) {
+                if (metadata)
+                    return res.status(500).send('Cache type metadata with name: "' + metadata.name + '" already exist.');
 
-            if (metadata)
-                return res.status(500).send('Cache type metadata with name: "' + metadata.name + '" already exist.');
+                (new db.CacheTypeMetadata(req.body)).save(function (err, metadata) {
+                    if (err)
+                        return res.status(500).send(err.message);
 
-            (new db.CacheTypeMetadata(req.body)).save(function (err, metadata) {
-                if (err)
-                    return res.status(500).send(err.message);
-
-                res.send(metadata._id);
-            });
+                    res.send(metadata._id);
+                });
+            }
         });
     }
 });
@@ -90,10 +84,8 @@ router.post('/save', function (req, res) {
  */
 router.post('/remove', function (req, res) {
     db.CacheTypeMetadata.remove(req.body, function (err) {
-        if (err)
-            return res.status(500).send(err.message);
-
-        res.sendStatus(200);
+        if (db.processed(err, res))
+            res.sendStatus(200);
     })
 });
 
