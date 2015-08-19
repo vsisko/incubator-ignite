@@ -30,14 +30,13 @@ include ../includes/controls
             div(ng-show='loadMeta.action == "tables"' style='margin: 15px')
                 .settings-row
                     label.col-sm-2.required Package:
-                    .col-sm-4
+                    .col-sm-10
                         input.form-control(type="text")
-                table.table.table-condensed.table-stripped.admin(st-table='displayedTables' st-safe-src='loadMeta.tables')
+                table.table.table-condensed.table-stripped.metadata(st-table='displayedTables' st-safe-src='loadMeta.tables')
                     thead
                         tr
                             th.header(colspan='5')
-                                .col-sm-5
-                                    input.form-control(type='text' st-search='' placeholder='Filter tables...')
+                                input.form-control(type='text' st-search='' placeholder='Filter tables...')
                         tr
                             th
                                 input(type='checkbox' ng-model='loadMeta.allSelected' ng-change='loadMeta.selectAll()')

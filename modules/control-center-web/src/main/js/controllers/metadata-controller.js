@@ -229,6 +229,14 @@ controlCenterModule.controller('metadataController', [
             };
 
             $scope.loadMetadataFromDb = function () {
+                $scope.preset.space = $scope.spaces[0];
+
+                $http.post('presets/save', $scope.preset)
+                    .error(function (errMsg) {
+                        $common.showError(errMsg);
+                    });
+
+
                 $http.post('/agent/metadata', $scope.preset)
                     .success(function (tables) {
                         $scope.loadMeta.tables = _.map(tables, function (tbl) {
@@ -310,6 +318,23 @@ controlCenterModule.controller('metadataController', [
                         if (val)
                             sessionStorage.metadataBackupItem = angular.toJson(val);
                     }, true);
+                })
+                .error(function (errMsg) {
+                    $common.showError(errMsg);
+                });
+
+            $http.post('presets/list')
+                .success(function (data) {
+                    _.forEach(data.presets, function (restoredPreset) {
+                        var preset = _.find(presets, function (dfltPreset) {
+                            return dfltPreset.jdbcDriverClass == restoredPreset.jdbcDriverClass;
+                        });
+
+                        if (preset) {
+                            preset.jdbcUrl = restoredPreset.jdbcUrl;
+                            preset.user = restoredPreset.user;
+                        }
+                    });
                 })
                 .error(function (errMsg) {
                     $common.showError(errMsg);

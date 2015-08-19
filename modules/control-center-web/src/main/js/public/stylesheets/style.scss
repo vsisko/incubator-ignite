@@ -781,6 +781,10 @@ button .caret, .btn .caret {
         div {
             padding: 0
         }
+
+        input[type="text"] {
+            font-weight: normal;
+        }
     }
 
     margin-bottom: 10px;
@@ -812,6 +816,20 @@ button .caret, .btn .caret {
             }
         }
     }
+}
+
+.theme-line table.metadata {
+    tr:hover {
+        cursor: default;
+    }
+
+    thead > tr th.header {
+        input[type="text"] {
+            font-weight: normal;
+        }
+    }
+
+    margin-bottom: 10px;
 }
 
 .theme-line table.sql-results {

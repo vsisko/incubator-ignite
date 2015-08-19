@@ -49,15 +49,15 @@ router.post('/list', function (req, res) {
 router.post('/save', function (req, res) {
     var params = req.body;
 
-    db.CacheTypeMetadata.findOne({space: params.space, jdbcDriverJar: params.jdbcDriverJar}, function (err, preset) {
+    db.DatabasePreset.findOne({space: params.space, jdbcDriverJar: params.jdbcDriverJar}, function (err, preset) {
         if (db.processed(err, res)) {
             if (preset)
-                db.CacheTypeMetadata.update({space: params.space, jdbcDriverJar: params.jdbcDriverJar}, params, {upsert: true}, function (err) {
+                db.DatabasePreset.update({space: params.space, jdbcDriverJar: params.jdbcDriverJar}, params, {upsert: true}, function (err) {
                     if (db.processed(err, res))
                         return res.sendStatus(200);
                 });
             else
-                (new db.CacheTypeMetadata(params)).save(function (err) {
+                (new db.DatabasePreset(params)).save(function (err) {
                     if (db.processed(err, res))
                         return res.sendStatus(200);
                 });
