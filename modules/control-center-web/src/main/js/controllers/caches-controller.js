@@ -186,6 +186,18 @@ controlCenterModule.controller('cachesController', [
                     var restoredItem = angular.fromJson(sessionStorage.cacheBackupItem);
 
                     if (restoredItem) {
+                        restoredItem.queryMetadata = _.filter(restoredItem.queryMetadata, function (metaId) {
+                            return _.findIndex($scope.metadatas, function (scopeMeta) {
+                                    return scopeMeta.value == metaId;
+                                }) >= 0;
+                        });
+
+                        restoredItem.storeMetadata = _.filter(restoredItem.storeMetadata, function (metaId) {
+                            return _.findIndex($scope.metadatas, function (scopeMeta) {
+                                    return scopeMeta.value == metaId;
+                                }) >= 0;
+                        });
+
                         if (restoredItem._id) {
                             var idx = _.findIndex($scope.caches, function (cache) {
                                 return cache._id == restoredItem._id;
@@ -207,8 +219,8 @@ controlCenterModule.controller('cachesController', [
                                 else {
                                     // Clusters changed by user. We need to remove deleted clusters (if any).
                                     restoredItem.clusters = _.filter(restoredItem.clusters, function (clusterId) {
-                                        return _.findIndex($scope.clusters, function (scopeCcluster) {
-                                                return scopeCcluster.value == clusterId;
+                                        return _.findIndex($scope.clusters, function (scopeCluster) {
+                                                return scopeCluster.value == clusterId;
                                             }) >= 0;
                                     });
                                 }
