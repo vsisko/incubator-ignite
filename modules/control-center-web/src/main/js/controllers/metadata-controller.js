@@ -47,6 +47,53 @@ controlCenterModule.controller('metadataController', [
             $scope.hidePopover = $common.hidePopover;
             var showPopoverMessage = $common.showPopoverMessage;
 
+            var JDBC_TYPES = [
+                {dbName: 'BIT', dbType: -7, javaType: 'Boolean'},
+                {dbName: 'TINYINT', dbType: -6, javaType: 'Byte'},
+                {dbName: 'SMALLINT', dbType:  5, javaType: 'Short'},
+                {dbName: 'INTEGER', dbType: 4, javaType: 'Integer'},
+                {dbName: 'BIGINT', dbType: -5, javaType: 'Long'},
+                {dbName: 'FLOAT', dbType: 6, javaType: 'Float'},
+                {dbName: 'REAL', dbType: 7, javaType: 'Double'},
+                {dbName: 'DOUBLE', dbType: 8, javaType: 'Double'},
+                {dbName: 'NUMERIC', dbType: 2, javaType: 'BigDecimal'},
+                {dbName: 'DECIMAL', dbType: 3, javaType: 'BigDecimal'},
+                {dbName: 'CHAR', dbType: 1, javaType: 'String'},
+                {dbName: 'VARCHAR', dbType: 12, javaType: 'String'},
+                {dbName: 'LONGVARCHAR', dbType: -1, javaType: 'String'},
+                {dbName: 'DATE', dbType: 91, javaType: 'Date'},
+                {dbName: 'TIME', dbType: 92, javaType: 'Time'},
+                {dbName: 'TIMESTAMP', dbType: 93, javaType: 'Timestamp'},
+                {dbName: 'BINARY', dbType: -2, javaType: 'Object'},
+                {dbName: 'VARBINARY', dbType: -3, javaType: 'Object'},
+                {dbName: 'LONGVARBINARY', dbType: -4, javaType: 'Object'},
+                {dbName: 'NULL', dbType: 0, javaType: 'Object'},
+                {dbName: 'OTHER', dbType: 1111, javaType: 'Object'},
+                {dbName: 'JAVA_OBJECT', dbType: 2000, javaType: 'Object'},
+                {dbName: 'DISTINCT', dbType: 2001, javaType: 'Object'},
+                {dbName: 'STRUCT', dbType: 2002, javaType: 'Object'},
+                {dbName: 'ARRAY', dbType: 2003, javaType: 'Object'},
+                {dbName: 'BLOB', dbType: 2004, javaType: 'Object'},
+                {dbName: 'CLOB', dbType: 2005, javaType: 'String'},
+                {dbName: 'REF', dbType: 2006, javaType: 'Object'},
+                {dbName: 'DATALINK', dbType: 70, javaType: 'Object'},
+                {dbName: 'BOOLEAN', dbType: 16, javaType: 'Boolean'},
+                {dbName: 'ROWID', dbType: -8, javaType: 'Object'},
+                {dbName: 'NCHAR', dbType: -15, javaType: 'String'},
+                {dbName: 'NVARCHAR', dbType: -9, javaType: 'String'},
+                {dbName: 'LONGNVARCHAR', dbType: -16, javaType: 'String'},
+                {dbName: 'NCLOB', dbType: 2011, javaType: 'String'},
+                {dbName: 'SQLXML', dbType: 2009, javaType: 'Object'}
+            ];
+
+            function _findJdbcType(jdbcType) {
+                var res =  _.find(JDBC_TYPES, function (item) {
+                    return item.code == jdbcCode;
+                });
+
+                return res ? res : {dbName: 'Unknown', javaType: 'Unknown'}
+            }
+
             var presets = [
                 {
                     db: 'oracle',
@@ -239,9 +286,7 @@ controlCenterModule.controller('metadataController', [
 
                 $http.post('/agent/metadata', $scope.preset)
                     .success(function (tables) {
-                        $scope.loadMeta.tables = _.map(tables, function (tbl) {
-                            return {schemaName: tbl.schema, tableName: tbl.tbl};
-                        });
+                        $scope.loadMeta.tables = tables;
                         $scope.loadMeta.action = 'tables';
                     })
                     .error(function (errMsg) {
@@ -249,21 +294,57 @@ controlCenterModule.controller('metadataController', [
                     });
             };
 
+            function toProperCase(name) {
+                var properName = name.toLocaleLowerCase();
+
+                return properName.charAt(0).toLocaleUpperCase() + properName.slice(1)
+            }
+
+            function toJavaClassName(name) {
+                var len = name.length;
+
+                var buf = '';
+
+                var capitalizeNext = true;
+
+                for (var i = 0; i < len; i++) {
+                    var ch = name.charAt(i);
+
+                    if (ch == ' ' ||  ch == '_')
+                        capitalizeNext = true;
+                    else if (capitalizeNext) {
+                        buf += ch.toLocaleUpperCase();
+
+                        capitalizeNext = false;
+                    }
+                    else
+                        buf += ch.toLocaleLowerCase();
+                }
+
+                return buf;
+            }
+
+            function toJavaName(dbName) {
+                return dbName;
+            }
+
             $scope.saveSelectedMetadata = function () {
                 loadMetaModal.hide();
 
                 _.forEach($scope.loadMeta.tables, function (table) {
-                    var newItem = {
-                        name: table.tableName,
-                        databaseSchema: table.schemaName,
-                        databaseTable: table.tableName,
-                        keyType: table.tableName + 'Key',
-                        valueType: table.tableName,
-                        keyFields: [],
-                        valueFields: []
-                    };
+                    if (table.use) {
+                        var newItem = {
+                            name: toProperCase(table.tbl),
+                            databaseSchema: table.schema,
+                            databaseTable: table.tbl,
+                            keyType: table.tableName + 'Key',
+                            valueType: table.tableName,
+                            keyFields: [],
+                            valueFields: []
+                        };
 
-                    save(newItem);
+                        save(newItem);
+                    }
                 });
             };
 
