@@ -685,6 +685,14 @@ button .caret, .btn .caret {
     }
 }
 
+.form-control-h1 {
+    @extend .form-control;
+
+    width: auto;
+    font-size: 22px;
+    height: 44px;
+}
+
 .line-control {
     width: auto;
 }

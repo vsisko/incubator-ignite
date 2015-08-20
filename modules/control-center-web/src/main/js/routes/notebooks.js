@@ -16,7 +16,6 @@
  */
 
 var router = require('express').Router();
-var crypto = require('crypto');
 var db = require('../db');
 
 /**
@@ -66,7 +65,7 @@ router.post('/get', function (req, res) {
         });
 
         // Get all metadata for spaces.
-        db.Notebook.findOne({$or: [{space: {$in: space_ids}}, {_id: req.body.noteId}]}).exec(function (err, notebook) {
+        db.Notebook.findOne({space: {$in: space_ids}, _id: req.body.noteId}).exec(function (err, notebook) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -75,8 +74,42 @@ router.post('/get', function (req, res) {
     });
 });
 
+/**
+ * Save notebook accessed for user account.
+ *
+ * @param req Request.
+ * @param res Response.
+ */
+router.post('/save', function (req, res) {
+    var note = req.body;
+    var noteId = note._id;
+
+    if (noteId)
+        db.Notebook.update({_id: noteId}, note, {upsert: true}, function (err) {
+            if (err)
+                return res.status(500).send(err.message);
+
+            res.send(noteId);
+        });
+    else
+        db.Notebook.findOne({space: note.space, name: note.name}, function (err, note) {
+            if (err)
+                return res.status(500).send(err.message);
+
+            if (note)
+                return res.status(500).send('Notebook with name: "' + note.name + '" already exist.');
+
+            (new db.Notebook(req.body)).save(function (err, note) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                res.send(note._id);
+            });
+        });
+});
+
 function _randomValueHex(len) {
-    return crypto.randomBytes(Math.ceil(len / 2))
+    return require('crypto').randomBytes(Math.ceil(len / 2))
         .toString('hex') // convert to hexadecimal format
         .slice(0, len);  // return required number of characters
 }

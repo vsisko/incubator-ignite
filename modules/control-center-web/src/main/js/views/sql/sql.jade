@@ -23,12 +23,14 @@ append scripts
 
 block container
     .row
-        .col-sm-12
-            .docs-content
+        .col-sm-12(ng-init='noteId = "#{noteId}";')
+            .docs-content(ng-controller='sqlController' )
                 .docs-header
-                    h1 Connect to Ignite and Execute SQL Queries
+                    h1
+                        a(ng-hide='notebook_edit' ng-click='notebook_edit = true;' style='line-height: 44px;') {{notebook.name}}
+                        input.form-control-h1(ng-show='notebook_edit' on-enter='saveNotebook(notebook)' ng-model='notebook.name')
                     hr
-                .docs-body(ng-controller='sqlController' ng-init='noteId = #{JSON.stringify(noteId)};')
+                .docs-body
                     div(ng-if='!caches')
                         .block-callout-right.margin-bottom-dflt(style='width: 100%')
                             p(ng-bind-html='joinTip(missingClientTip)')
