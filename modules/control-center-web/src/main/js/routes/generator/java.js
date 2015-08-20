@@ -18,6 +18,7 @@
 var _ = require('lodash');
 
 var generatorCommon = require("./common");
+var utils = require("../utils");
 
 /**
  * Convert some name to valid java name.
@@ -138,7 +139,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientNearC
 
                 declareVariable(res, true, 'ipFinder', 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
 
-                res.line('ipFinder.setInitSchema(' + (generatorCommon.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + ');');
+                res.line('ipFinder.setInitSchema(' + (utils.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + ');');
                 res.line('discovery.setIpFinder(ipFinder);');
                 res.needEmptyLine = true;
 
@@ -721,7 +722,7 @@ function declareVariable(res, varNew, varName, varFullType, varFullActualType, v
 function addProperty(res, varName, obj, propName, enumType, setterName) {
     var val = obj[propName];
 
-    if (generatorCommon.isDefined(val)) {
+    if (utils.isDefined(val)) {
         res.emptyLineIfNeeded();
 
         res.line(varName + '.' + getSetterName(setterName ? setterName : propName)
@@ -742,7 +743,7 @@ function addProperty(res, varName, obj, propName, enumType, setterName) {
 function addClassProperty(res, varName, obj, propName) {
     var val = obj[propName];
 
-    if (generatorCommon.isDefined(val)) {
+    if (utils.isDefined(val)) {
         res.emptyLineIfNeeded();
 
         res.line(varName + '.' + getSetterName(propName) + '(' + res.importClass(val) + '.class);');
@@ -796,7 +797,7 @@ function addMultiparamProperty(res, varName, obj, propName, type, setterName) {
 }
 
 function addBeanWithProperties(res, varName, bean, beanPropName, beanVarName, beanClass, props, createBeanAlthoughNoProps) {
-    if (bean && generatorCommon.hasProperty(bean, props)) {
+    if (bean && utils.hasProperty(bean, props)) {
         if (!res.emptyLineIfNeeded()) {
             res.line();
         }

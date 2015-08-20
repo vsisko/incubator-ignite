@@ -18,6 +18,7 @@
 var _ = require('lodash');
 
 var generatorCommon = require("./common");
+var utils = require("../utils");
 var dataStructures = require("../../helpers/data-structures.js");
 
 exports.generateClusterConfiguration = function (cluster, clientNearConfiguration) {
@@ -126,7 +127,7 @@ exports.generateClusterConfiguration = function (cluster, clientNearConfiguratio
 
             case 'Jdbc':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder">');
-                res.line('<property name="initSchema" value="' + (generatorCommon.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + '"/>');
+                res.line('<property name="initSchema" value="' + (utils.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + '"/>');
                 res.endBlock('</bean>');
 
                 break;
@@ -650,7 +651,7 @@ function addElement(res, tag, attr1, val1, attr2, val2) {
 function addProperty(res, obj, propName, setterName) {
     var val = obj[propName];
 
-    if (generatorCommon.isDefined(val))
+    if (utils.isDefined(val))
         addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', escapeAttr(val));
 
     return val;
@@ -659,14 +660,14 @@ function addProperty(res, obj, propName, setterName) {
 function addClassNameProperty(res, obj, propName) {
     var val = obj[propName];
 
-    if (generatorCommon.isDefined(val))
+    if (utils.isDefined(val))
         addElement(res, 'property', 'name', propName, 'value', generatorCommon.javaBuildInClass(val));
 
     return val;
 }
 
 function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
-    if (bean && generatorCommon.hasProperty(bean, props)) {
+    if (bean && utils.hasProperty(bean, props)) {
         res.emptyLineIfNeeded();
         res.startBlock('<property name="' + beanPropName + '">');
         res.startBlock('<bean class="' + beanClass + '">');

@@ -17,11 +17,11 @@
 
 var router = require('express').Router();
 var passport = require('passport');
-var crypto = require('crypto');
 var nodemailer = require('nodemailer');
 
 var db = require('../db');
 var config = require('../helpers/configuration-loader.js');
+var utils = require('./utils');
 
 // GET dropdown-menu template.
 router.get('/select', function (req, res) {
@@ -127,7 +127,7 @@ router.post('/password/forgot', function(req, res) {
         return res.status(401).send('Can\'t send e-mail with instructions to reset password.<br />' +
             'Please ask webmaster to setup smtp server!');
 
-    var token = crypto.randomBytes(20).toString('hex');
+    var token = utils.randomValueHex(20);
 
     db.Account.findOne({ email: req.body.email }, function(err, user) {
         if (!user)
@@ -150,7 +150,7 @@ router.post('/password/forgot', function(req, res) {
                 subject: 'Password Reset',
                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
                 'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+                'http://' + req.headers.host + '/password/reset/' + token + '\n\n' +
                 'If you did not request this, please ignore this email and your password will remain unchanged.\n\n' +
                 '--------------\n' +
                 'Apache Ignite Web Control Center\n'

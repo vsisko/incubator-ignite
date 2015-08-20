@@ -16,7 +16,9 @@
  */
 
 var router = require('express').Router();
+
 var db = require('../db');
+var utils = require('./utils');
 
 /**
  * Get notebooks names accessed for user account.
@@ -108,12 +110,6 @@ router.post('/save', function (req, res) {
         });
 });
 
-function _randomValueHex(len) {
-    return require('crypto').randomBytes(Math.ceil(len / 2))
-        .toString('hex') // convert to hexadecimal format
-        .slice(0, len);  // return required number of characters
-}
-
 /**
  * Create new notebook for user account.
  *
@@ -128,7 +124,7 @@ router.get('/new', function (req, res) {
         if (err)
             return res.status(500).send(err.message);
 
-        var name = 'Notebook' + ' ' + _randomValueHex(8);
+        var name = 'Notebook' + ' ' + utils.randomValueHex(8);
 
         (new db.Notebook({space: space.id, name: name, paragraph: []})).save(function (err, notebook) {
             if (err)
