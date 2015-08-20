@@ -1182,7 +1182,7 @@ controlCenterModule.controller('agent-download', [
 
             var lnk = document.createElement('a');
 
-            lnk.setAttribute('href', '/agent/ignite-web-agent.zip');
+            lnk.setAttribute('href', '/agent/ignite-web-agent-1.4.1-SNAPSHOT.zip');
             lnk.style.display = 'none';
 
             document.body.appendChild(lnk);

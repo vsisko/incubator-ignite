@@ -20,12 +20,13 @@
                 h4.modal-title Connection to Ignite Web Agent is not established
             .agent-download
                 p Please download and run&nbsp;
-                    a(href='#' ng-click='downloadAgent()') ignite-web-agent
+                    a(href='javascript:void(0)' ng-click='downloadAgent()') ignite-web-agent
                     | &nbsp;in order to {{::agentGoal}}.
                 p For installation:
                 ul
                     li Download and unzip ignite-web-agent.
-                    li For list of options, run ignite-web-agent.{sh|bat} —help.
+                    li For list of options, run ignite-web-agent.{sh|bat} --help.
+                    li To test drive, run ignite-web-agent.{sh|bat} {{::agentTestDriveOption}}.
                     li Refer to README.txt for more information.
             .modal-footer
                 button.btn.btn-primary(ng-click='downloadAgent()') Download zip

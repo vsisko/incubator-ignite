@@ -21,6 +21,7 @@ controlCenterModule.controller('metadataController', [
             // Initialize the super class and extend it.
             angular.extend(this, $controller('agent-download', {$scope: $scope}));
             $scope.agentGoal = 'load metadata from database schema';
+            $scope.agentTestDriveOption = '--test-metadata';
 
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;

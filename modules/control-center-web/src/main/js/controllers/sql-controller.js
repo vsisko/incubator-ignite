@@ -20,6 +20,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     // Initialize the super class and extend it.
     angular.extend(this, $controller('agent-download', {$scope: $scope}));
     $scope.agentGoal = 'execute sql statements';
+    $scope.agentTestDriveOption = '--test-sql';
 
     $scope.joinTip = $common.joinTip;
 
@@ -39,7 +40,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
                 $scope.notebook_name = notebook.name;
 
                 if (notebook.paragraphs)
-                    notebook.paragraphs = [{}];
+                    notebook.paragraphs = [{name: 'Query'}];
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);

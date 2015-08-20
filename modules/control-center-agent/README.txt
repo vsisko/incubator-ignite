@@ -34,23 +34,29 @@ Options:
     -c, --config
        Path to optional configuration file.
 
-    -drv, --driverFolder
+    -drv, --driver-folder
        Path to folder with JDBC drivers, for example "/home/user/drivers".
        Default: "./jdbc-drivers".
 
     -l, --login
        User's login (email) on Ignite Web Agent.
 
-    -n, --nodeUri
+    -n, --node-uri
        URI for connect to Ignite REST server, for example: "http://localhost:8080".
        Default: "http://localhost:8080".
 
     -p, --password
        User's password.
 
-    -s, --serverUri
+    -s, --server-uri
        URI for connect to Ignite Web Agent, for example: "wss://control-center.example.com:3001".
        Default: "wss://localhost:3001".
+
+    -tm, --test-metadata
+       Start H2 database with sample tables in same process.
+
+    -ts, --test-sql
+       Create cache and populate it with sample data for use in query.
 
 
 Ignite Web Agent Build Instructions
