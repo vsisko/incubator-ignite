@@ -19,6 +19,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     function ($scope, $controller, $http, $common) {
     // Initialize the super class and extend it.
     angular.extend(this, $controller('agent-download', {$scope: $scope}));
+    $scope.agentGoal = 'execute sql statements';
 
     $scope.joinTip = $common.joinTip;
 
@@ -34,6 +35,11 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
         $http.post('/notebooks/get', {noteId: $scope.noteId})
             .success(function (notebook) {
                 $scope.notebook = notebook;
+
+                $scope.notebook_name = notebook.name;
+
+                if (notebook.paragraphs)
+                    notebook.paragraphs = [{}];
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);
@@ -42,26 +48,32 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
 
     loadNotebook();
 
-    $scope.saveNotebook = function(notebook) {
+    $scope.renameNotebook = function(name) {
         $scope.notebook_edit = false;
 
-        $http.post('/notebooks/save', notebook)
+        $scope.notebook.name = name;
+
+        $http.post('/notebooks/save', $scope.notebook)
             .success(function () {
                 var idx = _.findIndex($scope.$root.notebooks, function (item) {
-                    return item._id == notebook._id;
+                    return item._id == $scope.notebook._id;
                 });
 
                 if (idx >= 0) {
-                    $scope.$root.notebooks[idx].name = $scope.notebook.name;
+                    $scope.$root.notebooks[idx].name = name;
 
                     $scope.$root.rebuildDropdown();
                 }
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);
-
-                loadNotebook();
             });
+    };
+
+    $scope.resetNotebookName = function() {
+        $scope.notebook_edit = false;
+
+        $scope.notebook_name = $scope.notebook.name;
     };
 
     $scope.addParagraph = function(notebook) {

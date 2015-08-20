@@ -15,16 +15,17 @@
 .modal.center(tabindex='-1' role='dialog')
     .modal-dialog
         .modal-content
-           #errors-container.modal-header.header
-              button.close(type='button' ng-click='$hide()') &times;
-              h4.modal-title Connection to Control Center Agent is not established
-           .metadata-download
-              p Please install and run agent for use this functionality.
-              p For installation:
-              ul
-                 li Download zip file distribution.
-                 li Unzip agent to some folder.
-                 li Specify the agent's properties, refer to the README.txt how to configure and start Control Center Agent.
-                 li Run 'ignite-control-center-agent.{sh | bat}'.
+            #errors-container.modal-header.header
+                button.close(type='button' ng-click='$hide()') &times;
+                h4.modal-title Connection to Ignite Web Agent is not established
+            .agent-download
+                p Please download and run&nbsp;
+                    a(href='#' ng-click='downloadAgent()') ignite-web-agent
+                    | &nbsp;in order to {{::agentGoal}}.
+                p For installation:
+                ul
+                    li Download and unzip ignite-web-agent.
+                    li For list of options, run ignite-web-agent.{sh|bat} —help.
+                    li Refer to README.txt for more information.
             .modal-footer
                 button.btn.btn-primary(ng-click='downloadAgent()') Download zip

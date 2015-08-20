@@ -28,65 +28,123 @@ block container
                 .docs-header
                     h1
                         a(ng-hide='notebook_edit' ng-click='notebook_edit = true;' style='line-height: 44px;') {{notebook.name}}
-                        input.form-control-h1(ng-show='notebook_edit' on-enter='saveNotebook(notebook)' ng-model='notebook.name')
+                    div(ng-show='notebook_edit')
+                        input.form-control-h1(ng-model='notebook_name' on-enter='renameNotebook(notebook_name)' on-escape='resetNotebookName()')
                     hr
                 .docs-body
-                    div(ng-if='!caches')
-                        .block-callout-right.margin-bottom-dflt(style='width: 100%')
-                            p(ng-bind-html='joinTip(missingClientTip)')
-                    div(ng-if='caches')
-                        .block-callout-parent.block-callout-border.margin-bottom-dflt
-                            .block-callout
-                                p(ng-bind-html='joinTip(screenTip)')
+                    .panel-group(bs-collapse ng-model='notebook.activeIdx')
+                        .panel.panel-default(ng-repeat='paragraph in notebook.paragraphs')
+                            .panel-heading
+                                h3
+                                    a(bs-collapse-toggle ng-click='hidePopover()') {{paragraph.name}}
+                            .panel-collapse(role='tabpanel' bs-collapse-target)
+                                .panel-body
+                                    .row
+                                        .col-xs-8.col-sm-9(style='border-right: 1px solid #eee')
+                                            div(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
+                                            'require: ["ace/ext/language_tools"],' +
+                                            'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
+                                            'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='paragraph.query')
+                                        .col-xs-4.col-sm-3
+                                            div(ng-hide='caches.length == 0' style='margin-top: 0.65em')
+                                                lable.labelHeader Caches:
+                                                table.links(st-table='caches')
+                                                    tbody
+                                                        tr(ng-repeat='cache in caches track by cache.name')
+                                                            td.col-sm-6(ng-class='{active: cache.name == paragraph.activeCache.name}')
+                                                                a(ng-click='paragraph.activeCache = row') {{$index + 1}}) {{::cache.name}}, {{::cache.mode}}
+                                    hr(style='margin: 0')
+                                    .settings-row
+                                        label Page Size:&nbsp;
+                                        button.btn.btn-default.base-control(ng-model='paragraph.pageSize' bs-options='item for item in pageSizes' bs-select)
+                                    .settings-row
+                                        button.btn.btn-primary(ng-click='explain(paragraph)') Explain
+                                        button.btn.btn-primary(ng-click='execute(paragraph)') Execute
+                                        button.btn.btn-primary(ng-click='scan(paragraph)') Scan
 
-                        - var tab = 'tabs[tabs.activeIdx]'
-
-                        .tabs-below(bs-tabs bs-active-pane='tabs.activeIdx' data-template='/tab')
-                            div(ng-repeat='tab in tabs' title='Query' bs-pane)
-                        .row
-                            .col-xs-8.col-sm-9(style='border-right: 1px solid #eee')
-                                div(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
-                                    'require: ["ace/ext/language_tools"],' +
-                                    'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
-                                    'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='#{tab}.query')
-                            .col-xs-4.col-sm-3
-                                div(ng-hide='caches.length == 0' style='margin-top: 0.65em')
-                                    lable.labelHeader Caches:
-                                    table.links(st-table='caches')
-                                        tbody
-                                            tr(ng-repeat='row in caches track by row.name')
-                                                td.col-sm-6(ng-class='{active: row.name == #{tab}.selectedItem.name}')
-                                                    a(ng-click='#{tab}.selectedItem = row') {{$index + 1}}) {{::row.name}}, {{::row.mode}}
-                        hr(style='margin: 0')
-                        .settings-row
-                            label Page Size:&nbsp;
-                            button.btn.btn-default.base-control(ng-model='#{tab}.pageSize' bs-options='item for item in pageSizes' bs-select)
-                        .settings-row
-                            button.btn.btn-primary(ng-click='explain(#{tab})') Explain
-                            button.btn.btn-primary(ng-click='execute(#{tab})') Execute
-                            button.btn.btn-primary(ng-click='scan(#{tab})' disabled) Scan
-
-                        div(ng-show='#{tab}.rows.length > 0' style='margin-top: 0.65em')
-                            hr
-                            div
-                                table.table.table-striped.col-sm-12.sql-results(st-table='displayedCollection' st-safe-src='#{tab}.rows')
-                                    thead
-                                        tr(style='border-size: 0')
-                                            td(colspan='{{#{tab}.meta.length}}')
-                                                .col-sm-8
-                                                    lable Page #:&nbsp;
-                                                    b {{#{tab}.page}}&nbsp;&nbsp;&nbsp;
-                                                    | Results:&nbsp;
-                                                    b {{#{tab}.rows.length + #{tab}.total}}
-                                                .col-sm-4
-                                                    button.btn.btn-primary.fieldButton(ng-click='nextPage(#{tab})' ng-disabled='!#{tab}.queryId') Next page
-                                                    //.input-tip
-                                                    //    input.form-control(st-search placeholder='Filter...' type='search')
-                                        tr
-                                            th(ng-repeat='col in #{tab}.meta track by $index' st-sort='getter' data-ng-bind='::col.fieldName' bs-tooltip='col.schemaName + "." + col.typeName + "." + col.fieldName')
-                                    tbody
-                                        //tr
-                                        //    td(colspan='{{#{tab}.cols.length}}')
-                                        //        .loading-indicator
-                                        tr(ng-repeat='row in displayedCollection track by $index')
-                                            td(ng-repeat='val in row track by $index') {{ val }}
+                    //    div(ng-show='#{tab}.rows.length > 0' style='margin-top: 0.65em')
+                    //        hr
+                    //        div
+                    //            table.table.table-striped.col-sm-12.sql-results(st-table='displayedCollection' st-safe-src='#{tab}.rows')
+                    //                thead
+                    //                    tr(style='border-size: 0')
+                    //                        td(colspan='{{#{tab}.meta.length}}')
+                    //                            .col-sm-8
+                    //                                lable Page #:&nbsp;
+                    //                                b {{#{tab}.page}}&nbsp;&nbsp;&nbsp;
+                    //                                | Results:&nbsp;
+                    //                                b {{#{tab}.rows.length + #{tab}.total}}
+                    //                            .col-sm-4
+                    //                                button.btn.btn-primary.fieldButton(ng-click='nextPage(#{tab})' ng-disabled='!#{tab}.queryId') Next page
+                    //                                //.input-tip
+                    //                                //    input.form-control(st-search placeholder='Filter...' type='search')
+                    //                    tr
+                    //                        th(ng-repeat='col in #{tab}.meta track by $index' st-sort='getter' data-ng-bind='::col.fieldName' bs-tooltip='col.schemaName + "." + col.typeName + "." + col.fieldName')
+                    //                tbody
+                    //                    //tr
+                    //                    //    td(colspan='{{#{tab}.cols.length}}')
+                    //                    //        .loading-indicator
+                    //                    tr(ng-repeat='row in displayedCollection track by $index')
+                    //                        td(ng-repeat='val in row track by $index') {{ val }}
+                    //
+                    //
+                    //
+                    //div(ng-if='!caches')
+                    //    .block-callout-right.margin-bottom-dflt(style='width: 100%')
+                    //        p(ng-bind-html='joinTip(missingClientTip)')
+                    //div(ng-if='caches')
+                    //    .block-callout-parent.block-callout-border.margin-bottom-dflt
+                    //        .block-callout
+                    //            p(ng-bind-html='joinTip(screenTip)')
+                    //
+                    //    - var tab = 'tabs[tabs.activeIdx]'
+                    //
+                    //    .tabs-below(bs-tabs bs-active-pane='tabs.activeIdx' data-template='/tab')
+                    //        div(ng-repeat='tab in tabs' title='Query' bs-pane)
+                    //    .row
+                    //        .col-xs-8.col-sm-9(style='border-right: 1px solid #eee')
+                    //            div(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
+                    //                'require: ["ace/ext/language_tools"],' +
+                    //                'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
+                    //                'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='#{tab}.query')
+                    //        .col-xs-4.col-sm-3
+                    //            div(ng-hide='caches.length == 0' style='margin-top: 0.65em')
+                    //                lable.labelHeader Caches:
+                    //                table.links(st-table='caches')
+                    //                    tbody
+                    //                        tr(ng-repeat='row in caches track by row.name')
+                    //                            td.col-sm-6(ng-class='{active: row.name == #{tab}.selectedItem.name}')
+                    //                                a(ng-click='#{tab}.selectedItem = row') {{$index + 1}}) {{::row.name}}, {{::row.mode}}
+                    //    hr(style='margin: 0')
+                    //    .settings-row
+                    //        label Page Size:&nbsp;
+                    //        button.btn.btn-default.base-control(ng-model='#{tab}.pageSize' bs-options='item for item in pageSizes' bs-select)
+                    //    .settings-row
+                    //        button.btn.btn-primary(ng-click='explain(#{tab})') Explain
+                    //        button.btn.btn-primary(ng-click='execute(#{tab})') Execute
+                    //        button.btn.btn-primary(ng-click='scan(#{tab})' disabled) Scan
+                    //
+                    //    div(ng-show='#{tab}.rows.length > 0' style='margin-top: 0.65em')
+                    //        hr
+                    //        div
+                    //            table.table.table-striped.col-sm-12.sql-results(st-table='displayedCollection' st-safe-src='#{tab}.rows')
+                    //                thead
+                    //                    tr(style='border-size: 0')
+                    //                        td(colspan='{{#{tab}.meta.length}}')
+                    //                            .col-sm-8
+                    //                                lable Page #:&nbsp;
+                    //                                b {{#{tab}.page}}&nbsp;&nbsp;&nbsp;
+                    //                                | Results:&nbsp;
+                    //                                b {{#{tab}.rows.length + #{tab}.total}}
+                    //                            .col-sm-4
+                    //                                button.btn.btn-primary.fieldButton(ng-click='nextPage(#{tab})' ng-disabled='!#{tab}.queryId') Next page
+                    //                                //.input-tip
+                    //                                //    input.form-control(st-search placeholder='Filter...' type='search')
+                    //                    tr
+                    //                        th(ng-repeat='col in #{tab}.meta track by $index' st-sort='getter' data-ng-bind='::col.fieldName' bs-tooltip='col.schemaName + "." + col.typeName + "." + col.fieldName')
+                    //                tbody
+                    //                    //tr
+                    //                    //    td(colspan='{{#{tab}.cols.length}}')
+                    //                    //        .loading-indicator
+                    //                    tr(ng-repeat='row in displayedCollection track by $index')
+                    //                        td(ng-repeat='val in row track by $index') {{ val }}

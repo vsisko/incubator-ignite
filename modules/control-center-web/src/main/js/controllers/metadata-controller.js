@@ -20,6 +20,7 @@ controlCenterModule.controller('metadataController', [
         function ($scope, $controller, $http, $modal, $common, $timeout, $focus, $confirm, $copy, $table) {
             // Initialize the super class and extend it.
             angular.extend(this, $controller('agent-download', {$scope: $scope}));
+            $scope.agentGoal = 'load metadata from database schema';
 
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
