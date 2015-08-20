@@ -309,6 +309,11 @@ controlCenterModule.controller('metadataController', [
                             return {name: toJavaName(name), className: jdbcType.javaType}
                         }
 
+                        function dbField(name, jdbcType) {
+                            return {databaseName: name, databaseType: jdbcType.dbName,
+                                javaName: toJavaName(name), javaType: jdbcType.javaType}
+                        }
+
                         _.forEach(table.cols, function(col) {
                             var name = col.name;
                             var jdbcType = $common.findJdbcType(col.type);
@@ -320,6 +325,11 @@ controlCenterModule.controller('metadataController', [
 
                             if (_.includes(table.descCols, name))
                                 descFields.push(queryField(name, jdbcType));
+
+                            if (col.key)
+                                keyFields.push(dbField(name, jdbcType));
+
+                            valFields.push(dbField(name, jdbcType));
                         });
 
                         var newItem = {
