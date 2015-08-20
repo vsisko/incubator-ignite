@@ -70,7 +70,7 @@
     </dependencies>
 
     <build>
-        <finalName>agent-${project.version}</finalName>
+        <finalName>ignite-web-agent-${project.version}</finalName>
 
         <plugins>
             <plugin>
@@ -122,6 +122,7 @@
                             <descriptors>
                                 <descriptor>assembly/release-control-center-agent.xml</descriptor>
                             </descriptors>
+                            <finalName>ignite-web-agent</finalName>
                             <outputDirectory>target</outputDirectory>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>

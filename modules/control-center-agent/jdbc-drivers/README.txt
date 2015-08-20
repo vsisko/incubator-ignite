@@ -1,4 +1,4 @@
-Ignite Control Center Agent
+Ignite Web Agent
 ======================================
 
 If you are are planning to load cache type metadata from your existing databases

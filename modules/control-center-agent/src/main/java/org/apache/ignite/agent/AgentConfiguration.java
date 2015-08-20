@@ -61,8 +61,16 @@ public class AgentConfiguration {
     private String driversFolder;
 
     /** */
-    @Parameter(names = { "-h", "--help" }, description = "Print this help message")
+    @Parameter(names = { "-tm", "--testMetadata" }, description = "Start H2 database with sample tables in same process.")
     private boolean help;
+
+    /** */
+    @Parameter(names = { "-ts", "--testSql" }, description = "Create cache and populate it with sample data for use in query.")
+    private boolean meta;
+
+    /** */
+    @Parameter(names = { "-h", "--help" }, description = "Print this help message")
+    private boolean sql;
 
     /**
      * @return Login.

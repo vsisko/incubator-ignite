@@ -1,13 +1,13 @@
-Ignite Control Center Agent
+Ignite Web Agent
 ======================================
-Ignite Control Center Agent is a java standalone application that allow to connect Ignite Grid to Ignite Web Control Center.
-Ignite Control Center Agent communicates with grid nodes via REST interface and connects to Ignite Web Control Center via web-socket.
+Ignite Web Agent is a java standalone application that allow to connect Ignite Grid to Ignite Web Agent.
+Ignite Web Agent communicates with grid nodes via REST interface and connects to Ignite Web Agent via web-socket.
 
-Two main functions of Ignite Control Center Agent:
- 1. Proxy between Ignite Web Control Center and Ignite Grid to execute SQL statements and collect metrics for monitoring.
+Two main functions of Ignite Web Agent:
+ 1. Proxy between Ignite Web Agent and Ignite Grid to execute SQL statements and collect metrics for monitoring.
     You may need to specify URI for connect to Ignite REST server via "-n" option.
 
- 2. Proxy between Ignite Web Control Center and user RDBMS to collect database metadata for later CacheTypeMetadata configuration.
+ 2. Proxy between Ignite Web Agent and user RDBMS to collect database metadata for later CacheTypeMetadata configuration.
     You may need to copy JDBC driver into "./jdbc-drivers" subfolder or specify path via "-drv" option.
 
 Usage example:
@@ -39,7 +39,7 @@ Options:
        Default: "./jdbc-drivers".
 
     -l, --login
-       User's login (email) on Ignite Web Control Center.
+       User's login (email) on Ignite Web Agent.
 
     -n, --nodeUri
        URI for connect to Ignite REST server, for example: "http://localhost:8080".
@@ -49,11 +49,11 @@ Options:
        User's password.
 
     -s, --serverUri
-       URI for connect to Ignite Web Control Center, for example: "wss://control-center.example.com:3001".
+       URI for connect to Ignite Web Agent, for example: "wss://control-center.example.com:3001".
        Default: "wss://localhost:3001".
 
 
-Ignite Control Center Agent Build Instructions
+Ignite Web Agent Build Instructions
 ==============================================
 If you want to build from sources run following command in Ignite project root folder:
     mvn clean package -pl :ignite-control-center-agent -am -P control-center -DskipTests=true

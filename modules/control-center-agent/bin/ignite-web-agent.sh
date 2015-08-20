@@ -16,4 +16,4 @@
 # limitations under the License.
 #
 
-java -jar agent-${version}.jar "$@"
+java -jar ignite-web-agent-${version}.jar "$@"
