@@ -66,40 +66,17 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             }
         }
 
-        $scope.cacheModes = [
-            {value: 'LOCAL', label: 'LOCAL'},
-            {value: 'REPLICATED', label: 'REPLICATED'},
-            {value: 'PARTITIONED', label: 'PARTITIONED'}
-        ];
+        $scope.cacheModes = $common.mkOptions(['LOCAL', 'REPLICATED', 'PARTITIONED']);
 
-        $scope.deploymentModes = [
-            {value: 'PRIVATE', label: 'PRIVATE'},
-            {value: 'ISOLATED', label: 'ISOLATED'},
-            {value: 'SHARED', label: 'SHARED'},
-            {value: 'CONTINUOUS', label: 'CONTINUOUS'}
-        ];
+        $scope.deploymentModes = $common.mkOptions(['PRIVATE', 'ISOLATED', 'SHARED', 'CONTINUOUS']);
 
-        $scope.transactionConcurrency = [
-            {value: 'OPTIMISTIC', label: 'OPTIMISTIC'},
-            {value: 'PESSIMISTIC', label: 'PESSIMISTIC'}
-        ];
+        $scope.transactionConcurrency = $common.mkOptions(['OPTIMISTIC', 'PESSIMISTIC']);
 
-        $scope.transactionIsolation = [
-            {value: 'READ_COMMITTED', label: 'READ_COMMITTED'},
-            {value: 'REPEATABLE_READ', label: 'REPEATABLE_READ'},
-            {value: 'SERIALIZABLE', label: 'SERIALIZABLE'}
-        ];
+        $scope.transactionIsolation = $common.mkOptions(['READ_COMMITTED', 'REPEATABLE_READ', 'SERIALIZABLE']);
 
-        $scope.segmentationPolicy = [
-            {value: 'RESTART_JVM', label: 'RESTART_JVM'},
-            {value: 'STOP', label: 'STOP'},
-            {value: 'NOOP', label: 'NOOP'}
-        ];
+        $scope.segmentationPolicy = $common.mkOptions(['RESTART_JVM', 'STOP', 'NOOP']);
 
-        $scope.marshallers = [
-            {value: 'OptimizedMarshaller', label: 'OptimizedMarshaller'},
-            {value: 'JdkMarshaller', label: 'JdkMarshaller'}
-        ];
+        $scope.marshallers = $common.mkOptions(['OptimizedMarshaller', 'JdkMarshaller']);
 
         $scope.ui = {expanded: false};
 

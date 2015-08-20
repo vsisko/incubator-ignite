@@ -206,7 +206,7 @@ mixin table-db-field-edit(prefix, focusId, index)
     .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
-            button.form-control(id=databaseTypeId enter-focus-next=javaNameId ng-model=databaseTypeModel bs-select bs-options='item.value as item.label for item in {{jdbcTypes}}' on-escape='tableReset()' tabindex='0')
+            button.form-control(id=databaseTypeId enter-focus-next=javaNameId ng-model=databaseTypeModel bs-select bs-options='item.value as item.label for item in {{supportedJdbcTypes}}' on-escape='tableReset()' tabindex='0')
     .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
@@ -218,7 +218,7 @@ mixin table-db-field-edit(prefix, focusId, index)
 
         +btn-save(btnVisible, btnSave)
         .input-tip
-            button.form-control(id=javaTypeId ng-model=javaTypeModel bs-select bs-options='item.value as item.label for item in {{javaTypes}}' on-enter=btnVisibleAndSave on-escape='tableReset()' tabindex='0')
+            button.form-control(id=javaTypeId ng-model=javaTypeModel bs-select bs-options='item.value as item.label for item in {{supportedJavaTypes}}' on-enter=btnVisibleAndSave on-escape='tableReset()' tabindex='0')
 
 mixin table-group-item-edit(prefix, index)
     -var fieldName = prefix + 'FieldName'

@@ -123,10 +123,49 @@ controlCenterModule.service('$common', [
             return _.contains(javaBuildInClasses, cls) || _.contains(javaBuildInFullNameClasses, cls);
         }
 
-        var JDBC_TYPES = [
+        var SUPPORTED_JDBC_TYPES = [
             'BIT', 'BOOLEAN', 'TINYINT', 'SMALLINT', 'INTEGER', 'BIGINT', 'REAL', 'FLOAT', 'DOUBLE',
             'NUMERIC', 'DECIMAL', 'CHAR', 'VARCHAR', 'LONGVARCHAR', 'NCHAR', 'NVARCHAR', 'LONGNVARCHAR',
             'DATE', 'TIME', 'TIMESTAMP'
+        ];
+
+        var ALL_JDBC_TYPES = [
+            {dbName: 'BIT', dbType: -7, javaType: 'Boolean'},
+            {dbName: 'TINYINT', dbType: -6, javaType: 'Byte'},
+            {dbName: 'SMALLINT', dbType:  5, javaType: 'Short'},
+            {dbName: 'INTEGER', dbType: 4, javaType: 'Integer'},
+            {dbName: 'BIGINT', dbType: -5, javaType: 'Long'},
+            {dbName: 'FLOAT', dbType: 6, javaType: 'Float'},
+            {dbName: 'REAL', dbType: 7, javaType: 'Double'},
+            {dbName: 'DOUBLE', dbType: 8, javaType: 'Double'},
+            {dbName: 'NUMERIC', dbType: 2, javaType: 'BigDecimal'},
+            {dbName: 'DECIMAL', dbType: 3, javaType: 'BigDecimal'},
+            {dbName: 'CHAR', dbType: 1, javaType: 'String'},
+            {dbName: 'VARCHAR', dbType: 12, javaType: 'String'},
+            {dbName: 'LONGVARCHAR', dbType: -1, javaType: 'String'},
+            {dbName: 'DATE', dbType: 91, javaType: 'Date'},
+            {dbName: 'TIME', dbType: 92, javaType: 'Time'},
+            {dbName: 'TIMESTAMP', dbType: 93, javaType: 'Timestamp'},
+            {dbName: 'BINARY', dbType: -2, javaType: 'Object'},
+            {dbName: 'VARBINARY', dbType: -3, javaType: 'Object'},
+            {dbName: 'LONGVARBINARY', dbType: -4, javaType: 'Object'},
+            {dbName: 'NULL', dbType: 0, javaType: 'Object'},
+            {dbName: 'OTHER', dbType: 1111, javaType: 'Object'},
+            {dbName: 'JAVA_OBJECT', dbType: 2000, javaType: 'Object'},
+            {dbName: 'DISTINCT', dbType: 2001, javaType: 'Object'},
+            {dbName: 'STRUCT', dbType: 2002, javaType: 'Object'},
+            {dbName: 'ARRAY', dbType: 2003, javaType: 'Object'},
+            {dbName: 'BLOB', dbType: 2004, javaType: 'Object'},
+            {dbName: 'CLOB', dbType: 2005, javaType: 'String'},
+            {dbName: 'REF', dbType: 2006, javaType: 'Object'},
+            {dbName: 'DATALINK', dbType: 70, javaType: 'Object'},
+            {dbName: 'BOOLEAN', dbType: 16, javaType: 'Boolean'},
+            {dbName: 'ROWID', dbType: -8, javaType: 'Object'},
+            {dbName: 'NCHAR', dbType: -15, javaType: 'String'},
+            {dbName: 'NVARCHAR', dbType: -9, javaType: 'String'},
+            {dbName: 'LONGNVARCHAR', dbType: -16, javaType: 'String'},
+            {dbName: 'NCLOB', dbType: 2011, javaType: 'String'},
+            {dbName: 'SQLXML', dbType: 2009, javaType: 'Object'}
         ];
 
         var JAVA_KEYWORDS = [
@@ -483,7 +522,7 @@ controlCenterModule.service('$common', [
             },
             mkOptions: function (options) {
                 return _.map(options, function (option) {
-                    return {value: option, label: option};
+                    return {value: option, label: isDefined(option) ? option : 'Not set'};
                 });
             },
             isDefined: isDefined,
@@ -501,7 +540,14 @@ controlCenterModule.service('$common', [
                     duration: 2
                 });
             },
-            JDBC_TYPES: JDBC_TYPES,
+            SUPPORTED_JDBC_TYPES: SUPPORTED_JDBC_TYPES,
+            findJdbcType: function (jdbcType) {
+                var res =  _.find(ALL_JDBC_TYPES, function (item) {
+                    return item.dbType == jdbcType;
+                });
+
+                return res ? res : {dbName: 'Unknown', javaType: 'Unknown'}
+            },
             javaBuildInClasses: javaBuildInClasses,
             isJavaBuildInClass: isJavaBuildInClass,
             isValidJavaIdentifier: isValidJavaIdentifier,

@@ -47,52 +47,7 @@ controlCenterModule.controller('metadataController', [
             $scope.hidePopover = $common.hidePopover;
             var showPopoverMessage = $common.showPopoverMessage;
 
-            var JDBC_TYPES = [
-                {dbName: 'BIT', dbType: -7, javaType: 'Boolean'},
-                {dbName: 'TINYINT', dbType: -6, javaType: 'Byte'},
-                {dbName: 'SMALLINT', dbType:  5, javaType: 'Short'},
-                {dbName: 'INTEGER', dbType: 4, javaType: 'Integer'},
-                {dbName: 'BIGINT', dbType: -5, javaType: 'Long'},
-                {dbName: 'FLOAT', dbType: 6, javaType: 'Float'},
-                {dbName: 'REAL', dbType: 7, javaType: 'Double'},
-                {dbName: 'DOUBLE', dbType: 8, javaType: 'Double'},
-                {dbName: 'NUMERIC', dbType: 2, javaType: 'BigDecimal'},
-                {dbName: 'DECIMAL', dbType: 3, javaType: 'BigDecimal'},
-                {dbName: 'CHAR', dbType: 1, javaType: 'String'},
-                {dbName: 'VARCHAR', dbType: 12, javaType: 'String'},
-                {dbName: 'LONGVARCHAR', dbType: -1, javaType: 'String'},
-                {dbName: 'DATE', dbType: 91, javaType: 'Date'},
-                {dbName: 'TIME', dbType: 92, javaType: 'Time'},
-                {dbName: 'TIMESTAMP', dbType: 93, javaType: 'Timestamp'},
-                {dbName: 'BINARY', dbType: -2, javaType: 'Object'},
-                {dbName: 'VARBINARY', dbType: -3, javaType: 'Object'},
-                {dbName: 'LONGVARBINARY', dbType: -4, javaType: 'Object'},
-                {dbName: 'NULL', dbType: 0, javaType: 'Object'},
-                {dbName: 'OTHER', dbType: 1111, javaType: 'Object'},
-                {dbName: 'JAVA_OBJECT', dbType: 2000, javaType: 'Object'},
-                {dbName: 'DISTINCT', dbType: 2001, javaType: 'Object'},
-                {dbName: 'STRUCT', dbType: 2002, javaType: 'Object'},
-                {dbName: 'ARRAY', dbType: 2003, javaType: 'Object'},
-                {dbName: 'BLOB', dbType: 2004, javaType: 'Object'},
-                {dbName: 'CLOB', dbType: 2005, javaType: 'String'},
-                {dbName: 'REF', dbType: 2006, javaType: 'Object'},
-                {dbName: 'DATALINK', dbType: 70, javaType: 'Object'},
-                {dbName: 'BOOLEAN', dbType: 16, javaType: 'Boolean'},
-                {dbName: 'ROWID', dbType: -8, javaType: 'Object'},
-                {dbName: 'NCHAR', dbType: -15, javaType: 'String'},
-                {dbName: 'NVARCHAR', dbType: -9, javaType: 'String'},
-                {dbName: 'LONGNVARCHAR', dbType: -16, javaType: 'String'},
-                {dbName: 'NCLOB', dbType: 2011, javaType: 'String'},
-                {dbName: 'SQLXML', dbType: 2009, javaType: 'Object'}
-            ];
 
-            function _findJdbcType(jdbcType) {
-                var res =  _.find(JDBC_TYPES, function (item) {
-                    return item.code == jdbcCode;
-                });
-
-                return res ? res : {dbName: 'Unknown', javaType: 'Unknown'}
-            }
 
             var presets = [
                 {
@@ -179,9 +134,9 @@ controlCenterModule.controller('metadataController', [
                 }
             }, true);
 
-            $scope.jdbcTypes = $common.mkOptions($common.JDBC_TYPES);
+            $scope.supportedJdbcTypes = $common.mkOptions($common.SUPPORTED_JDBC_TYPES);
 
-            $scope.javaTypes = $common.mkOptions($common.javaBuildInClasses);
+            $scope.supportedJavaTypes = $common.mkOptions($common.javaBuildInClasses);
 
             $scope.sortDirections = [
                 {value: false, label: 'ASC'},
@@ -201,6 +156,7 @@ controlCenterModule.controller('metadataController', [
                 return false;
             };
 
+            // Load page descriptor.
             $http.get('/models/metadata.json')
                 .success(function (data) {
                     $scope.screenTip = data.screenTip;
@@ -244,6 +200,7 @@ controlCenterModule.controller('metadataController', [
 
             // Show load metadata modal.
             $scope.showLoadMetadataModal = function () {
+                // Get available JDBC drivers via agent.
                 $http.post('/agent/drivers')
                     .success(function (drivers) {
                         if (drivers && drivers.length > 0) {
@@ -325,22 +282,59 @@ controlCenterModule.controller('metadataController', [
             }
 
             function toJavaName(dbName) {
-                return dbName;
+                var javaName = toJavaClassName(dbName);
+
+                return javaName.charAt(0).toLocaleLowerCase() + javaName.slice(1);
             }
+
+            $scope.packageName = 'org.apache.ignite';
 
             $scope.saveSelectedMetadata = function () {
                 loadMetaModal.hide();
 
                 _.forEach($scope.loadMeta.tables, function (table) {
                     if (table.use) {
+                        var qryFields = [];
+                        var ascFields = [];
+                        var descFields = [];
+                        var groups = [];
+                        var keyFields = [];
+                        var valFields = [];
+
+                        var tableName = table.tbl;
+
+                        var valType = $scope.packageName + '.' + toJavaClassName(tableName);
+
+                        function queryField(name, jdbcType) {
+                            return {name: toJavaName(name), className: jdbcType.javaType}
+                        }
+
+                        _.forEach(table.cols, function(col) {
+                            var name = col.name;
+                            var jdbcType = $common.findJdbcType(col.type);
+
+                            qryFields.push(queryField(name, jdbcType));
+
+                            if (_.includes(table.ascCols, name))
+                                ascFields.push(queryField(name, jdbcType));
+
+                            if (_.includes(table.descCols, name))
+                                descFields.push(queryField(name, jdbcType));
+                        });
+
                         var newItem = {
-                            name: toProperCase(table.tbl),
+                            space: $scope.spaces[0],
+                            name: toProperCase(tableName),
                             databaseSchema: table.schema,
-                            databaseTable: table.tbl,
-                            keyType: table.tableName + 'Key',
-                            valueType: table.tableName,
-                            keyFields: [],
-                            valueFields: []
+                            databaseTable: tableName,
+                            keyType: valType + 'Key',
+                            valueType: valType,
+                            queryFields: qryFields,
+                            ascendingFields: ascFields,
+                            descendingFields: descFields,
+                            groups: groups,
+                            keyFields: keyFields,
+                            valueFields: valFields
                         };
 
                         save(newItem);
