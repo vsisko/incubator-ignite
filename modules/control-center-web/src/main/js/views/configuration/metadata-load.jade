@@ -31,26 +31,33 @@ include ../includes/controls
                 .settings-row
                     label.col-sm-2.required Package:
                     .col-sm-10
-                        input.form-control(type="text")
+                        input.form-control(type="text" ng-model='packageName')
                 table.table.table-condensed.table-stripped.metadata(st-table='displayedTables' st-safe-src='loadMeta.tables')
                     thead
                         tr
-                            th.header(colspan='2')
+                            th
+                            th
+                            th.header
                                 input.form-control(type='text' st-search='' placeholder='Filter tables...')
                         tr
                             th
                                 input(type='checkbox' ng-model='loadMeta.allSelected' ng-change='loadMeta.selectAll()')
                             th
+                                label Schemas
+                            th
                                 label Tables
+
                     tbody
                         tr(ng-repeat='table in displayedTables')
                             td
                                 input(type='checkbox' ng-model='table.use' ng-change='loadMeta.select()')
                             td
-                                label {{::table.schemaName}} / {{::table.tableName}}
-                    tfoot
+                                label {{::table.schema}}
+                            td
+                                label {{::table.tbl}}
+                    tfoot()
                         tr
-                            td.text-right(colspan='2')
+                            td.text-right(colspan='3')
                                 div(st-pagination st-items-by-page='10' st-displayed-pages='5')
             .modal-footer
                 button.btn.btn-primary(ng-show='loadMeta.action == "connect"' ng-disabled='loadForm.$invalid' ng-click='loadMetadataFromDb()') Load metadata
