@@ -29,7 +29,7 @@ controlCenterModule.controller('profileController', ['$scope', '$http', '$common
             var changeEmail = email != $scope.user.email;
 
             if (changeUsername || changeEmail || profile.changePassword) {
-                $http.post('/profile/saveUser', {
+                $http.post('/profile/save', {
                     _id: profile._id,
                     userName: changeUsername ? userName : undefined,
                     email: changeEmail ? email : undefined,

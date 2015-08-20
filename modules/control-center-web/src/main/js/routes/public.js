@@ -114,7 +114,7 @@ router.get('/logout', function (req, res) {
 /**
  * Send e-mail to user with reset token.
  */
-router.post('/forgot_password', function(req, res) {
+router.post('/password/forgot', function(req, res) {
     var transporter = {
         service: config.get('smtp:service'),
         auth: {
@@ -169,7 +169,7 @@ router.post('/forgot_password', function(req, res) {
 /**
  * Change password with given token.
  */
-router.post('/reset_password', function(req, res) {
+router.post('/password/reset', function(req, res) {
     db.Account.findOne({ resetPasswordToken: req.body.token }, function(err, user) {
         if (!user)
             return res.status(500).send('Invalid token for password reset!');
@@ -219,12 +219,12 @@ router.post('/reset_password', function(req, res) {
     });
 });
 
-router.get('/reset', function (req, res) {
-    res.render('reset', {});
+router.get('/password/reset', function (req, res) {
+    res.render('reset');
 });
 
 /* GET reset password page. */
-router.get('/reset/:token', function (req, res) {
+router.get('/password/reset/:token', function (req, res) {
     var token = req.params.token;
 
     var data = {token: token};

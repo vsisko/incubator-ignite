@@ -18,7 +18,6 @@
 controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http', '$common',
     function ($scope, $controller, $http, $common) {
     // Initialize the super class and extend it.
-    angular.extend(this, $controller('notebooks', {$scope: $scope}));
     angular.extend(this, $controller('agent-download', {$scope: $scope}));
 
     $scope.joinTip = $common.joinTip;
@@ -32,7 +31,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     ];
 
     var loadNotebook = function() {
-        $http.post('/notebooks/get', {nodeId: $scope.nodeId})
+        $http.post('/notebooks/get', {noteId: $scope.noteId})
             .success(function (notebook) {
                 $scope.notebook = notebook;
             })
@@ -42,6 +41,28 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     };
 
     loadNotebook();
+
+    $scope.saveNotebook = function(notebook) {
+        $scope.notebook_edit = false;
+
+        $http.post('/notebooks/save', notebook)
+            .success(function () {
+                var idx = _.findIndex($scope.$root.notebooks, function (item) {
+                    return item._id == notebook._id;
+                });
+
+                if (idx >= 0) {
+                    $scope.$root.notebooks[idx].name = $scope.notebook.name;
+
+                    $scope.$root.rebuildDropdown();
+                }
+            })
+            .error(function (errMsg) {
+                $common.showError(errMsg);
+
+                loadNotebook();
+            });
+    };
 
     $scope.addParagraph = function(notebook) {
         notebook.paragraphs.push({});
@@ -82,10 +103,13 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
             if ($scope.tabs.length == 0)
                 $scope.addTab();
         })
-        .error(function (errMsg) {
+        .error(function (err, status) {
             $scope.caches = undefined;
 
-            $scope.showDownloadAgent();
+            if (status == 503)
+                $scope.showDownloadAgent();
+            else
+                $common.showError('Receive agent error: ' + err);
         });
 
     $scope.execute = function(tab) {
@@ -131,7 +155,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     };
 
     $scope.nextPage = function(tab) {
-        $http.post('/agent/query_fetch', {queryId: tab.queryId, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
+        $http.post('/agent/query/fetch', {queryId: tab.queryId, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
             .success(function (res) {
                 tab.page++;
 

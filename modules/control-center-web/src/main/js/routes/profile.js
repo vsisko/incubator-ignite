@@ -18,15 +18,6 @@
 var router = require('express').Router();
 var db = require('../db');
 
-router.all('/profile/*', function (req, res, next) {
-    var userId = req.body._id;
-
-    if (userId != req.currentUserId() && userId != req.user._id)
-        return res.sendStatus(403);
-    else
-        next();
-});
-
 /**
  * Get user profile page.
  */
@@ -44,7 +35,7 @@ router.get('/', function (req, res) {
 /**
  * Save user profile.
  */
-router.post('/saveUser', function (req, res) {
+router.post('/save', function (req, res) {
     var params = req.body;
 
     if (params.newPassword) {

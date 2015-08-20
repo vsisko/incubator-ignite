@@ -1100,7 +1100,7 @@ controlCenterModule.controller('auth', [
                     if (status == 403) {
                         loginModal.hide();
 
-                        $window.location = '/reset';
+                        $window.location = '/password/reset';
                     }
                     else
                         $common.showError(data, 'top', '#errors-container');
@@ -1109,7 +1109,7 @@ controlCenterModule.controller('auth', [
 
         // Try to reset user password for provided token.
         $scope.resetPassword = function (reset_info) {
-            $http.post('/reset_password', reset_info)
+            $http.post('/password/reset', reset_info)
                 .success(function (data) {
                     $scope.user_info = {email: data};
                     $scope.login();
@@ -1129,7 +1129,7 @@ controlCenterModule.controller('auth', [
 controlCenterModule.controller('agent-download', [
     '$scope', '$modal', function ($scope, $modal) {
         // Pre-fetch modal dialogs.
-        var _agentDownloadModal = $modal({scope: $scope, templateUrl: '/agent/agent-download', show: false});
+        var _agentDownloadModal = $modal({scope: $scope, templateUrl: '/agent/download', show: false});
 
         $scope.downloadAgent = function () {
             _agentDownloadModal.hide();
@@ -1152,31 +1152,36 @@ controlCenterModule.controller('agent-download', [
 }]);
 
 // Navigation bar controller.
-controlCenterModule.controller('notebooks', [
-    '$scope', '$http', '$common', function ($scope, $http, $common) {
-        $scope.notebooks = [];
+controlCenterModule.controller('notebooks', ['$scope', '$http', '$common', function ($scope, $http, $common) {
+    $scope.$root.notebooks = [];
 
+    $scope.$root.rebuildDropdown = function () {
+        $scope.notebookDropdown = [
+            {text: 'Create new notebook', href: '/notebooks/new', target: '_self'},
+            {divider: true}
+        ];
+
+        _.forEach($scope.$root.notebooks, function (notebook) {
+            $scope.notebookDropdown.push({
+                text: notebook.name,
+                href: '/sql/' + notebook._id,
+                target: '_self'
+            });
+        });
+    };
+
+    $scope.$root.reloadNotebooks = function () {
         // When landing on the page, get clusters and show them.
         $http.post('/notebooks/list')
             .success(function (data) {
-                $scope.notebooks = data;
+                $scope.$root.notebooks = data;
 
-                if ($scope.notebooks.length > 0) {
-                    $scope.notebookDropdown = [
-                        {text: 'Create new notebook', href: '/notebooks/new', target: '_self'},
-                        {divider: true}
-                    ];
-
-                    _.forEach($scope.notebooks, function (notebook) {
-                        $scope.notebookDropdown.push({
-                            text: notebook.name,
-                            href: '/sql/' + notebook._id,
-                            target: '_self'
-                        });
-                    });
-                }
+                $scope.$root.rebuildDropdown();
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);
             });
-    }]);
+    };
+
+    $scope.$root.reloadNotebooks();
+}]);

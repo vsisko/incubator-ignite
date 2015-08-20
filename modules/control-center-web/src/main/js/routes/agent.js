@@ -34,7 +34,7 @@ function _client(req, res) {
 }
 
 /* Get grid topology. */
-router.get('/agent-download', function (req, res) {
+router.get('/download', function (req, res) {
     res.render('templates/agent-download');
 });
 
@@ -78,7 +78,7 @@ router.post('/query', function (req, res) {
 });
 
 /* Get next query page. */
-router.post('/query_fetch', function (req, res) {
+router.post('/query/fetch', function (req, res) {
     var client = _client(req, res);
 
     if (client) {
