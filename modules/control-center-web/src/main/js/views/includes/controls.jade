@@ -423,11 +423,16 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
 mixin main-table(title, rows, focusId, click, rowTemplate)
     .padding-dflt(ng-show='#{rows} && #{rows}.length > 0')
         lable.labelHeader #{title}
-        table.links(st-table=rows)
+        table.links(st-table='displayedRows' st-safe-src='#{rows}')
             tbody
-                tr(ng-repeat='row in #{rows} track by row._id')
+                tr(ng-repeat='row in displayedRows track by row._id')
                     td(ng-class='{active: row._id == selectedItem._id}')
                         a(on-click-focus=focusId ng-click=click) #{rowTemplate}
+            tfoot
+                tr
+                    td.text-right
+                        div(st-pagination st-items-by-page='10' st-displayed-pages='5')
+
 
 mixin groups(groups, dataSource)
     .panel.panel-default(ng-repeat='group in #{groups}' ng-click='triggerDigest=true')

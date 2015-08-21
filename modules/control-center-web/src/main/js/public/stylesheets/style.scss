@@ -734,6 +734,21 @@ button .caret, .btn .caret {
         color: $ignite-red;
         font-weight: bold;
     }
+
+    tfoot > tr > td {
+        padding: 0;
+
+        .pagination {
+            margin: 10px 0;
+
+            > .active > a {
+                color: $ignite-red;
+                font-weight: bold;
+                border-color: #ddd;
+                background-color: #eee;
+            }
+        }
+    }
 }
 
 .theme-line table.links-edit {
