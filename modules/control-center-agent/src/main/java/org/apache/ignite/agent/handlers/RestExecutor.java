@@ -74,10 +74,10 @@ public class RestExecutor {
     @Remote
     public RestResult executeRest(String path, Map<String, String> params, String mtd, Map<String, String> headers,
         String body) throws IOException, URISyntaxException {
-        URIBuilder builder = new URIBuilder(cfg.getNodeUri());
+        URIBuilder builder = new URIBuilder(cfg.nodeUri());
 
         if (path != null) {
-            if (!path.startsWith("/") && !cfg.getNodeUri().endsWith("/"))
+            if (!path.startsWith("/") && !cfg.nodeUri().endsWith("/"))
                 path = '/' +  path;
 
             builder.setPath(path);

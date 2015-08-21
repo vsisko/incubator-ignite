@@ -53,10 +53,10 @@ public class AgentUtils {
             // Resolve path to class-file.
             URI classesUri = domain.getCodeSource().getLocation().toURI();
 
-            boolean windows = System.getProperty("os.name").toLowerCase().contains("win");
+            boolean win = System.getProperty("os.name").toLowerCase().contains("win");
 
             // Overcome UNC path problem on Windows (http://www.tomergabel.com/JavaMishandlesUNCPathsOnWindows.aspx)
-            if (windows && classesUri.getAuthority() != null)
+            if (win && classesUri.getAuthority() != null)
                 classesUri = new URI(classesUri.toString().replace("file://", "file:/"));
 
             return new File(classesUri).getParentFile();

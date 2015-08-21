@@ -41,7 +41,7 @@ public class DatabaseMetadataExtractor {
      * @param cfg Config.
      */
     public DatabaseMetadataExtractor(AgentConfiguration cfg) {
-        String driversFolder = cfg.getDriversFolder();
+        String driversFolder = cfg.driversFolder();
 
         if (driversFolder == null) {
             File agentHome = AgentUtils.getAgentHome();

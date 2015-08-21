@@ -49,7 +49,7 @@ public class AgentConfiguration {
     /** */
     @Parameter(names = {"-n", "--node-uri"},
         description = "URI for connect to Ignite REST server, for example: http://localhost:8080")
-    private String nodeUri = "http://localhost:8080";
+    private String nodeUri;
 
     /** */
     @Parameter(names = {"-c", "--config"}, description = "Path to configuration file")
@@ -57,133 +57,134 @@ public class AgentConfiguration {
 
     /** */
     @Parameter(names = {"-drv", "--driver-folder"},
-        description = "Path to folder with JDBC drivers, for example /home/user/jdbc-drivers")
+        description = "Path to folder with JDBC drivers, for example: /home/user/jdbc-drivers")
     private String driversFolder;
 
     /** */
     @Parameter(names = { "-tm", "--test-drive-metadata" },
-        description = "Start H2 database with sample tables in same process.")
-    private boolean meta;
+        description = "Start H2 database with sample tables in same process. " +
+            "JDBC URL for connect to sample database: jdbc:h2:mem:test-drive-db")
+    private Boolean meta;
 
     /** */
     @Parameter(names = { "-ts", "--test-drive-sql" },
         description = "Create cache and populate it with sample data for use in query.")
-    private boolean sql;
+    private Boolean sql;
 
     /** */
     @Parameter(names = { "-h", "--help" }, description = "Print this help message")
-    private boolean help;
+    private Boolean help;
 
     /**
      * @return Login.
      */
-    public String getLogin() {
+    public String login() {
         return login;
     }
 
     /**
      * @param login Login.
      */
-    public void setLogin(String login) {
+    public void login(String login) {
         this.login = login;
     }
 
     /**
      * @return Password.
      */
-    public String getPassword() {
+    public String password() {
         return pwd;
     }
 
     /**
      * @param pwd Password.
      */
-    public void setPassword(String pwd) {
+    public void password(String pwd) {
         this.pwd = pwd;
     }
 
     /**
      * @return Server URI.
      */
-    public String getServerUri() {
+    public String serverUri() {
         return srvUri;
     }
 
     /**
      * @param srvUri URI.
      */
-    public void setServerUri(String srvUri) {
+    public void serverUri(String srvUri) {
         this.srvUri = srvUri;
     }
 
     /**
      * @return Node URI.
      */
-    public String getNodeUri() {
+    public String nodeUri() {
         return nodeUri;
     }
 
     /**
      * @param nodeUri Node URI.
      */
-    public void setNodeUri(String nodeUri) {
+    public void nodeUri(String nodeUri) {
         this.nodeUri = nodeUri;
     }
 
     /**
      * @return Configuration path.
      */
-    public String getConfigPath() {
+    public String configPath() {
         return cfgPath;
-    }
-
-    /**
-     * @param cfgPath Config path.
-     */
-    public void setConfigPath(String cfgPath) {
-        this.cfgPath = cfgPath;
     }
 
     /**
      * @return Configured drivers folder.
      */
-    public String getDriversFolder() {
+    public String driversFolder() {
         return driversFolder;
     }
 
     /**
      * @param driversFolder Driver folder.
      */
-    public void setDriversFolder(String driversFolder) {
+    public void driversFolder(String driversFolder) {
         this.driversFolder = driversFolder;
     }
 
     /**
      * @return {@code true} If metadata test drive should be started.
      */
-    public boolean isTestDriveMeta() {
-        return meta;
+    public Boolean testDriveMetadata() {
+        return meta != null ? meta : false;
     }
 
     /**
      * @param meta Set to {@code true} if metadata test drive should be started.
      */
-    public void setTestDriveMeta(boolean meta) {
+    public void testDriveMetadata(Boolean meta) {
         this.meta = meta;
     }
 
     /**
      * @return {@code true} If SQL test drive should be started.
      */
-    public boolean isTestDriveSql() {
-        return sql;
+    public Boolean testDriveSql() {
+        return sql != null ? sql : false;
     }
 
     /**
      * @param sql Set to {@code true} if SQL test drive should be started.
      */
-    public void setTestDriveSql(boolean sql) {
+    public void testDriveSql(Boolean sql) {
         this.sql = sql;
+    }
+
+    /**
+     * @return {@code true} If agent options usage should be printed.
+     */
+    public Boolean help() {
+        return help != null ? help : false;
     }
 
     /**
@@ -199,65 +200,58 @@ public class AgentConfiguration {
         String val = (String)props.remove("login");
 
         if (val != null)
-            setLogin(val);
+            login(val);
 
         val = (String)props.remove("password");
 
         if (val != null)
-            setPassword(val);
+            password(val);
 
         val = (String)props.remove("serverURI");
 
         if (val != null)
-            setServerUri(val);
+            serverUri(val);
 
         val = (String)props.remove("nodeURI");
 
         if (val != null)
-            setNodeUri(val);
+            nodeUri(val);
 
         val = (String)props.remove("driverFolder");
 
         if (val != null)
-            setDriversFolder(val);
+            driversFolder(val);
     }
 
     /**
      * @param cmd Command.
      */
     public void merge(AgentConfiguration cmd) {
-        if (cmd.getLogin() != null)
-            setLogin(cmd.getLogin());
+        if (cmd.login() != null)
+            login(cmd.login());
 
-        if (cmd.getPassword() != null)
-            setPassword(cmd.getPassword());
+        if (cmd.password() != null)
+            password(cmd.password());
 
-        if (cmd.getServerUri() != null)
-            setServerUri(cmd.getServerUri());
+        if (cmd.serverUri() != null)
+            serverUri(cmd.serverUri());
 
         if (srvUri == null)
-            setServerUri(DFLT_SERVER_URI);
+            serverUri(DFLT_SERVER_URI);
 
-        if (cmd.getNodeUri() != null)
-            setNodeUri(cmd.getNodeUri());
+        if (cmd.nodeUri() != null)
+            nodeUri(cmd.nodeUri());
 
         if (nodeUri == null)
-            setNodeUri(DFLT_NODE_URI);
+            nodeUri(DFLT_NODE_URI);
 
-        if (cmd.getDriversFolder() != null)
-            setDriversFolder(cmd.getDriversFolder());
+        if (cmd.driversFolder() != null)
+            driversFolder(cmd.driversFolder());
 
-        if (cmd.isTestDriveMeta())
-            setTestDriveMeta(true);
+        if (cmd.testDriveMetadata())
+            testDriveMetadata(true);
 
-        if (cmd.isTestDriveSql())
-            setTestDriveSql(true);
-    }
-
-    /**
-     * @return {@code true} If agent options usage should be printed.
-     */
-    public boolean help() {
-        return help;
+        if (cmd.testDriveSql())
+            testDriveSql(true);
     }
 }

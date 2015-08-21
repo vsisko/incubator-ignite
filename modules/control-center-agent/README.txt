@@ -52,10 +52,11 @@ Options:
        URI for connect to Ignite Web Agent, for example: "wss://control-center.example.com:3001".
        Default: "wss://localhost:3001".
 
-    -tm, --test-metadata
+    -tm, --test-drive-metadata
        Start H2 database with sample tables in same process.
+       JDBC URL for connect to sample database: jdbc:h2:mem:test-drive-db
 
-    -ts, --test-sql
+    -ts, --test-drive-sql
        Create cache and populate it with sample data for use in query.
 
 
