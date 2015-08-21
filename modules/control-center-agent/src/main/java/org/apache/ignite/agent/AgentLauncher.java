@@ -60,27 +60,27 @@ public class AgentLauncher {
             return;
         }
 
-        if (cmdCfg.getConfigPath() != null)
-            cfg.load(new File(cmdCfg.getConfigPath()).toURI().toURL());
+        if (cmdCfg.configPath() != null)
+            cfg.load(new File(cmdCfg.configPath()).toURI().toURL());
 
         cfg.merge(cmdCfg);
 
-        if (cfg.getLogin() == null) {
+        if (cfg.login() == null) {
             System.out.print("Login: ");
 
-            cfg.setLogin(System.console().readLine().trim());
+            cfg.login(System.console().readLine().trim());
         }
 
-        if (cfg.getPassword() == null) {
+        if (cfg.password() == null) {
             System.out.print("Password: ");
 
-            cfg.setPassword(new String(System.console().readPassword()));
+            cfg.password(new String(System.console().readPassword()));
         }
 
-        if (cfg.isTestDriveMeta())
+        if (cfg.testDriveMetadata())
             AgentMetadataTestDrive.testDrive();
 
-        if (cfg.isTestDriveSql())
+        if (cfg.testDriveSql())
             AgentSqlTestDrive.testDrive();
 
         RestExecutor restExecutor = new RestExecutor(cfg);
@@ -103,9 +103,9 @@ public class AgentLauncher {
                 while (!Thread.interrupted()) {
                     AgentSocket agentSock = new AgentSocket(cfg, restExecutor);
 
-                    log.log(Level.INFO, "Connecting to: " + cfg.getServerUri());
+                    log.log(Level.INFO, "Connecting to: " + cfg.serverUri());
 
-                    client.connect(agentSock, URI.create(cfg.getServerUri()));
+                    client.connect(agentSock, URI.create(cfg.serverUri()));
 
                     agentSock.waitForClose();
 

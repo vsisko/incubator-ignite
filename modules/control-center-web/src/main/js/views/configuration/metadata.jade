@@ -32,7 +32,7 @@ block content
             button.btn.btn-primary(ng-click='createItem()' on-click-focus='metadataName') Add metadata
             button.btn.btn-primary(ng-click='showLoadMetadataModal()') Load from database
         hr
-        form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
+        form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true')
                 +groups('metadata', 'backupItem')
             .section

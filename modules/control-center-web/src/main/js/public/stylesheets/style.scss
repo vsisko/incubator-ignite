@@ -260,6 +260,12 @@ hr {
     }
 }
 
+.dropdown-menu {
+    max-height: 20em;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
 .theme-line .sidebar-nav ul li .subcategory {
     padding-left: 15px;
 }
@@ -779,6 +785,21 @@ button .caret, .btn .caret {
     .active a {
         color: $ignite-red;
         font-weight: bold;
+    }
+
+    tfoot > tr > td {
+        padding: 0;
+
+        .pagination {
+            margin: 10px 0;
+
+            > .active > a {
+                color: $ignite-red;
+                font-weight: bold;
+                border-color: #ddd;
+                background-color: #eee;
+            }
+        }
     }
 }
 

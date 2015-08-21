@@ -34,7 +34,7 @@ block content
             button.form-control.line-control(ng-model='template' bs-options='item.value as item.label for item in templates' bs-select)
             i.tipLabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
         hr
-        form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
+        form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true' ng-click='triggerDigest = true')
                 +groups('general', 'backupItem')
                 div(ng-show='ui.expanded')

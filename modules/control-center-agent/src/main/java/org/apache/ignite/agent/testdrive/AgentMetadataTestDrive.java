@@ -1,7 +1,9 @@
 package org.apache.ignite.agent.testdrive;
 
+import org.apache.ignite.agent.*;
 import org.h2.tools.*;
 
+import java.io.*;
 import java.sql.*;
 import java.util.logging.*;
 
@@ -30,46 +32,28 @@ public class AgentMetadataTestDrive {
      * Start H2 database and populate it with several tables.
      */
     public static void testDrive() {
-        log.log(Level.INFO, "Starting in-memory H2 database for metadata test drive...");
+        log.log(Level.INFO, "TEST-DRIVE: Prepare in-memory H2 database...");
 
         try {
-            Connection conn = DriverManager.getConnection("jdbc:h2:mem:test-driver-db;DB_CLOSE_DELAY=-1", "sa", "");
+            Connection conn = DriverManager.getConnection("jdbc:h2:mem:test-drive-db;DB_CLOSE_DELAY=-1", "sa", "");
 
-            query(conn, "CREATE TABLE COUNTRY(ID INTEGER NOT NULL PRIMARY KEY, COUNTRY_NAME VARCHAR(100))");
-            log.log(Level.INFO, "Table COUNTRY created.");
+            File agentHome = AgentUtils.getAgentHome();
 
-            query(conn, "CREATE TABLE DEPARTMENT(" +
-                " DEPARTMENT_ID INTEGER  NOT NULL PRIMARY KEY," +
-                " DEPARTMENT_NAME VARCHAR(50) NOT NULL," +
-                " COUNTRY_ID INTEGER," +
-                " MANAGER_ID INTEGER)");
-            log.log(Level.INFO, "Table DEPARTMENT created.");
+            File sqlScript = new File((agentHome != null) ? new File(agentHome, "test-drive") : new File("test-drive"),
+                "test-drive.sql");
 
-            query(conn, "CREATE TABLE EMPLOYEE(" +
-                " EMPLOYEE_ID INTEGER NOT NULL PRIMARY KEY," +
-                " FIRST_NAME VARCHAR(20) NOT NULL," +
-                " LAST_NAME VARCHAR(30) NOT NULL," +
-                " EMAIL VARCHAR(25) NOT NULL," +
-                " PHONE_NUMBER VARCHAR(20)," +
-                " HIRE_DATE DATE NOT NULL," +
-                " JOB VARCHAR(50) NOT NULL," +
-                " SALARY DOUBLE," +
-                " MANAGER_ID INTEGER," +
-                " DEPARTMENT_ID INTEGER)");
-            log.log(Level.INFO, "Table EMPLOYEE created.");
-
-            query(conn, "CREATE INDEX EMP_SALARY_A ON EMPLOYEE(SALARY ASC)");
-            query(conn, "CREATE INDEX EMP_SALARY_B ON EMPLOYEE(SALARY DESC)");
-            query(conn, "CREATE INDEX EMP_NAMES ON EMPLOYEE(FIRST_NAME ASC, LAST_NAME  ASC)");
-            log.log(Level.INFO, "Indexes for table EMPLOYEE created.");
+            RunScript.execute(conn, new FileReader(sqlScript));
+            log.log(Level.INFO, "TEST-DRIVE: Sample tables created.");
 
             conn.close();
 
             Server.createTcpServer("-tcpDaemon").start();
 
-            log.log(Level.INFO, "TcpServer stared.");
-        } catch (SQLException e) {
-            log.log(Level.SEVERE, "Failed to start test drive for metadata!", e);
+            log.log(Level.INFO, "TEST-DRIVE: TcpServer stared.");
+
+            log.log(Level.INFO, "TEST-DRIVE: JDBC URL for test drive metadata load: jdbc:h2:mem:test-drive-db");
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "TEST-DRIVE: Failed to start test drive for metadata!", e);
         }
     }
 }
