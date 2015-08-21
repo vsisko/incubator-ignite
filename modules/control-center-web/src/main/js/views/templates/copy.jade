@@ -20,7 +20,7 @@
             .modal-header
                 button.close(type='button' ng-click='$hide()') &times;
                 h4.modal-title Copy
-            form.form-horizontal(name='inputForm' novalidate)
+            form.form-horizontal(name='ui.inputForm' novalidate)
                 .modal-body.row
                     .col-sm-9.login.col-sm-offset-1
                         label.required.labelFormField() New name:&nbsp;
@@ -28,4 +28,4 @@
                             input.form-control(type='text' ng-model='newName' required)
             .modal-footer
                 button.btn.btn-default(type='button' ng-click='$hide()') Cancel
-                button.btn.btn-primary(type='button' ng-disabled='inputForm.$invalid' ng-click='ok(newName)') Confirm
+                button.btn.btn-primary(type='button' ng-disabled='ui.inputForm.$invalid' ng-click='ok(newName)') Confirm
