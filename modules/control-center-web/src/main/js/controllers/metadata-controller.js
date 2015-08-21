@@ -316,40 +316,78 @@ controlCenterModule.controller('metadataController', [
                                 javaName: toJavaName(name), javaType: jdbcType.javaType}
                         }
 
+                        function colType(colName) {
+                            var col = _.find(table.cols, function(col) {
+                                return col.name == colName;
+                            });
+
+                            if (col)
+                                return $common.findJdbcType(col.type).javaType;
+
+                            return 'Unknown';
+                        }
+
                         _.forEach(table.cols, function(col) {
-                            var name = col.name;
+                            var colName = col.name;
                             var jdbcType = $common.findJdbcType(col.type);
 
-                            qryFields.push(queryField(name, jdbcType));
+                            qryFields.push(queryField(colName, jdbcType));
 
-                            if (_.includes(table.ascCols, name))
-                                ascFields.push(queryField(name, jdbcType));
+                            if (_.includes(table.ascCols, colName))
+                                ascFields.push(queryField(colName, jdbcType));
 
-                            if (_.includes(table.descCols, name))
-                                descFields.push(queryField(name, jdbcType));
+                            if (_.includes(table.descCols, colName))
+                                descFields.push(queryField(colName, jdbcType));
 
                             if (col.key)
-                                keyFields.push(dbField(name, jdbcType));
+                                keyFields.push(dbField(colName, jdbcType));
 
-                            valFields.push(dbField(name, jdbcType));
+                            valFields.push(dbField(colName, jdbcType));
                         });
 
-                        var newItem = {
-                            space: $scope.spaces[0],
-                            name: toProperCase(tableName),
-                            databaseSchema: table.schema,
-                            databaseTable: tableName,
-                            keyType: valType + 'Key',
-                            valueType: valType,
-                            queryFields: qryFields,
-                            ascendingFields: ascFields,
-                            descendingFields: descFields,
-                            groups: groups,
-                            keyFields: keyFields,
-                            valueFields: valFields
-                        };
+                        var idxs = table.idxs;
 
-                        save(newItem);
+                        if (table.idxs) {
+                            var indexes = Object.keys(idxs);
+
+                            _.forEach(indexes, function (indexName) {
+                                var index = idxs[indexName];
+
+                                var fields = Object.keys(index);
+
+                                if (fields.length > 1)
+                                    groups.push(
+                                        {name: indexName, fields: _.map(fields, function (fieldName) {
+                                            return {
+                                                name: fieldName,
+                                                className: colType(fieldName),
+                                                direction: index[fieldName]
+                                            };
+                                        })});
+                            });
+                        }
+
+                        var metaName = toProperCase(tableName);
+
+                        var meta = _.find($scope.metadatas, function (meta) {
+                            return meta.name == metaName;
+                        });
+
+                        if (!meta)
+                            meta = {space: $scope.spaces[0], name: metaName};
+
+                        meta.databaseSchema = table.schema;
+                        meta.databaseTable = tableName;
+                        meta.keyType = valType + 'Key';
+                        meta.valueType = valType;
+                        meta.queryFields = qryFields;
+                        meta.ascendingFields = ascFields;
+                        meta.descendingFields = descFields;
+                        meta.groups = groups;
+                        meta.keyFields = keyFields;
+                        meta.valueFields = valFields;
+
+                        save(meta);
                     }
                 });
             };
