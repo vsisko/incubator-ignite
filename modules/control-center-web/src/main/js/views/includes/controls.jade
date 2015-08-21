@@ -91,7 +91,7 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder,
             label #{header}
             +group-tip('field.tip')
             +group-btn-add('tableNewItem(field)', 'field.addTip')
-        .group-content-empty(ng-if='!((#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field))') Empty
+        .group-content-empty(ng-if='!((#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field))') Not defined
         .group-content(ng-show='(#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field)')
             table.col-sm-12.links-edit(id='{{::field.model}}' st-table=tblMdl)
                 tbody
@@ -157,7 +157,7 @@ mixin details-row
                     label {{::detail.label}}
                     +group-tip('detail.tableTip')
                     +group-btn-add('tableNewItem(detail)', 'detail.addTip')
-                .group-content-empty(ng-show='!((#{detailMdl} && #{detailMdl}.length > 0) || tableNewItemActive(detail))') Empty
+                .group-content-empty(ng-show='!((#{detailMdl} && #{detailMdl}.length > 0) || tableNewItemActive(detail))') Not defined
                 .group-content(ng-show='(#{detailMdl} && #{detailMdl}.length > 0) || tableNewItemActive(detail)')
                     table.col-sm-12.links-edit-details(st-table='#{detailMdl}')
                         tbody
@@ -329,7 +329,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                     label {{::field.label}}
                     +group-tip('field.tableTip')
                     +group-btn-add('tableNewItem(field)', 'field.addTip')
-                .group-content-empty(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))') Empty
+                .group-content-empty(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))') Not defined
                 .group-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                     table.col-sm-12.links-edit(id='{{::field.model}}' st-table='#{fieldMdl}')
                         tbody
@@ -363,7 +363,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                     label(id='{{::field.id + "-add"}}') {{::field.label}}
                     +group-tip('field.tip')
                     +group-btn-add('tableNewItem(field)', 'field.addTip')
-                .group-content-empty(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))') Empty
+                .group-content-empty(ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))') Not defined
                 .group-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                     table.col-sm-12.links-edit(st-table=fieldMdl)
                         tbody
@@ -384,7 +384,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                     label {{::field.label}}
                     +group-tip('field.tip')
                     +group-btn-add('tableNewItem(field)', 'field.addTip')
-                .group-content-empty(id='{{::field.id + "-add"}}' ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))') Empty
+                .group-content-empty(id='{{::field.id + "-add"}}' ng-show='!((#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field))') Not defined
                 .group-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                     table.links-edit.col-sm-12(st-table=fieldMdl ng-init='newDirection = false')
                         tbody
