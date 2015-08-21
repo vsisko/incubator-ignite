@@ -19,6 +19,7 @@ package org.apache.ignite.agent;
 
 import com.beust.jcommander.*;
 import org.apache.ignite.agent.handlers.*;
+import org.apache.ignite.agent.testdrive.*;
 import org.eclipse.jetty.util.ssl.*;
 import org.eclipse.jetty.websocket.client.*;
 
@@ -75,6 +76,12 @@ public class AgentLauncher {
 
             cfg.setPassword(new String(System.console().readPassword()));
         }
+
+        if (cfg.isTestDriveMeta())
+            AgentMetadataTestDrive.testDrive();
+
+        if (cfg.isTestDriveSql())
+            AgentSqlTestDrive.testDrive();
 
         RestExecutor restExecutor = new RestExecutor(cfg);
 
