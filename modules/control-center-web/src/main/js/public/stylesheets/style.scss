@@ -258,6 +258,12 @@ hr {
     }
 }
 
+.dropdown-menu {
+    height: 20em;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
 .theme-line .sidebar-nav ul li .subcategory {
     padding-left: 15px;
 }

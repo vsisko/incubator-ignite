@@ -15,12 +15,12 @@
     limitations under the License.
 
 ul.select.dropdown-menu(tabindex='-1' ng-show='$isVisible()' role='select')
+    li(ng-if='$showAllNoneButtons || ($isMultiple && $matches.length > 5)')
+        a(ng-click='$selectAll()') {{$allText}}
+        a(ng-click='$selectNone()') {{$noneText}}
+        hr(style='margin: 5px 0')
     li(role='presentation' ng-repeat='match in $matches')
         hr(ng-if='match.value == undefined' style='margin: 5px 0')
         a(style='cursor: default; padding: 3px 6px;' role='menuitem' tabindex='-1' ng-class='{active: $isActive($index)}' ng-click='$select($index, $event)')
             i(class='{{$iconCheckmark}}' ng-if='$isActive($index)' ng-class='{active: $isActive($index)}' style='color: #ec1c24; margin-left: 15px; line-height: 20px; float: right;background-color: transparent;')
             span(ng-bind='match.label')
-    li(ng-if='$showAllNoneButtons || ($isMultiple && $matches.length > 5)')
-        hr(style='margin: 5px 0')
-        a(ng-click='$selectAll()') {{$allText}}
-        a(ng-click='$selectNone()') {{$noneText}}
