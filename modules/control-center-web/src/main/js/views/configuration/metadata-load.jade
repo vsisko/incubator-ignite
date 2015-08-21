@@ -35,17 +35,15 @@ include ../includes/controls
                 table.table.table-condensed.table-stripped.metadata(st-table='displayedTables' st-safe-src='loadMeta.tables')
                     thead
                         tr
-                            th
-                            th
-                            th.header
+                            th.header(colspan="2")
                                 input.form-control(type='text' st-search='' placeholder='Filter tables...')
                         tr
-                            th
+                            th(width='50px')
                                 input(type='checkbox' ng-model='loadMeta.allSelected' ng-change='loadMeta.selectAll()')
+                            th(width='30%')
+                                label Schema
                             th
-                                label Schemas
-                            th
-                                label Tables
+                                label Table
 
                     tbody
                         tr(ng-repeat='table in displayedTables')

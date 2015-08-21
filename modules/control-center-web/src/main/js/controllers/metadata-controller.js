@@ -341,8 +341,8 @@ controlCenterModule.controller('metadataController', [
 
                             if (col.key)
                                 keyFields.push(dbField(colName, jdbcType));
-
-                            valFields.push(dbField(colName, jdbcType));
+                            else
+                                valFields.push(dbField(colName, jdbcType));
                         });
 
                         var idxs = table.idxs;

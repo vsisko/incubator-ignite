@@ -61,12 +61,12 @@ public class AgentConfiguration {
     private String driversFolder;
 
     /** */
-    @Parameter(names = { "-tm", "--test-metadata" },
+    @Parameter(names = { "-tm", "--test-drive-metadata" },
         description = "Start H2 database with sample tables in same process.")
     private boolean meta;
 
     /** */
-    @Parameter(names = { "-ts", "--test-sql" },
+    @Parameter(names = { "-ts", "--test-drive-sql" },
         description = "Create cache and populate it with sample data for use in query.")
     private boolean sql;
 
@@ -159,6 +159,34 @@ public class AgentConfiguration {
     }
 
     /**
+     * @return {@code true} If metadata test drive should be started.
+     */
+    public boolean isTestDriveMeta() {
+        return meta;
+    }
+
+    /**
+     * @param meta Set to {@code true} if metadata test drive should be started.
+     */
+    public void setTestDriveMeta(boolean meta) {
+        this.meta = meta;
+    }
+
+    /**
+     * @return {@code true} If SQL test drive should be started.
+     */
+    public boolean isTestDriveSql() {
+        return sql;
+    }
+
+    /**
+     * @param sql Set to {@code true} if SQL test drive should be started.
+     */
+    public void setTestDriveSql(boolean sql) {
+        this.sql = sql;
+    }
+
+    /**
      * @param cfgUrl URL.
      */
     public void load(URL cfgUrl) throws IOException {
@@ -218,6 +246,12 @@ public class AgentConfiguration {
 
         if (cmd.getDriversFolder() != null)
             setDriversFolder(cmd.getDriversFolder());
+
+        if (cmd.isTestDriveMeta())
+            setTestDriveMeta(true);
+
+        if (cmd.isTestDriveSql())
+            setTestDriveSql(true);
     }
 
     /**
