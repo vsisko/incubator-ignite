@@ -16,7 +16,7 @@
 
 ul.select.dropdown-menu(tabindex='-1' ng-show='$isVisible()' role='select')
     li(ng-if='$showAllNoneButtons || ($isMultiple && $matches.length > 5)')
-        a(ng-click='$selectAll()') {{$allText}}
+        a(ng-click='$selectAll()') {{$allText}} ({{$matches.length}})
         a(ng-click='$selectNone()') {{$noneText}}
         hr(style='margin: 5px 0')
     li(role='presentation' ng-repeat='match in $matches')
