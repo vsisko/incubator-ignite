@@ -908,7 +908,7 @@ button .caret, .btn .caret {
     }
 }
 
-.group-legend-tip {
+.group-legend-btn {
     background: white;
     float: right;
     line-height: 20px;
@@ -917,6 +917,15 @@ button .caret, .btn .caret {
 
 .group-content {
     margin: 0 10px 10px 10px;
+}
+
+.group-content-empty {
+    color: #999999;
+
+    position: relative;
+    top: -10px;
+
+    text-align: center;
 }
 
 .tooltip.right .tooltip-arrow {
