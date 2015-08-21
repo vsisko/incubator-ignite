@@ -78,7 +78,7 @@
           "keyName": "name",
           "valueName": "className",
           "focusId": "QryField",
-          "addTip": "Add field to query.",
+          "addTip": "Add not indexed field to query.",
           "removeTip": "Remove field.",
           "tip": [
             "Collection of name-to-type mappings to be queried, in addition to indexed fields."
