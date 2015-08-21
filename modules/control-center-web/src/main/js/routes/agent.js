@@ -116,7 +116,7 @@ router.post('/metadata', function (req, res) {
     if (client) {
         var params = req.body;
 
-        client.extractMetadata(params.jdbcDriverJar, params.jdbcDriverClass, params.jdbcUrl, {user: params.user}, true, function (err, meta) {
+        client.extractMetadata(params.jdbcDriverJar, params.jdbcDriverClass, params.jdbcUrl, {user: params.user, password: params.password}, true, function (err, meta) {
             if (err)
                 return res.status(500).send(err);
 
