@@ -27,6 +27,7 @@ import org.apache.ignite.configuration.*;
 import org.apache.ignite.internal.processors.json.*;
 import org.apache.ignite.internal.processors.rest.handlers.*;
 import org.apache.ignite.internal.util.typedef.*;
+import org.apache.ignite.lang.*;
 import org.apache.ignite.testframework.*;
 
 import java.io.*;
@@ -1333,6 +1334,52 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
     /**
      * @throws Exception If failed.
      */
+    public void testQueryScan() throws Exception {
+        Map<String, String> params = new HashMap<>();
+        params.put("cmd", GridRestCommand.EXECUTE_SCAN_QUERY.key());
+        params.put("pageSize", "10");
+        params.put("cacheName", "person");
+        params.put("classname", ScanFilter.class.getName());
+
+        String ret = content(params);
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        JSONObject json = JSONObject.fromObject(ret);
+
+        List items = (List)((Map)json.get("response")).get("items");
+
+        assertEquals(2, items.size());
+
+        assertFalse(queryCursorFound());
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testIncorrectQueryScan() throws Exception {
+        Map<String, String> params = new HashMap<>();
+        params.put("cmd", GridRestCommand.EXECUTE_SCAN_QUERY.key());
+        params.put("pageSize", "10");
+        params.put("cacheName", "person");
+        params.put("classname", ScanFilter.class.getName() + 1);
+
+        String ret = content(params);
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        JSONObject json = JSONObject.fromObject(ret);
+
+        String err = (String)json.get("error");
+
+        assertTrue(err.contains("Failed to find target class"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
     public void testQuery() throws Exception {
         grid(0).cache(null).put("1", "1");
         grid(0).cache(null).put("2", "2");
@@ -1648,7 +1695,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         String qry = "salary > ? and salary <= ?";
 
         String ret = makePostRequest(F.asMap("cmd", GridRestCommand.EXECUTE_SQL_QUERY.key(),
-                "type", "Person", "psz", "10", "cacheName", "person",
+                "type", "Person", "pageSize", "10", "cacheName", "person",
                 "qry", URLEncoder.encode(qry)), "{\"arg\": [1000, 2000]}");
 
         assertNotNull(ret);
@@ -1773,6 +1820,16 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
          */
         public Integer getId() {
             return id;
+        }
+    }
+
+    /**
+     * Test filter for scan query.
+     */
+    public static class ScanFilter implements IgniteBiPredicate<Integer, Person> {
+        /** {@inheritDoc} */
+        @Override public boolean apply(Integer integer, Person person) {
+            return person.salary > 1000;
         }
     }
 }

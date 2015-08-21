@@ -20,6 +20,7 @@ var agentManager = require('../agents/agent-manager');
 
 var apacheIgnite = require('apache-ignite');
 var SqlFieldsQuery = apacheIgnite.SqlFieldsQuery;
+var ScanQuery = apacheIgnite.ScanQuery;
 
 function _client(req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
@@ -64,6 +65,26 @@ router.post('/query', function (req, res) {
     if (client) {
         // Create sql query.
         var qry = new SqlFieldsQuery(req.body.query);
+
+        // Set page size for query.
+        qry.setPageSize(req.body.pageSize);
+
+        // Get query cursor.
+        client.ignite().cache(req.body.cacheName).query(qry).nextPage().then(function (cursor) {
+            res.json({meta: cursor.fieldsMetadata(), rows: cursor.page(), queryId: cursor.queryId()});
+        }, function (err) {
+            res.status(500).send(err);
+        });
+    }
+});
+
+/* Execute query. */
+router.post('/scan', function (req, res) {
+    var client = _client(req, res);
+
+    if (client) {
+        // Create sql query.
+        var qry = new ScanQuery();
 
         // Set page size for query.
         qry.setPageSize(req.body.pageSize);

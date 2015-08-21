@@ -38,9 +38,6 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
                 $scope.notebook = notebook;
 
                 $scope.notebook_name = notebook.name;
-
-                if (notebook.paragraphs)
-                    notebook.paragraphs = [{name: 'Query'}];
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);
@@ -50,50 +47,63 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     loadNotebook();
 
     $scope.renameNotebook = function(name) {
-        $scope.notebook_edit = false;
+        if ($scope.notebook.name != name) {
+            $scope.notebook.name = name;
 
-        $scope.notebook.name = name;
+            $http.post('/notebooks/save', $scope.notebook)
+                .success(function () {
+                    var idx = _.findIndex($scope.$root.notebooks, function (item) {
+                        return item._id == $scope.notebook._id;
+                    });
 
-        $http.post('/notebooks/save', $scope.notebook)
-            .success(function () {
-                var idx = _.findIndex($scope.$root.notebooks, function (item) {
-                    return item._id == $scope.notebook._id;
+                    if (idx >= 0) {
+                        $scope.$root.notebooks[idx].name = name;
+
+                        $scope.$root.rebuildDropdown();
+                    }
+
+                    $scope.notebook.edit = false;
+                })
+                .error(function (errMsg) {
+                    $common.showError(errMsg);
                 });
-
-                if (idx >= 0) {
-                    $scope.$root.notebooks[idx].name = name;
-
-                    $scope.$root.rebuildDropdown();
-                }
-            })
-            .error(function (errMsg) {
-                $common.showError(errMsg);
-            });
+        }
+        else
+            $scope.notebook.edit = false
     };
 
-    $scope.resetNotebookName = function() {
-        $scope.notebook_edit = false;
+    $scope.renameParagraph = function(paragraph, newName) {
+        if (paragraph.name != newName) {
+            paragraph.name = newName;
 
-        $scope.notebook_name = $scope.notebook.name;
+            $http.post('/notebooks/save', $scope.notebook)
+                .success(function () {
+                    paragraph.edit = false;
+                })
+                .error(function (errMsg) {
+                    $common.showError(errMsg);
+                });
+        }
+        else
+            paragraph.edit = false
     };
 
-    $scope.addParagraph = function(notebook) {
-        notebook.paragraphs.push({});
-    };
+    $scope.addParagraph = function() {
+        if (!$scope.notebook.paragraphs)
+            $scope.notebook.paragraphs = [];
 
-    $scope.tabs = [];
+        var sz = $scope.notebook.paragraphs.length;
 
-    $scope.addTab = function() {
-        var tab = {query: "", pageSize: $scope.pageSizes[0]};
+        var paragraph = {name: 'Query' + (sz ==0 ? '' : sz), editor: true, query: '', pageSize: $scope.pageSizes[0]};
 
         if ($scope.caches.length > 0)
-            tab.selectedItem = $scope.caches[0];
+            paragraph.cache = $scope.caches[0];
 
-        $scope.tabs.push(tab);
+        $scope.notebook.paragraphs.push(paragraph);
     };
 
-    $scope.removeTab = function(idx) {
-        $scope.tabs.splice(idx, 1);
+    $scope.removeParagraph = function(idx) {
+        $scope.notebook.splice(idx, 1);
     };
 
     $http.get('/models/sql.json')
@@ -113,8 +123,8 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
 
             $scope.caches = node.caches;
 
-            if ($scope.tabs.length == 0)
-                $scope.addTab();
+            $scope.addParagraph();
+            $scope.addParagraph();
         })
         .error(function (err, status) {
             $scope.caches = undefined;
@@ -125,59 +135,60 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
                 $common.showError('Receive agent error: ' + err);
         });
 
-    $scope.execute = function(tab) {
-        $http.post('/agent/query', {query: tab.query, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
-            .success(function (res) {
-                tab.meta = [];
+    var _processQueryResult = function(item) {
+        return function(res) {
+            item.meta = [];
 
-                if (res.meta)
-                    tab.meta = res.meta;
+            if (res.meta)
+                item.meta = res.meta;
 
-                tab.page = 1;
+            item.page = 1;
 
-                tab.total = 0;
+            item.total = 0;
 
-                tab.queryId = res.queryId;
+            item.queryId = res.queryId;
 
-                tab.rows = res.rows;
-            })
+            item.rows = res.rows;
+
+            item.result = 'table';
+        }
+    };
+
+    $scope.execute = function(item) {
+        $http.post('/agent/query', {query: item.query, pageSize: item.pageSize, cacheName: item.cache.name})
+            .success(_processQueryResult(item))
             .error(function (errMsg) {
                 $common.showError(errMsg);
             });
     };
 
-    $scope.explain = function(tab) {
-        $http.post('/agent/query', {query: 'EXPLAIN ' + tab.query, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
-            .success(function (res) {
-                tab.meta = [];
-
-                if (res.meta)
-                    tab.meta = res.meta;
-
-                tab.page = 1;
-
-                tab.total = 0;
-
-                tab.queryId = res.queryId;
-
-                tab.rows = res.rows;
-            })
+    $scope.explain = function(item) {
+        $http.post('/agent/query', {query: 'EXPLAIN ' + item.query, pageSize: item.pageSize, cacheName: item.cache.name})
+            .success(_processQueryResult)
             .error(function (errMsg) {
                 $common.showError(errMsg);
             });
     };
 
-    $scope.nextPage = function(tab) {
-        $http.post('/agent/query/fetch', {queryId: tab.queryId, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
+    $scope.scan = function(item) {
+        $http.post('/agent/scan', {pageSize: item.pageSize, cacheName: item.cache.name})
+            .success(_processQueryResult(item))
+            .error(function (errMsg) {
+                $common.showError(errMsg);
+            });
+    };
+
+    $scope.nextPage = function(item) {
+        $http.post('/agent/query/fetch', {queryId: item.queryId, pageSize: item.pageSize, cacheName: item.cache.name})
             .success(function (res) {
-                tab.page++;
+                item.page++;
 
-                tab.total += tab.rows.length;
+                item.total += item.rows.length;
 
-                tab.rows = res.rows;
+                item.rows = res.rows;
 
                 if (res.last)
-                    delete tab.queryId;
+                    delete item.queryId;
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);

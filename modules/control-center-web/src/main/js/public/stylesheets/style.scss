@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+@import "../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+
 $logo-path: "https://www.filepicker.io/api/file/QagunjDGRFul2JgNCAli";
 $input-height: 28px;
 $ignite-red: #ec1c24;
@@ -675,6 +677,12 @@ button .caret, .btn .caret {
     height: $input-height;
 }
 
+.sql-name-input {
+    @extend .form-control;
+
+    width: auto;
+}
+
 .form-control {
     @extend .base-control;
 
@@ -685,12 +693,36 @@ button .caret, .btn .caret {
     }
 }
 
-.form-control-h1 {
-    @extend .form-control;
+.theme-line .notebook-header {
+    color: black;
+    border-color: #eee;
 
-    width: auto;
     font-size: 22px;
+    line-height: 44px;
     height: 44px;
+
+    h1 {
+        padding: 0;
+        line-height: 44px;
+        height: 44px;
+        margin: 0;
+    }
+
+    i {
+        line-height: 44px;
+        height: 44px;
+        font-size: 14px;
+    }
+
+    input {
+        font-size: 22px;
+        line-height: 44px;
+        height: 44px;
+    }
+}
+
+.theme-line .paragraph-header {
+
 }
 
 .line-control {
@@ -703,11 +735,25 @@ button .caret, .btn .caret {
 
     h3 {
         margin-bottom: 0;
+
+        .result {
+            float: right;
+            i {
+                font-size: 14px;
+                line-height: 14px;
+            }
+        }
     }
 
     h3 > a {
         color: black;
     }
+
+    i {
+        font-size: 14px;
+    }
+
+
 }
 
 .theme-line .panel-body {
@@ -859,6 +905,23 @@ button .caret, .btn .caret {
 
         line-height: $input-height;
     }
+
+    tfoot > tr > td {
+        padding: 0;
+
+        .pagination {
+            margin: 10px 0 0 0;
+
+            > .active > a {
+                color: $ignite-red;
+                font-weight: bold;
+                border-color: #ddd;
+                background-color: #eee;
+            }
+        }
+    }
+
+    margin: 0;
 }
 
 .panel-title a {

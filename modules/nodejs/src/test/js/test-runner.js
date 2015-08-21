@@ -31,7 +31,7 @@ TestRunner.runTest = function() {
 
     console.log("FileName " + fileName);
 
-    require("./" + fileName);
+    require(fileName);
 
     var functionName = process.argv[3].toString().trim();
 

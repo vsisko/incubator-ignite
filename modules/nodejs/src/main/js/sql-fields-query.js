@@ -15,65 +15,23 @@
  * limitations under the License.
  */
 
+var Query = require("./query").Query
+
 /**
  * @this {SqlFieldsQuery}
  * @param {string} Sql query
  */
 function SqlFieldsQuery(sql) {
+    Query.apply(this, arguments);
     this._qryType = "SqlFields";
     this._sql = sql;
     this._arg = [];
     this._pageSz = 1;
-    this._type = null;
-    this._endFunc = function(err) {console.log("Empty end function is called [err=" + err + "]")};
-    this._pageFunc = function(res) {console.log("Empty page function is called [res=" + res + "]")}
 }
 
-/**
- * Set the callbacks for query events.
- *
- * @this {SqlFieldsQuery}
- * @param {string} code Function code could be "end", "page"
- * @param function Functions "end" and "page" are one argument functions.
- */
-SqlFieldsQuery.prototype.on = function(code, f) {
-    switch(code) {
-        case "end":
-            this._endFunc = f;
+SqlFieldsQuery.prototype = Query.prototype;
 
-            break;
-        case "page":
-            this._pageFunc = f;
-
-            break;
-        default :
-            throw "Sql do not have method " + code;
-    }
-}
-
-/**
- * @this {SqlFieldsQuery}
- * @param res Query result
- */
-SqlFieldsQuery.prototype.end = function(err) {
-    this._endFunc(err);
-}
-
-/**
- * @this {SqlFieldsQuery}
- * @param res Query data
- */
-SqlFieldsQuery.prototype.page = function(res) {
-    this._pageFunc(res);
-}
-
-/**
- * @this {SqlFieldsQuery}
- * @param {int} pageSz Page size.
- */
-SqlFieldsQuery.prototype.setPageSize = function(pageSz) {
-    this._pageSz = pageSz;
-}
+SqlFieldsQuery.prototype.constructor = SqlFieldsQuery;
 
 /**
  * @this {SqlFieldsQuery}
@@ -97,22 +55,6 @@ SqlFieldsQuery.prototype.query = function() {
  */
 SqlFieldsQuery.prototype.arguments = function() {
     return this._arg;
-}
-
-/**
- * @this {SqlFieldsQuery}
- * @returns pageSize
- */
-SqlFieldsQuery.prototype.pageSize = function() {
-    return this._pageSz;
-}
-
-/**
- * @this {SqlFieldsQuery}
- * @returns "SqlFields"
- */
-SqlFieldsQuery.prototype.type = function() {
-    return this._qryType;
 }
 
 exports.SqlFieldsQuery = SqlFieldsQuery;
