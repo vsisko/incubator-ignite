@@ -38,7 +38,7 @@ mixin ico-exclamation(mdl, err, msg)
     i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm["#{mdl}"].$error.#{err}' bs-tooltip data-title='#{msg}' type='button')
 
 mixin btn-save(show, click)
-    i.tipField.fa.fa-floppy-o(ng-show=show ng-click=click bs-tooltip data-title='Save item' data-trigger='hover')
+    i.tipField.fa.fa-floppy-o(ng-show=show ng-click=click bs-tooltip data-title='Click icon or press [Enter] to save item' data-trigger='hover')
 
 mixin group-tip(lines)
     i.group-legend-btn.fa.fa-question-circle(ng-if=lines bs-tooltip='joinTip(#{lines})' type='button')
