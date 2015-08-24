@@ -1072,7 +1072,7 @@ controlCenterModule.service('$code', ['$common', function ($common) {
         var val = obj[propName];
 
         if ($common.isDefined(val))
-            addElement(res, 'property', 'name', propName, 'value', generatorCommon.javaBuildInClass(val));
+            addElement(res, 'property', 'name', propName, 'value', $common.javaBuildInClass(val));
 
         return val;
     }
@@ -1107,13 +1107,48 @@ controlCenterModule.service('$code', ['$common', function ($common) {
         this.fields = fields;
     }
 
-    atomicConfiguration = new ClassDescriptor('org.apache.ignite.configuration.AtomicConfiguration', {
+    var atomicConfiguration = new ClassDescriptor('org.apache.ignite.configuration.AtomicConfiguration', {
         backups: null,
         cacheMode: {type: 'enum', enumClass: 'CacheMode'},
         atomicSequenceReserveSize: null
     });
 
-    knownClasses = {
+    var evictionPolicies = {
+        'LRU': new ClassDescriptor('org.apache.ignite.cache.eviction.lru.LruEvictionPolicy',
+            {batchSize: null, maxMemorySize: null, maxSize: null}),
+        'RND': new ClassDescriptor('org.apache.ignite.cache.eviction.random.RandomEvictionPolicy', {maxSize: null}),
+        'FIFO': new ClassDescriptor('org.apache.ignite.cache.eviction.fifo.FifoEvictionPolicy',
+            {batchSize: null, maxMemorySize: null, maxSize: null}),
+        'SORTED': new ClassDescriptor('org.apache.ignite.cache.eviction.sorted.SortedEvictionPolicy',
+            {batchSize: null, maxMemorySize: null, maxSize: null})
+    };
+
+    var marshallers = {
+        OptimizedMarshaller: new ClassDescriptor('org.apache.ignite.marshaller.optimized.OptimizedMarshaller', {
+            poolSize: null,
+            requireSerializable: null
+        }),
+        JdkMarshaller: new ClassDescriptor('org.apache.ignite.marshaller.jdk.JdkMarshaller', {})
+    };
+
+    var swapSpaceSpi = new ClassDescriptor('org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi', {
+        baseDirectory: null,
+        readStripesNumber: null,
+        maximumSparsity: {type: 'float'},
+        maxWriteQueueSize: null,
+        writeBufferSize: null
+    });
+
+    var transactionConfiguration = new ClassDescriptor('org.apache.ignite.configuration.TransactionConfiguration', {
+        defaultTxConcurrency: {type: 'enum', enumClass: 'TransactionConcurrency'},
+        transactionIsolation: {type: 'TransactionIsolation', setterName: 'defaultTxIsolation'},
+        defaultTxTimeout: null,
+        pessimisticTxLogLinger: null,
+        pessimisticTxLogSize: null,
+        txSerializableEnabled: null
+    });
+
+    var knownClasses = {
         Oracle: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
         DB2: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.DB2Dialect', {}),
         SQLServer: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.SQLServerDialect', {}),
@@ -1302,6 +1337,169 @@ controlCenterModule.service('$code', ['$common', function ($common) {
             // Generate atomics group.
             addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration',
                 atomicConfiguration.className, atomicConfiguration.fields);
+            res.needEmptyLine = true;
+
+            return res;
+        },
+        xmlClusterCommunication: function (cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate communication group.
+            addProperty(res, cluster, 'networkTimeout');
+            addProperty(res, cluster, 'networkSendRetryDelay');
+            addProperty(res, cluster, 'networkSendRetryCount');
+            addProperty(res, cluster, 'segmentCheckFrequency');
+            addProperty(res, cluster, 'waitForSegmentOnStart');
+            addProperty(res, cluster, 'discoveryStartupDelay');
+            res.needEmptyLine = true;
+
+            return res;
+        },
+        xmlClusterDeployment: function(cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate deployment group.
+            addProperty(res, cluster, 'deploymentMode');
+            res.needEmptyLine = true;
+
+            return res;
+        },
+        xmlClusterEvents: function(cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate events group.
+            if (cluster.includeEventTypes && cluster.includeEventTypes.length > 0) {
+                res.emptyLineIfNeeded();
+
+                res.startBlock('<property name="includeEventTypes">');
+
+                if (cluster.includeEventTypes.length == 1)
+                    res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + cluster.includeEventTypes[0] + '"/>');
+                else {
+                    res.startBlock('<array>');
+
+                    for (i = 0; i < cluster.includeEventTypes.length; i++) {
+                        if (i > 0)
+                            res.line();
+
+                        var eventGroup = cluster.includeEventTypes[i];
+
+                        res.line('<!-- EventType.' + eventGroup + ' -->');
+
+                        var eventList = dataStructures.eventGroups[eventGroup];
+
+                        for (var k = 0; k < eventList.length; k++) {
+                            res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + eventList[k] + '"/>')
+                        }
+                    }
+
+                    res.endBlock('</array>');
+                }
+
+                res.endBlock('</property>');
+
+                res.needEmptyLine = true;
+            }
+
+            return res;
+        },
+        xmlClusterMarshaller: function(cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate marshaller group.
+            var marshaller = cluster.marshaller;
+
+            if (marshaller && marshaller.kind) {
+                var marshallerDesc = marshallers[marshaller.kind];
+
+                addBeanWithProperties(res, marshaller[marshaller.kind], 'marshaller', marshallerDesc.className, marshallerDesc.fields, true);
+                res.needEmptyLine = true;
+            }
+
+            addProperty(res, cluster, 'marshalLocalJobs');
+            addProperty(res, cluster, 'marshallerCacheKeepAliveTime');
+            addProperty(res, cluster, 'marshallerCacheThreadPoolSize');
+            res.needEmptyLine = true;
+
+            return res;
+        },
+        xmlClusterMetrics: function(cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate metrics group.
+            addProperty(res, cluster, 'metricsExpireTime');
+            addProperty(res, cluster, 'metricsHistorySize');
+            addProperty(res, cluster, 'metricsLogFrequency');
+            addProperty(res, cluster, 'metricsUpdateFrequency');
+            res.needEmptyLine = true;
+
+            return res;
+        },
+        xmlClusterP2P: function(cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate PeerClassLoading group.
+            addProperty(res, cluster, 'peerClassLoadingEnabled');
+            addListProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
+            addProperty(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
+            addProperty(res, cluster, 'peerClassLoadingThreadPoolSize');
+            res.needEmptyLine = true;
+
+            return res;
+        },
+        xmlClusterSwap: function(cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate swap group.
+            if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
+                addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
+                    swapSpaceSpi.className, swapSpaceSpi.fields, true);
+
+                res.needEmptyLine = true;
+            }
+
+            return res;
+        },
+        xmlClusterTime: function(cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate time group.
+            addProperty(res, cluster, 'clockSyncSamples');
+            addProperty(res, cluster, 'clockSyncFrequency');
+            addProperty(res, cluster, 'timeServerPortBase');
+            addProperty(res, cluster, 'timeServerPortRange');
+            res.needEmptyLine = true;
+
+            return res;
+        },
+        xmlClusterPools: function(cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate thread pools group.
+            addProperty(res, cluster, 'publicThreadPoolSize');
+            addProperty(res, cluster, 'systemThreadPoolSize');
+            addProperty(res, cluster, 'managementThreadPoolSize');
+            addProperty(res, cluster, 'igfsThreadPoolSize');
+            res.needEmptyLine = true;
+
+            return res;
+        },
+        xmlClusterTransactions: function(cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate transactions group.
+            addBeanWithProperties(res, cluster.transactionConfiguration, 'transactionConfiguration',
+                transactionConfiguration.className, transactionConfiguration.fields);
             res.needEmptyLine = true;
 
             return res;

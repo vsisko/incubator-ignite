@@ -187,6 +187,16 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
                         $scope.preview.general = $code.xmlClusterGeneral(val).join('');
                         $scope.preview.atomics = $code.xmlClusterAtomics(val).join('');
+                        $scope.preview.communication = $code.xmlClusterCommunication(val).join('');
+                        $scope.preview.deployment = $code.xmlClusterDeployment(val).join('');
+                        $scope.preview.events = $code.xmlClusterEvents(val).join('');
+                        $scope.preview.marshaller = $code.xmlClusterMarshaller(val).join('');
+                        $scope.preview.metrics = $code.xmlClusterMetrics(val).join('');
+                        $scope.preview.p2p = $code.xmlClusterP2P(val).join('');
+                        $scope.preview.swap = $code.xmlClusterSwap(val).join('');
+                        $scope.preview.time = $code.xmlClusterTime(val).join('');
+                        $scope.preview.pools = $code.xmlClusterPools(val).join('');
+                        $scope.preview.transactions = $code.xmlClusterTransactions(val).join('');
                     }
                 }, true);
             })
