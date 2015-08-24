@@ -130,6 +130,22 @@ router.post('/drivers', function (req, res) {
     }
 });
 
+/** Get database schemas. */
+router.post('/schemas', function (req, res) {
+    var client = _client(req, res);
+
+    if (client) {
+        var params = req.body;
+
+        client.metadataSchemas(params.jdbcDriverJar, params.jdbcDriverClass, params.jdbcUrl, {user: params.user, password: params.password}, function (err, meta) {
+            if (err)
+                return res.status(500).send(err);
+
+            res.json(meta);
+        });
+    }
+});
+
 /** Get database metadata. */
 router.post('/metadata', function (req, res) {
     var client = _client(req, res);
@@ -137,12 +153,14 @@ router.post('/metadata', function (req, res) {
     if (client) {
         var params = req.body;
 
-        client.extractMetadata(params.jdbcDriverJar, params.jdbcDriverClass, params.jdbcUrl, {user: params.user, password: params.password}, true, function (err, meta) {
-            if (err)
-                return res.status(500).send(err);
+        client.metadataTables(params.jdbcDriverJar, params.jdbcDriverClass, params.jdbcUrl,
+            {user: params.user, password: params.password}, params.schemas, params.tablesOnly,
+            function (err, meta) {
+                if (err)
+                    return res.status(500).send(err);
 
-            res.json(meta);
-        });
+                res.json(meta);
+            });
     }
 });
 

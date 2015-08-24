@@ -167,12 +167,25 @@ Client.prototype.authResult = function(error) {
  * @param {String} jdbcDriverClass
  * @param {String} jdbcUrl
  * @param {Object} jdbcInfo
+ * @param {Function} cb Callback. Take two arguments: {Object} exception, {Object} result.
+ * @return {Array} List of tables (see org.apache.ignite.schema.parser.DbTable java class)
+ */
+Client.prototype.metadataSchemas = function(jdbcDriverJarPath, jdbcDriverClass, jdbcUrl, jdbcInfo, cb) {
+    this._invokeRmtMethod('schemas', arguments)
+};
+
+/**
+ * @param {String} jdbcDriverJarPath
+ * @param {String} jdbcDriverClass
+ * @param {String} jdbcUrl
+ * @param {Object} jdbcInfo
+ * @param {Array} schemas
  * @param {Boolean} tablesOnly
  * @param {Function} cb Callback. Take two arguments: {Object} exception, {Object} result.
  * @return {Array} List of tables (see org.apache.ignite.schema.parser.DbTable java class)
  */
-Client.prototype.extractMetadata = function(jdbcDriverJarPath, jdbcDriverClass, jdbcUrl, jdbcInfo, tablesOnly, cb) {
-    this._invokeRmtMethod('extractMetadata', arguments)
+Client.prototype.metadataTables = function(jdbcDriverJarPath, jdbcDriverClass, jdbcUrl, jdbcInfo, schemas, tablesOnly, cb) {
+    this._invokeRmtMethod('metadata', arguments)
 };
 
 /**

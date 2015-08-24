@@ -22,12 +22,33 @@ include ../includes/controls
             #errors-container.modal-header.header
                 button.close(type='button' ng-click='$hide()' aria-hidden='true') &times;
                 h4.modal-title Load metadata from database
-            div(ng-show='loadMeta.action == "connect"')
+            .metadata-content(ng-show='loadMeta.action == "connect"')
                 form.form-horizontal(name='loadForm' novalidate)
                     .modal-body
                         .settings-row(ng-repeat='field in metadataDb')
                             +form-row-custom(['col-xs-4 col-sm-3 col-md-3'], ['col-xs-8 col-sm-9 col-md-9'], 'preset')
-            div(ng-show='loadMeta.action == "tables"' style='margin: 15px')
+            .metadata-content(ng-show='loadMeta.action == "schemas"')
+                table.table.table-condensed.table-stripped.metadata(st-table='displayedSchemas' st-safe-src='loadMeta.schemas')
+                    thead
+                        tr
+                            th.header(colspan="2")
+                                input.form-control(type='text' st-search='' placeholder='Filter schemas...')
+                        tr
+                            th(width='50px')
+                                input(type='checkbox' ng-model='loadMeta.allSchemasSelected' ng-change='selectAllSchemas()')
+                            th
+                                label Schema
+                        tbody
+                            tr(ng-repeat='schema in displayedSchemas')
+                                td
+                                    input(type='checkbox' ng-model='schema.use' ng-change='selectSchema()')
+                                td
+                                    label {{::schema.name}}
+                        tfoot
+                            tr
+                                td.text-right(colspan='3')
+                                    div(st-pagination st-items-by-page='10' st-displayed-pages='5')
+            .metadata-content(ng-show='loadMeta.action == "tables"')
                 .settings-row
                     label.col-sm-2.required Package:
                     .col-sm-10
@@ -39,16 +60,15 @@ include ../includes/controls
                                 input.form-control(type='text' st-search='' placeholder='Filter tables...')
                         tr
                             th(width='50px')
-                                input(type='checkbox' ng-model='loadMeta.allSelected' ng-change='loadMeta.selectAll()')
+                                input(type='checkbox' ng-model='loadMeta.allTablesSelected' ng-change='selectAllTables()')
                             th(width='30%')
                                 label Schema
                             th
                                 label Table
-
                     tbody
                         tr(ng-repeat='table in displayedTables')
                             td
-                                input(type='checkbox' ng-model='table.use' ng-change='loadMeta.select()')
+                                input(type='checkbox' ng-model='table.use' ng-change='selectTable()')
                             td
                                 label {{::table.schema}}
                             td
@@ -58,6 +78,5 @@ include ../includes/controls
                             td.text-right(colspan='3')
                                 div(st-pagination st-items-by-page='10' st-displayed-pages='5')
             .modal-footer
-                button.btn.btn-primary(ng-show='loadMeta.action == "connect"' ng-disabled='loadForm.$invalid' ng-click='loadMetadataFromDb()') Load metadata
-                button.btn.btn-primary(ng-show='loadMeta.action == "tables"' ng-click='loadMeta.action = "connect"') Prev
-                button.btn.btn-primary(ng-show='loadMeta.action == "tables"' ng-click='saveSelectedMetadata()') Save
+                button.btn.btn-primary(ng-show='loadMeta.action != "connect"' ng-click='loadMetadataPrev()') Prev
+                button.btn.btn-primary(ng-click='loadMetadataNext()') {{loadMeta.button}}

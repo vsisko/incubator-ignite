@@ -49,8 +49,6 @@ controlCenterModule.controller('metadataController', [
             $scope.hidePopover = $common.hidePopover;
             var showPopoverMessage = $common.showPopoverMessage;
 
-
-
             var presets = [
                 {
                     db: 'oracle',
@@ -95,7 +93,8 @@ controlCenterModule.controller('metadataController', [
                 jdbcDriverClass: '',
                 jdbcDriverJar: '',
                 jdbcUrl: 'jdbc:[database]',
-                user: 'sa'
+                user: 'sa',
+                tablesOnly: true
             };
 
             var jdbcDrivers = [];
@@ -182,19 +181,28 @@ controlCenterModule.controller('metadataController', [
                 $scope.backupItem = bak;
             }
 
-            $scope.loadMeta = {action: 'connect'};
-            $scope.loadMeta.tables = [];
+            $scope.selectAllSchemas = function () {
+                var allSelected = $scope.loadMeta.allSchemasSelected;
 
-            $scope.loadMeta.selectAll = function () {
-                var allSelected = $scope.loadMeta.allSelected;
+                _.forEach($scope.loadMeta.schemas, function (schema) {
+                    schema.use = allSelected;
+                });
+            };
+
+            $scope.selectSchema = function () {
+                $scope.loadMeta.allSchemasSelected = _.every($scope.loadMeta.schemas, 'use', true);
+            };
+
+            $scope.selectAllTables = function () {
+                var allSelected = $scope.loadMeta.allTablesSelected;
 
                 _.forEach($scope.loadMeta.tables, function (table) {
                     table.use = allSelected;
                 });
             };
 
-            $scope.loadMeta.select = function () {
-                $scope.loadMeta.allSelected = _.every($scope.loadMeta.tables, 'use', true);
+            $scope.selectTable = function () {
+                $scope.loadMeta.allTablesSelected = _.every($scope.loadMeta.tables, 'use', true);
             };
 
             // Pre-fetch modal dialogs.
@@ -202,6 +210,15 @@ controlCenterModule.controller('metadataController', [
 
             // Show load metadata modal.
             $scope.showLoadMetadataModal = function () {
+                $scope.loadMeta = {
+                    action: 'connect',
+                    schemas: [],
+                    allSchemasSelected: false,
+                    tables: [],
+                    allTablesSelected: false,
+                    button: 'Next'
+                };
+
                 // Get available JDBC drivers via agent.
                 $http.post('/agent/drivers')
                     .success(function (drivers) {
@@ -234,24 +251,35 @@ controlCenterModule.controller('metadataController', [
                     });
             };
 
-            $scope.loadMetadataFromDb = function () {
-                $scope.preset.space = $scope.spaces[0];
-
-                $http.post('presets/save', $scope.preset)
+            function _loadSchemas() {
+                $http.post('/agent/schemas', $scope.preset)
+                    .success(function (schemas) {
+                        $scope.loadMeta.schemas = _.map(schemas, function (schema) { return {use: false, name: schema}});
+                        $scope.loadMeta.action = 'schemas';
+                    })
                     .error(function (errMsg) {
                         $common.showError(errMsg);
                     });
+            }
 
+            function _loadMetadata() {
+                $scope.preset.schemas = [];
+
+                _.forEach($scope.loadMeta.schemas, function (schema) {
+                   if (schema.use)
+                       $scope.preset.schemas.push(schema.name);
+                });
 
                 $http.post('/agent/metadata', $scope.preset)
                     .success(function (tables) {
                         $scope.loadMeta.tables = tables;
                         $scope.loadMeta.action = 'tables';
+                        $scope.loadMeta.button = 'Save';
                     })
                     .error(function (errMsg) {
                         $common.showError(errMsg);
                     });
-            };
+            }
 
             function toProperCase(name) {
                 var properName = name.toLocaleLowerCase();
@@ -291,7 +319,14 @@ controlCenterModule.controller('metadataController', [
 
             $scope.packageName = 'org.apache.ignite';
 
-            $scope.saveSelectedMetadata = function () {
+            function _saveMetadata() {
+                $scope.preset.space = $scope.spaces[0];
+
+                $http.post('presets/save', $scope.preset)
+                    .error(function (errMsg) {
+                        $common.showError(errMsg);
+                    });
+
                 loadMetaModal.hide();
 
                 _.forEach($scope.loadMeta.tables, function (table) {
@@ -390,6 +425,24 @@ controlCenterModule.controller('metadataController', [
                         save(meta);
                     }
                 });
+            }
+
+            $scope.loadMetadataNext = function () {
+                if ($scope.loadMeta.action == 'connect')
+                    _loadSchemas();
+                else if  ($scope.loadMeta.action == 'schemas')
+                    _loadMetadata();
+                else if  ($scope.loadMeta.action == 'tables')
+                    _saveMetadata();
+            };
+
+            $scope.loadMetadataPrev = function () {
+                if  ($scope.loadMeta.action == 'tables') {
+                    $scope.loadMeta.action = 'schemas';
+                    $scope.loadMeta.button = 'Next';
+                }
+                else if  ($scope.loadMeta.action == 'schemas')
+                    $scope.loadMeta.action = 'connect';
             };
 
             // When landing on the page, get metadatas and show them.

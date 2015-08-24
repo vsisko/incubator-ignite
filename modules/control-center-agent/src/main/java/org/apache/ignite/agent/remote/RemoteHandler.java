@@ -76,8 +76,7 @@ public class RemoteHandler implements AutoCloseable {
      * @param req Request.
      */
     public void onMessage(JsonObject req) {
-        if (log.isLoggable(Level.FINE))
-            log.fine("Message: " + req);
+        log.log(Level.INFO, "Message: " + req);
 
         JsonPrimitive reqIdJson = req.getAsJsonPrimitive("reqId");
 
