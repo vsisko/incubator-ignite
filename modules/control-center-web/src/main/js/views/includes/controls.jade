@@ -86,7 +86,7 @@ mixin table-pair-edit(prefix, keyPlaceholder, valPlaceholder, keyJavaBuildInType
                 input.form-control(id=valFocusId type='text' ng-model=valModel placeholder=valPlaceholder on-enter=btnVisibleAndSave on-escape='tableReset()')
 
 mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes)
-    .col-sm-7.group
+    .col-sm-12.group
         .group-legend
             label #{header}
             +group-tip('field.tip')
@@ -246,7 +246,7 @@ mixin table-group-item-edit(prefix, index)
             button.form-control(id=direction ng-model=directionModel bs-select bs-options='item.value as item.label for item in {{sortDirections}}' on-enter=btnVisibleAndSave on-escape='tableReset()' tabindex='0')
 
 mixin form-row(dataSource)
-    +form-row-custom(['col-xs-3 col-sm-2 col-md-2'], ['col-xs-6 col-sm-5 col-md-5'], dataSource)
+    +form-row-custom(['col-xs-4 col-sm-4 col-md-4'], ['col-xs-8 col-sm-8 col-md-8'], dataSource)
 
 mixin form-row-custom(lblClasses, fieldClasses, dataSource)
     - var fieldMdl = 'getModel('+ dataSource + ', field)[field.model]';
@@ -297,12 +297,13 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                 .input-tip
                     button.form-control(id='{{::field.id}}' bs-select ng-disabled=fieldDisabled data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
         div(ng-switch-when='dropdown-multiple' ng-hide=fieldHide)
-            label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
+            dic(class=lblClasses)
+                label(ng-class=fieldRequiredClass) {{::field.label}}:
+                a.customize(ng-if='field.addLink' ng-href='{{field.addLink.ref}}') (add)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='-1')&attributes(fieldCommon)
-            a.customize(ng-show='field.addLink' ng-href='{{field.addLink.ref}}') {{field.addLink.label}}
         div(ng-switch-when='dropdown-details' ng-hide=fieldHide)
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
@@ -312,11 +313,11 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                 .input-tip
                     button.form-control(bs-select ng-disabled=fieldDisabled data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
             a.customize(ng-show='#{fieldMdl} && field.settings' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? 'Hide settings' : 'Show settings'}}
-            .col-sm-7.panel-details(ng-show='(#{expanded} || !field.settings) && #{fieldMdl}')
+            .col-sm-12.panel-details(ng-show='(#{expanded} || !field.settings) && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
         .section(ng-switch-when='panel-details' ng-hide=fieldHide)&attributes(fieldCommon)
-            .col-sm-7.group
+            .col-sm-12.group
                 .group-legend
                     label {{::field.label}}
                     +group-tip('field.tip')
@@ -324,7 +325,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                     .details-row(ng-repeat='detail in field.details')
                         +details-row
         .group-section(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
-            .col-sm-7.group
+            .col-sm-12.group
                 .group-legend
                     label {{::field.label}}
                     +group-tip('field.tableTip')
@@ -358,7 +359,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
         .group-section(ng-switch-when='queryFields' ng-hide=fieldHide)
             +table-pair('{{::field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name', false, true)
         .group-section(ng-switch-when='table-db-fields' ng-hide=fieldHide)
-            .col-sm-7.group
+            .col-sm-12.group
                 .group-legend
                     label(id='{{::field.id + "-add"}}') {{::field.label}}
                     +group-tip('field.tip')
@@ -379,7 +380,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                                 td.col-sm-12
                                     +table-db-field-edit('new', '{{::field.focusId}}', '-1')
         .group-section(ng-switch-when='table-query-groups' ng-hide=fieldHide)
-            .col-sm-7.group
+            .col-sm-12.group
                 .group-legend
                     label {{::field.label}}
                     +group-tip('field.tip')
@@ -443,8 +444,11 @@ mixin groups(groups, dataSource)
                 i.tipLabel.fa.fa-question-circle.blank(ng-if='!group.tip')
         .panel-collapse(role='tabpanel' bs-collapse-target id='{{::group.id}}' number='{{::group.number}}')
             .panel-body
-                .settings-row(ng-repeat='field in group.fields')
-                    +form-row(dataSource)
+                .col-sm-6
+                    .settings-row(ng-repeat='field in group.fields')
+                        +form-row(dataSource)
+                .col-sm-6
+                    +preview
 
 mixin advanced-options-top
     .advanced-options
@@ -456,3 +460,6 @@ mixin advanced-options-bottom
     .advanced-options
         i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
         a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
+
+mixin preview
+    div(ui-ace='{onLoad: aceInit, mode: "xml"}' ng-model='preview')

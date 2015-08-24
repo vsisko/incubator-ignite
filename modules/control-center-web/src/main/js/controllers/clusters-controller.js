@@ -66,6 +66,21 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             }
         }
 
+        $scope.aceInit = function (editor) {
+            editor.setReadOnly(true);
+            editor.setOption("highlightActiveLine", false);
+
+            var renderer = editor.renderer;
+
+            renderer.setHighlightGutterLine(false);
+            renderer.setShowPrintMargin(false);
+            renderer.setOption('fontSize', '14px');
+
+            editor.setTheme('ace/theme/chrome');
+        };
+
+        $scope.preview = '<bean class="org.apache.ignite.configuration.IgniteConfiguration"></bean>';
+
         $scope.cacheModes = $common.mkOptions(['LOCAL', 'REPLICATED', 'PARTITIONED']);
 
         $scope.deploymentModes = $common.mkOptions(['PRIVATE', 'ISOLATED', 'SHARED', 'CONTINUOUS']);
