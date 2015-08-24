@@ -198,6 +198,9 @@ public class SchemaImportApp extends Application {
     private ComboBox<String> parseCb;
 
     /** */
+    private ListView<SchemaDescriptor> schemaLst;
+
+    /** */
     private GridPaneEx connPnl;
 
     /** */
@@ -241,6 +244,8 @@ public class SchemaImportApp extends Application {
 
     /** */
     private ProgressIndicator pi;
+
+    private ObservableList<SchemaDescriptor> schemas = FXCollections.emptyObservableList();
 
     /** List with POJOs descriptors. */
     private ObservableList<PojoDescriptor> pojos = FXCollections.emptyObservableList();
@@ -312,11 +317,12 @@ public class SchemaImportApp extends Application {
     }
 
     /**
-     * Fill tree with database metadata.
+     * Open connection to database.
+     *
+     * @return Connection to database.
+     * @throws SQLException If connection failed.
      */
-    private void fill() {
-        lockUI(connLayerPnl, connPnl, nextBtn);
-
+    private Connection connect() throws SQLException {
         final String jdbcDrvJarPath = jdbcDrvJarTf.getText().trim();
 
         final String jdbcDrvCls = jdbcDrvClsTf.getText();
@@ -335,6 +341,27 @@ public class SchemaImportApp extends Application {
         if (!pwd.isEmpty())
             jdbcInfo.put("password", pwd);
 
+        return DbMetadataReader.getInstance().connect(jdbcDrvJarPath, jdbcDrvCls, jdbcUrl, jdbcInfo);
+    }
+
+    /**
+     * Fill tree with database metadata.
+     */
+    private void fill() {
+        final List<String> selSchemas = new ArrayList<>();
+
+        for (SchemaDescriptor schema: schemas)
+            if (schema.selected().getValue())
+                selSchemas.add(schema.schema());
+
+        if (selSchemas.size() == 0)
+            if (!MessageBox.confirmDialog(owner, "No schemas selected.\nExtract tables for all available schemas?"))
+                return;
+
+        lockUI(connLayerPnl, connPnl, nextBtn);
+
+        final String jdbcUrl = jdbcUrlTf.getText();
+
         final boolean tblsOnly = parseCb.getSelectionModel().getSelectedIndex() == 0;
 
         Runnable task = new Task<Void>() {
@@ -342,8 +369,8 @@ public class SchemaImportApp extends Application {
             @Override protected Void call() throws Exception {
                 long started = System.currentTimeMillis();
 
-                try (Connection conn = DbMetadataReader.getInstance().connect(jdbcDrvJarPath, jdbcDrvCls, jdbcUrl, jdbcInfo)) {
-                    pojos = DatabaseMetadataParser.parse(conn, tblsOnly);
+                try (Connection conn = connect()) {
+                    pojos = DatabaseMetadataParser.parse(conn, selSchemas, tblsOnly);
                 }
 
                 perceptualDelay(started);
@@ -370,7 +397,6 @@ public class SchemaImportApp extends Application {
                     curTbl = pojosTbl;
 
                     pojosTbl.requestFocus();
-
 
                     hdrPane.setLeft(genIcon);
 
@@ -409,6 +435,69 @@ public class SchemaImportApp extends Application {
     }
 
     /**
+     * Load schemas list from database.
+     */
+    private void loadSchemas() {
+        lockUI(connLayerPnl, connPnl, nextBtn);
+
+        final String jdbcUrl = jdbcUrlTf.getText();
+
+        Runnable task = new Task<Void>() {
+            /** {@inheritDoc} */
+            @Override protected Void call() throws Exception {
+                long started = System.currentTimeMillis();
+
+                try (Connection conn = connect()) {
+                    schemas = DatabaseMetadataParser.schemas(conn);
+                }
+
+                perceptualDelay(started);
+
+                return null;
+            }
+
+            /** {@inheritDoc} */
+            @Override protected void succeeded() {
+                try {
+                    super.succeeded();
+
+                    schemaLst.setItems(schemas);
+
+                    if (schemas.isEmpty()) {
+                        MessageBox.warningDialog(owner, "No schemas found in database. Recheck JDBC URL.\n" +
+                            "JDBC URL: " +  jdbcUrl);
+
+                        return;
+                    }
+
+                    nextBtn.setDisable(false);
+                }
+                finally {
+                    unlockUI(connLayerPnl, connPnl, nextBtn);
+                }
+            }
+
+            /** {@inheritDoc} */
+            @Override protected void cancelled() {
+                super.cancelled();
+
+                unlockUI(connLayerPnl, connPnl, nextBtn);
+            }
+
+            /** {@inheritDoc} */
+            @Override protected void failed() {
+                super.succeeded();
+
+                unlockUI(connLayerPnl, connPnl, nextBtn);
+
+                MessageBox.errorDialog(owner, "Failed to get schemas list from database.", getException());
+            }
+        };
+
+        exec.submit(task);
+    }
+
+    /**
      * Generate XML and POJOs.
      */
     private void generate() {
@@ -420,7 +509,7 @@ public class SchemaImportApp extends Application {
             return;
         }
 
-        if (checkInput(outFolderTf, true, "Output folder should not be empty!"))
+        if (!checkInput(outFolderTf, true, "Output folder should not be empty!"))
             return;
 
         lockUI(genLayerPnl, genPnl, prevBtn, nextBtn);
@@ -623,10 +712,10 @@ public class SchemaImportApp extends Application {
 
             MessageBox.warningDialog(owner, msg);
 
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -634,13 +723,11 @@ public class SchemaImportApp extends Application {
      */
     private void next() {
         if (rootPane.getCenter() == connLayerPnl) {
-            if (checkInput(jdbcDrvJarTf, true, "Path to JDBC driver is not specified!") ||
-                checkInput(jdbcDrvClsTf, true, "JDBC driver class name is not specified!") ||
-                checkInput(jdbcUrlTf, true, "JDBC URL connection string is not specified!") ||
+            if (checkInput(jdbcDrvJarTf, true, "Path to JDBC driver is not specified!") &&
+                checkInput(jdbcDrvClsTf, true, "JDBC driver class name is not specified!") &&
+                checkInput(jdbcUrlTf, true, "JDBC URL connection string is not specified!") &&
                 checkInput(userTf, true, "User name is not specified!"))
-                return;
-
-            fill();
+                fill();
         }
         else
             generate();
@@ -657,6 +744,9 @@ public class SchemaImportApp extends Application {
         connPnl.addColumn();
         connPnl.addColumn(100, 100, Double.MAX_VALUE, Priority.ALWAYS);
         connPnl.addColumn(35, 35, 35, Priority.NEVER);
+
+        connPnl.addRows(9);
+        connPnl.addRow(100, 100, Double.MAX_VALUE, Priority.ALWAYS);
 
         connPnl.add(text("This utility is designed to automatically generate configuration XML files and" +
             " POJO classes from database schema information.", 550), 3);
@@ -728,6 +818,27 @@ public class SchemaImportApp extends Application {
         pwdTf = connPnl.addLabeled("Password:", passwordField("User password"), 2);
 
         parseCb = connPnl.addLabeled("Parse:", comboBox("Type of tables to parse", "Tables only", "Tables and Views"), 2);
+
+        GridPaneEx schemaPnl = paneEx(5, 5, 5, 5);
+        schemaPnl.addColumn(100, 100, Double.MAX_VALUE, Priority.ALWAYS);
+        schemaPnl.addColumn();
+
+        schemaLst = schemaPnl.add(list("Select schemas to load", new SchemaCell()));
+
+        schemaPnl.wrap();
+
+        schemaPnl.add(button("Load schemas", "Load schemas for specified database", new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent evt) {
+                loadSchemas();
+            }
+        }));
+
+        TitledPane titledPnl = connPnl.add(titledPane("Schemas", schemaPnl, false), 3);
+
+        titledPnl.setExpanded(true);
+
+        GridPaneEx.setValignment(titledPnl, VPos.TOP);
 
         connLayerPnl = stackPane(connPnl);
 
@@ -936,7 +1047,7 @@ public class SchemaImportApp extends Application {
                     " with the given replacement",
                 new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent evt) {
-                        if (checkInput(regexTf, false, "Regular expression should not be empty!"))
+                        if (!checkInput(regexTf, false, "Regular expression should not be empty!"))
                             return;
 
                         String sel = replaceCb.getSelectionModel().getSelectedItem();
@@ -1086,7 +1197,7 @@ public class SchemaImportApp extends Application {
         });
 
         genPnl.add(titledPane("Rename \"Key class name\", \"Value class name\" or  \"Java name\" for selected tables",
-            regexPnl), 3);
+            regexPnl, true), 3);
 
         genLayerPnl = stackPane(genPnl);
     }
@@ -1593,6 +1704,16 @@ public class SchemaImportApp extends Application {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Special list view cell to select loaded schemas.
+     */
+    private static class SchemaCell implements Callback<SchemaDescriptor, ObservableValue<Boolean>> {
+        @Override
+        public ObservableValue<Boolean> call(SchemaDescriptor item) {
+            return item.selected();
         }
     }
 

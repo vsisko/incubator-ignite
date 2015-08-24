@@ -46,12 +46,49 @@ public class DbMetadataReader {
     }
 
     /**
+     * Get specified dialect object for selected database.
+     *
+     * @param conn Connection to database.
+     * @return Specific dialect object.
+     */
+    private DatabaseMetadataDialect dialect(Connection conn) {
+        try {
+            String dbProductName = conn.getMetaData().getDatabaseProductName();
+
+            if ("Oracle".equals(dbProductName))
+                return new OracleMetadataDialect();
+            else if (dbProductName.startsWith("DB2/"))
+                return new DB2MetadataDialect();
+            else if (dbProductName.equals("MySQL"))
+                return new MySQLMetadataDialect();
+            else
+                return new JdbcMetadataDialect();
+        }
+        catch (SQLException e) {
+            log.log(Level.SEVERE, "Failed to resolve dialect (JdbcMetaDataDialect will be used.", e);
+
+            return new JdbcMetadataDialect();
+        }
+    }
+    /**
+     * Get list of schemas from database.
+     *
+     * @param conn Connection to database.
+     * @return List of schema names.
+     * @throws SQLException If schemas loading failed.
+     */
+    public List<String> schemas(Connection conn) throws SQLException  {
+        return dialect(conn).schemas(conn);
+    }
+
+    /**
      * Extract DB metadata.
      *
      * @param conn Connection.
+     * @param schemas List of database schemas to process. In case of empty list all schemas will be processed.
      * @param tblsOnly Tables only flag.
      */
-    public Collection<DbTable> extractMetadata(Connection conn, boolean tblsOnly) throws SQLException {
+    public Collection<DbTable> extractMetadata(Connection conn, List<String> schemas, boolean tblsOnly) throws SQLException {
         DatabaseMetadataDialect dialect;
 
         try {
@@ -70,7 +107,7 @@ public class DbMetadataReader {
             dialect = new JdbcMetadataDialect();
         }
 
-        return dialect.tables(conn, tblsOnly);
+        return dialect.tables(conn, schemas, tblsOnly);
     }
 
     /**
