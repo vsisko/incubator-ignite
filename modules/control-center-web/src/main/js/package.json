@@ -22,6 +22,7 @@
   "dependencies": {
     "archiver": "^0.14.4",
     "body-parser": "~1.13.3",
+    "bootstrap-sass": "^3.3.5",
     "compression": "1.5.2",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^0.8.1",
