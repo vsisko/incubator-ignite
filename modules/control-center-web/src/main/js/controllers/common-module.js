@@ -526,7 +526,17 @@ controlCenterModule.service('$common', [
                 });
             },
             isDefined: isDefined,
-            isEmptyArray: isEmptyArray,
+            hasProperty: function (obj, props) {
+                for (var propName in props) {
+                    if (props.hasOwnProperty(propName)) {
+                        if (obj[propName])
+                            return true;
+                    }
+                }
+
+                return false;
+            },
+        isEmptyArray: isEmptyArray,
             isEmptyString: isEmptyString,
             errorMessage: errorMessage,
             showError: showError,
@@ -680,228 +690,625 @@ controlCenterModule.service('$copy', function ($modal, $rootScope, $q) {
 });
 
 // Tables support service.
-controlCenterModule.service('$table', [
-    '$common', '$focus', function ($common, $focus) {
-        function _swapSimpleItems(a, ix1, ix2) {
-            var tmp = a[ix1];
+controlCenterModule.service('$table', ['$common', '$focus', function ($common, $focus) {
+    function _swapSimpleItems(a, ix1, ix2) {
+        var tmp = a[ix1];
 
-            a[ix1] = a[ix2];
-            a[ix2] = tmp;
+        a[ix1] = a[ix2];
+        a[ix2] = tmp;
+    }
+
+    function _model(item, field) {
+        return $common.getModel(item, field);
+    }
+
+    var table = {name: 'none', editIndex: -1};
+
+    function _tableReset() {
+        table.name = 'none';
+        table.editIndex = -1;
+
+        $common.hidePopover();
+    }
+
+    function _tableState(name, editIndex) {
+        table.name = name;
+        table.editIndex = editIndex;
+    }
+
+    function _tableUI(field) {
+        var ui = field.ui;
+
+        return ui ? ui : field.type;
+    }
+
+    function _tableFocus(focusId, index) {
+        $focus((index < 0 ? 'new' : 'cur') + focusId);
+    }
+
+    function _tableSimpleValue(filed, index) {
+        return index < 0 ? filed.newValue : filed.curValue;
+    }
+
+    function _tablePairValue(filed, index) {
+        return index < 0 ? {key: filed.newKey, value: filed.newValue} : {key: filed.curKey, value: filed.curValue};
+    }
+
+    function _tableStartEdit(item, field, index) {
+        _tableState(field.model, index);
+
+        var val = _model(item, field)[field.model][index];
+
+        var ui = _tableUI(field);
+
+        if (ui == 'table-simple') {
+            field.curValue = val;
+
+            _tableFocus(field.focusId, index);
         }
+        else if (ui == 'table-pair') {
+            field.curKey = val[field.keyName];
+            field.curValue = val[field.valueName];
 
-        function _model(item, field) {
-            return $common.getModel(item, field);
+            _tableFocus('Key' + field.focusId, index);
         }
+        else if (ui == 'table-db-fields') {
+            field.curDatabaseName = val.databaseName;
+            field.curDatabaseType = val.databaseType;
+            field.curJavaName = val.javaName;
+            field.curJavaType = val.javaType;
 
-        var table = {name: 'none', editIndex: -1};
-
-        function _tableReset() {
-            table.name = 'none';
-            table.editIndex = -1;
-
-            $common.hidePopover();
+            _tableFocus('DatabaseName' + field.focusId, index);
         }
+        else if (ui == 'table-query-groups') {
+            field.curGroupName = val.name;
+            field.curFields = val.fields;
 
-        function _tableState(name, editIndex) {
-            table.name = name;
-            table.editIndex = editIndex;
+            _tableFocus('GroupName', index);
         }
+    }
 
-        function _tableUI(field) {
-            var ui = field.ui;
+    function _tableNewItem(field) {
+        _tableState(field.model, -1);
 
-            return ui ? ui : field.type;
+        var ui = _tableUI(field);
+
+        if (ui == 'table-simple') {
+            field.newValue = null;
+
+            _tableFocus(field.focusId, -1);
         }
+        else if (ui == 'table-pair') {
+            field.newKey = null;
+            field.newValue = null;
 
-        function _tableFocus(focusId, index) {
-            $focus((index < 0 ? 'new' : 'cur') + focusId);
+            _tableFocus('Key' + field.focusId, -1);
         }
+        else if (ui == 'table-db-fields') {
+            field.newDatabaseName = null;
+            field.newDatabaseType = 'INTEGER';
+            field.newJavaName = null;
+            field.newJavaType = 'Integer';
 
-        function _tableSimpleValue(filed, index) {
-            return index < 0 ? filed.newValue : filed.curValue;
+            _tableFocus('DatabaseName' + field.focusId, -1);
         }
+        else if (ui == 'table-query-groups') {
+            field.newGroupName = null;
+            field.newFields = null;
 
-        function _tablePairValue(filed, index) {
-            return index < 0 ? {key: filed.newKey, value: filed.newValue} : {key: filed.curKey, value: filed.curValue};
+            _tableFocus('GroupName', -1);
         }
-
-        function _tableStartEdit(item, field, index) {
-            _tableState(field.model, index);
-
-            var val = _model(item, field)[field.model][index];
-
-            var ui = _tableUI(field);
-
-            if (ui == 'table-simple') {
-                field.curValue = val;
-
-                _tableFocus(field.focusId, index);
-            }
-            else if (ui == 'table-pair') {
-                field.curKey = val[field.keyName];
-                field.curValue = val[field.valueName];
-
-                _tableFocus('Key' + field.focusId, index);
-            }
-            else if (ui == 'table-db-fields') {
-                field.curDatabaseName = val.databaseName;
-                field.curDatabaseType = val.databaseType;
-                field.curJavaName = val.javaName;
-                field.curJavaType = val.javaType;
-
-                _tableFocus('DatabaseName' + field.focusId, index);
-            }
-            else if (ui == 'table-query-groups') {
-                field.curGroupName = val.name;
-                field.curFields = val.fields;
-
-                _tableFocus('GroupName', index);
-            }
+        else if (ui == 'table-query-group-fields') {
+            _tableFocus('FieldName', -1);
         }
+    }
 
-        function _tableNewItem(field) {
-            _tableState(field.model, -1);
+    return {
+        tableState: function (name, editIndex) {
+            _tableState(name, editIndex);
+        },
+        tableReset: function () {
+            _tableReset();
+        },
+        tableNewItem: _tableNewItem,
+        tableNewItemActive: function (field) {
+            return table.name == field.model && table.editIndex < 0;
+        },
+        tableEditing: function (field, index) {
+            return table.name == field.model && table.editIndex == index;
+        },
+        tableStartEdit: _tableStartEdit,
+        tableRemove: function (item, field, index) {
+            _tableReset();
 
-            var ui = _tableUI(field);
+            _model(item, field)[field.model].splice(index, 1);
+        },
+        tableSimpleSave: function (valueValid, item, field, index) {
+            var simpleValue = _tableSimpleValue(field, index);
 
-            if (ui == 'table-simple') {
-                field.newValue = null;
-
-                _tableFocus(field.focusId, -1);
-            }
-            else if (ui == 'table-pair') {
-                field.newKey = null;
-                field.newValue = null;
-
-                _tableFocus('Key' + field.focusId, -1);
-            }
-            else if (ui == 'table-db-fields') {
-                field.newDatabaseName = null;
-                field.newDatabaseType = 'INTEGER';
-                field.newJavaName = null;
-                field.newJavaType = 'Integer';
-
-                _tableFocus('DatabaseName' + field.focusId, -1);
-            }
-            else if (ui == 'table-query-groups') {
-                field.newGroupName = null;
-                field.newFields = null;
-
-                _tableFocus('GroupName', -1);
-            }
-            else if (ui == 'table-query-group-fields') {
-                _tableFocus('FieldName', -1);
-            }
-        }
-
-        return {
-            tableState: function (name, editIndex) {
-                _tableState(name, editIndex);
-            },
-            tableReset: function () {
+            if (valueValid(item, field, simpleValue, index)) {
                 _tableReset();
-            },
-            tableNewItem: _tableNewItem,
-            tableNewItemActive: function (field) {
-                return table.name == field.model && table.editIndex < 0;
-            },
-            tableEditing: function (field, index) {
-                return table.name == field.model && table.editIndex == index;
-            },
-            tableStartEdit: _tableStartEdit,
-            tableRemove: function (item, field, index) {
-                _tableReset();
 
-                _model(item, field)[field.model].splice(index, 1);
-            },
-            tableSimpleSave: function (valueValid, item, field, index) {
-                var simpleValue = _tableSimpleValue(field, index);
+                if (index < 0) {
+                    if (_model(item, field)[field.model])
+                        _model(item, field)[field.model].push(simpleValue);
+                    else
+                        _model(item, field)[field.model] = [simpleValue];
 
-                if (valueValid(item, field, simpleValue, index)) {
-                    _tableReset();
-
-                    if (index < 0) {
-                        if (_model(item, field)[field.model])
-                            _model(item, field)[field.model].push(simpleValue);
-                        else
-                            _model(item, field)[field.model] = [simpleValue];
-
-                        _tableNewItem(field);
-                    }
-                    else {
-                        var arr = _model(item, field)[field.model];
-
-                        arr[index] = simpleValue;
-
-                        if (index < arr.length - 1)
-                            _tableStartEdit(item, field, index + 1);
-                        else
-                            _tableNewItem(field);
-                    }
+                    _tableNewItem(field);
                 }
-            },
-            tableSimpleSaveVisible: function (field, index) {
-                return !$common.isEmptyString(_tableSimpleValue(field, index));
-            },
-            tableSimpleUp: function (item, field, index) {
-                _tableReset();
+                else {
+                    var arr = _model(item, field)[field.model];
 
-                _swapSimpleItems(_model(item, field)[field.model], index, index - 1);
-            },
-            tableSimpleDown: function (item, field, index) {
-                _tableReset();
+                    arr[index] = simpleValue;
 
-                _swapSimpleItems(_model(item, field)[field.model], index, index + 1);
-            },
-            tableSimpleDownVisible: function (item, field, index) {
-                return index < _model(item, field)[field.model].length - 1;
-            },
-            tablePairValue: _tablePairValue,
-            tablePairSave: function (pairValid, item, field, index) {
-                if (pairValid(item, field, index)) {
-                    var pairValue = _tablePairValue(field, index);
-
-                    var pairModel = {};
-
-                    if (index < 0) {
-                        pairModel[field.keyName] = pairValue.key;
-                        pairModel[field.valueName] = pairValue.value;
-
-                        if (item[field.model])
-                            item[field.model].push(pairModel);
-                        else
-                            item[field.model] = [pairModel];
-
+                    if (index < arr.length - 1)
+                        _tableStartEdit(item, field, index + 1);
+                    else
                         _tableNewItem(field);
-                    }
-                    else {
-                        pairModel = item[field.model][index];
-
-                        pairModel[field.keyName] = pairValue.key;
-                        pairModel[field.valueName] = pairValue.value;
-
-                        if (index < item[field.model].length - 1)
-                            _tableStartEdit(item, field, index + 1);
-                        else
-                            _tableNewItem(field);
-                    }
                 }
-            },
-            tablePairSaveVisible: function (field, index) {
+            }
+        },
+        tableSimpleSaveVisible: function (field, index) {
+            return !$common.isEmptyString(_tableSimpleValue(field, index));
+        },
+        tableSimpleUp: function (item, field, index) {
+            _tableReset();
+
+            _swapSimpleItems(_model(item, field)[field.model], index, index - 1);
+        },
+        tableSimpleDown: function (item, field, index) {
+            _tableReset();
+
+            _swapSimpleItems(_model(item, field)[field.model], index, index + 1);
+        },
+        tableSimpleDownVisible: function (item, field, index) {
+            return index < _model(item, field)[field.model].length - 1;
+        },
+        tablePairValue: _tablePairValue,
+        tablePairSave: function (pairValid, item, field, index) {
+            if (pairValid(item, field, index)) {
                 var pairValue = _tablePairValue(field, index);
 
-                return !$common.isEmptyString(pairValue.key) && !$common.isEmptyString(pairValue.value);
-            },
-            tableFocusInvalidField: function (index, id) {
-                _tableFocus(id, index);
+                var pairModel = {};
 
-                return false;
-            },
-            tableFieldId: function(index, id) {
-                return (index < 0 ? 'new' : 'cur') + id;
+                if (index < 0) {
+                    pairModel[field.keyName] = pairValue.key;
+                    pairModel[field.valueName] = pairValue.value;
+
+                    if (item[field.model])
+                        item[field.model].push(pairModel);
+                    else
+                        item[field.model] = [pairModel];
+
+                    _tableNewItem(field);
+                }
+                else {
+                    pairModel = item[field.model][index];
+
+                    pairModel[field.keyName] = pairValue.key;
+                    pairModel[field.valueName] = pairValue.value;
+
+                    if (index < item[field.model].length - 1)
+                        _tableStartEdit(item, field, index + 1);
+                    else
+                        _tableNewItem(field);
+                }
             }
+        },
+        tablePairSaveVisible: function (field, index) {
+            var pairValue = _tablePairValue(field, index);
+
+            return !$common.isEmptyString(pairValue.key) && !$common.isEmptyString(pairValue.value);
+        },
+        tableFocusInvalidField: function (index, id) {
+            _tableFocus(id, index);
+
+            return false;
+        },
+        tableFieldId: function (index, id) {
+            return (index < 0 ? 'new' : 'cur') + id;
         }
-    }]);
+    }
+}]);
+
+
+// Preview support service.
+controlCenterModule.service('$preview', [function () {
+    return {
+        previewInit: function (editor) {
+            editor.setReadOnly(true);
+            editor.setOption("highlightActiveLine", false);
+
+            var renderer = editor.renderer;
+
+            renderer.setHighlightGutterLine(false);
+            renderer.setShowPrintMargin(false);
+            renderer.setOption('fontSize', '10px');
+
+            editor.setTheme('ace/theme/chrome');
+        }
+    }
+}]);
+
+// Preview support service.
+controlCenterModule.service('$code', ['$common', function ($common) {
+    function builder() {
+        var res = [];
+
+        res.deep = 0;
+        res.lineStart = true;
+
+        res.append = function (s) {
+            if (this.lineStart) {
+                for (var i = 0; i < this.deep; i++)
+                    this.push('    ');
+
+                this.lineStart = false;
+            }
+
+            this.push(s);
+
+            return this;
+        };
+
+        res.line = function (s) {
+            if (s)
+                this.append(s);
+
+            this.push('\n');
+            this.lineStart = true;
+
+            return this;
+        };
+
+        res.startBlock = function (s) {
+            if (s)
+                this.append(s);
+
+            this.push('\n');
+            this.lineStart = true;
+            this.deep++;
+
+            return this;
+        };
+
+        res.endBlock = function (s) {
+            this.deep--;
+
+            if (s)
+                this.append(s);
+
+            this.push('\n');
+            this.lineStart = true;
+
+            return this;
+        };
+
+        res.emptyLineIfNeeded = function () {
+            if (this.needEmptyLine) {
+                this.line();
+
+                this.needEmptyLine = false;
+
+                return true;
+            }
+
+            return false;
+        };
+
+        res.imports = {};
+
+        res.importClass = function (className) {
+            var fullClassName = javaBuildInClass(className);
+
+            var dotIdx = fullClassName.lastIndexOf('.');
+
+            var shortName = dotIdx > 0 ? fullClassName.substr(dotIdx + 1) : fullClassName;
+
+            if (this.imports[shortName]) {
+                if (this.imports[shortName] != fullClassName)
+                    return fullClassName; // Short class names conflict. Return full name.
+            }
+            else
+                this.imports[shortName] = fullClassName;
+
+            return shortName;
+        };
+
+        /**
+         * @returns String with "java imports" section.
+         */
+        res.generateImports = function () {
+            var res = [];
+
+            for (var clsName in this.imports) {
+                if (this.imports.hasOwnProperty(clsName) && this.imports[clsName].lastIndexOf('java.lang.', 0) != 0)
+                    res.push('import ' + this.imports[clsName] + ';');
+            }
+
+            res.sort();
+
+            return res.join('\n')
+        };
+
+        return res;
+    }
+
+    function escapeAttr(s) {
+        if (typeof(s) != 'string')
+            return s;
+
+        return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+    }
+
+    function addElement(res, tag, attr1, val1, attr2, val2) {
+        var elem = '<' + tag;
+
+        if (attr1) {
+            elem += ' ' + attr1 + '="' + val1 + '"'
+        }
+
+        if (attr2) {
+            elem += ' ' + attr2 + '="' + val2 + '"'
+        }
+
+        elem += '/>';
+
+        res.emptyLineIfNeeded();
+        res.line(elem);
+    }
+
+    function addProperty(res, obj, propName, setterName) {
+        var val = obj[propName];
+
+        if ($common.isDefined(val))
+            addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', escapeAttr(val));
+
+        return val;
+    }
+
+    function addClassNameProperty(res, obj, propName) {
+        var val = obj[propName];
+
+        if ($common.isDefined(val))
+            addElement(res, 'property', 'name', propName, 'value', generatorCommon.javaBuildInClass(val));
+
+        return val;
+    }
+
+    function addListProperty(res, obj, propName, listType, rowFactory) {
+        var val = obj[propName];
+
+        if (val && val.length > 0) {
+            res.emptyLineIfNeeded();
+
+            if (!listType)
+                listType = 'list';
+
+            if (!rowFactory)
+                rowFactory = function (val) {
+                    return '<value>' + escape(val) + '</value>'
+                };
+
+            res.startBlock('<property name="' + propName + '">');
+            res.startBlock('<' + listType + '>');
+
+            for (var i = 0; i < val.length; i++)
+                res.line(rowFactory(val[i]));
+
+            res.endBlock('</' + listType + '>');
+            res.endBlock('</property>');
+        }
+    }
+
+    function ClassDescriptor(className, fields) {
+        this.className = className;
+        this.fields = fields;
+    }
+
+    atomicConfiguration = new ClassDescriptor('org.apache.ignite.configuration.AtomicConfiguration', {
+        backups: null,
+        cacheMode: {type: 'enum', enumClass: 'CacheMode'},
+        atomicSequenceReserveSize: null
+    });
+
+    knownClasses = {
+        Oracle: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
+        DB2: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.DB2Dialect', {}),
+        SQLServer: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.SQLServerDialect', {}),
+        MySQL: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.MySQLDialect', {}),
+        PostgreSQL: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.BasicJdbcDialect', {}),
+        H2: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.H2Dialect', {})
+    };
+
+    function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
+        if (bean && $common.hasProperty(bean, props)) {
+            res.emptyLineIfNeeded();
+            res.startBlock('<property name="' + beanPropName + '">');
+            res.startBlock('<bean class="' + beanClass + '">');
+
+            for (var propName in props) {
+                if (props.hasOwnProperty(propName)) {
+                    var descr = props[propName];
+
+                    if (descr) {
+                        if (descr.type == 'list') {
+                            addListProperty(res, bean, propName, descr.setterName);
+                        }
+                        else if (descr.type == 'className') {
+                            if (bean[propName]) {
+                                res.startBlock('<property name="' + propName + '">');
+                                res.line('<bean class="' + knownClasses[bean[propName]].className + '"/>');
+                                res.endBlock('</property>');
+                            }
+                        }
+                        else if (descr.type == 'propertiesAsList') {
+                            var val = bean[propName];
+
+                            if (val && val.length > 0) {
+                                res.startBlock('<property name="' + propName + '">');
+                                res.startBlock('<props>');
+
+                                for (var i = 0; i < val.length; i++) {
+                                    var nameAndValue = val[i];
+
+                                    var eqIndex = nameAndValue.indexOf('=');
+                                    if (eqIndex >= 0) {
+                                        res.line('<prop key="' + escapeAttr(nameAndValue.substring(0, eqIndex)) + '">' +
+                                            escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
+                                    }
+                                }
+
+                                res.endBlock('</props>');
+                                res.endBlock('</property>');
+                            }
+                        }
+                        else
+                            addProperty(res, bean, propName, descr.setterName);
+                    }
+                    else
+                        addProperty(res, bean, propName);
+                }
+            }
+
+            res.endBlock('</bean>');
+            res.endBlock('</property>');
+        }
+        else if (createBeanAlthoughNoProps) {
+            res.emptyLineIfNeeded();
+            res.line('<property name="' + beanPropName + '">');
+            res.line('    <bean class="' + beanClass + '"/>');
+            res.line('</property>');
+        }
+    }
+
+    return {
+        xmlClusterGeneral: function (cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate discovery.
+            if (cluster.discovery) {
+                res.startBlock('<property name="discoverySpi">');
+                res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">');
+                res.startBlock('<property name="ipFinder">');
+
+                var d = cluster.discovery;
+
+                switch (d.kind) {
+                    case 'Multicast':
+                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder">');
+
+                        addProperty(res, d.Multicast, 'multicastGroup');
+                        addProperty(res, d.Multicast, 'multicastPort');
+                        addProperty(res, d.Multicast, 'responseWaitTime');
+                        addProperty(res, d.Multicast, 'addressRequestAttempts');
+                        addProperty(res, d.Multicast, 'localAddress');
+
+                        res.endBlock('</bean>');
+
+                        break;
+
+                    case 'Vm':
+                        if (d.Vm.addresses.length > 0) {
+                            res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">');
+
+                            addListProperty(res, d.Vm, 'addresses');
+
+                            res.endBlock('</bean>');
+                        }
+                        else {
+                            res.line('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder"/>');
+                        }
+
+                        break;
+
+                    case 'S3':
+                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder">');
+
+                        if (d.S3 && d.S3.bucketName)
+                            res.line('<property name="bucketName" value="' + escapeAttr(d.S3.bucketName) + '" />');
+
+                        res.endBlock('</bean>');
+
+                        break;
+
+                    case 'Cloud':
+                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder">');
+
+                        addProperty(res, d.Cloud, 'credential');
+                        addProperty(res, d.Cloud, 'credentialPath');
+                        addProperty(res, d.Cloud, 'identity');
+                        addProperty(res, d.Cloud, 'provider');
+                        addListProperty(res, d.Cloud, 'regions');
+                        addListProperty(res, d.Cloud, 'zones');
+
+                        res.endBlock('</bean>');
+
+                        break;
+
+                    case 'GoogleStorage':
+                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder">');
+
+                        addProperty(res, d.GoogleStorage, 'projectName');
+                        addProperty(res, d.GoogleStorage, 'bucketName');
+                        addProperty(res, d.GoogleStorage, 'serviceAccountP12FilePath');
+                        addProperty(res, d.GoogleStorage, 'serviceAccountId');
+
+                        //if (d.GoogleStorage.addrReqAttempts) todo ????
+                        //    res.line('<property name="serviceAccountP12FilePath" value="' + escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
+
+                        res.endBlock('</bean>');
+
+                        break;
+
+                    case 'Jdbc':
+                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder">');
+                        res.line('<property name="initSchema" value="' + ($common.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + '"/>');
+                        res.endBlock('</bean>');
+
+                        break;
+
+                    case 'SharedFs':
+                        if (d.SharedFs.path) {
+                            res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder">');
+                            addProperty(res, d.SharedFs, 'path');
+                            res.endBlock('</bean>');
+                        }
+                        else {
+                            res.line('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder"/>');
+                        }
+
+                        break;
+
+                    default:
+                        throw "Unknown discovery kind: " + d.kind;
+                }
+
+                res.endBlock('</property>');
+                res.endBlock('</bean>');
+                res.endBlock('</property>');
+
+                res.needEmptyLine = true;
+            }
+
+            return res;
+        },
+        xmlClusterAtomics: function (cluster, res) {
+            if (!res)
+                res = builder();
+
+            // Generate atomics group.
+            addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration',
+                atomicConfiguration.className, atomicConfiguration.fields);
+            res.needEmptyLine = true;
+
+            return res;
+        }
+    }
+}]);
+
 
 // Filter to decode name using map(value, label).
 controlCenterModule.filter('displayValue', function () {

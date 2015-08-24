@@ -448,7 +448,7 @@ mixin groups(groups, dataSource)
                     .settings-row(ng-repeat='field in group.fields')
                         +form-row(dataSource)
                 .col-sm-6
-                    +preview
+                    +preview('group.preview')
 
 mixin advanced-options-top
     .advanced-options
@@ -461,5 +461,5 @@ mixin advanced-options-bottom
         i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
         a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
 
-mixin preview
-    div(ui-ace='{onLoad: aceInit, mode: "xml"}' ng-model='preview')
+mixin preview(previewModel)
+    div(ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{previewModel}]')

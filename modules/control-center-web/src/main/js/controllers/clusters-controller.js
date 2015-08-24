@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table',
-    function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
+controlCenterModule.controller('clustersController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table', '$preview', '$code',
+    function ($scope, $http, $common, $focus, $confirm, $copy, $table, $preview, $code) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
@@ -32,6 +32,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         $scope.tableSimpleUp = $table.tableSimpleUp;
         $scope.tableSimpleDown = $table.tableSimpleDown;
         $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
+
+        $scope.previewInit = $preview.previewInit;
 
         $scope.hidePopover = $common.hidePopover;
         var showPopoverMessage = $common.showPopoverMessage;
@@ -66,20 +68,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             }
         }
 
-        $scope.aceInit = function (editor) {
-            editor.setReadOnly(true);
-            editor.setOption("highlightActiveLine", false);
-
-            var renderer = editor.renderer;
-
-            renderer.setHighlightGutterLine(false);
-            renderer.setShowPrintMargin(false);
-            renderer.setOption('fontSize', '14px');
-
-            editor.setTheme('ace/theme/chrome');
-        };
-
-        $scope.preview = '<bean class="org.apache.ignite.configuration.IgniteConfiguration"></bean>';
+        $scope.preview = {};
 
         $scope.cacheModes = $common.mkOptions(['LOCAL', 'REPLICATED', 'PARTITIONED']);
 
@@ -193,8 +182,12 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                     $scope.selectItem($scope.clusters[0]);
 
                 $scope.$watch('backupItem', function (val) {
-                    if (val)
+                    if (val) {
                         sessionStorage.clusterBackupItem = angular.toJson(val);
+
+                        $scope.preview.general = $code.xmlClusterGeneral(val).join('');
+                        $scope.preview.atomics = $code.xmlClusterAtomics(val).join('');
+                    }
                 }, true);
             })
             .error(function (errMsg) {
