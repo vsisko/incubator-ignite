@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table',
-    function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
+controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table',
+    function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
@@ -25,7 +25,14 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         $scope.tableNewItemActive = $table.tableNewItemActive;
         $scope.tableEditing = $table.tableEditing;
         $scope.tableStartEdit = $table.tableStartEdit;
-        $scope.tableRemove = $table.tableRemove;
+        $scope.tableRemove = function (item, field, index) {
+            $table.tableRemove(item, field, index);
+
+            markChanged();
+
+            // Dirty state do not change automatically.
+            $scope.ui.inputForm.$dirty = true;
+        }
 
         $scope.tableSimpleSave = $table.tableSimpleSave;
         $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
@@ -85,6 +92,22 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
             $common.hidePopover();
         };
+
+        function markChanged() {
+            sessionStorage.clusterBackupItemChanged = true;
+
+            $scope.ui.inputForm.$setDirty;
+        }
+
+        function markPristine() {
+            $scope.ui.inputForm.$setPristine();
+
+            sessionStorage.removeItem('clusterBackupItemChanged');
+        }
+
+        function clusterChanged() {
+            return $common.isDefined($scope.ui.inputForm) && $scope.ui.inputForm.$dirty;
+        }
 
         $scope.panels = {activePanels: [0]};
 
@@ -166,43 +189,65 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                                 });
                             }
 
-                            $scope.selectItem(cluster, restoredItem);
+                            $scope.selectItem(cluster, restoredItem, sessionStorage.clusterBackupItemChanged);
                         }
                         else
                             sessionStorage.removeItem('clusterBackupItem');
                     }
                     else
-                        $scope.backupItem = restoredItem;
+                        $scope.selectItem(undefined, restoredItem, sessionStorage.clusterBackupItemChanged);
                 }
                 else if ($scope.clusters.length > 0)
                     $scope.selectItem($scope.clusters[0]);
 
                 $scope.$watch('backupItem', function (val) {
-                    if (val)
+                    if (val) {
                         sessionStorage.clusterBackupItem = angular.toJson(val);
+
+                        markChanged();
+                    }
                 }, true);
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);
             });
 
-        $scope.selectItem = function (item, backup) {
-            $table.tableReset();
+        $scope.selectItem = function (item, backup, changed) {
+            function selectItem() {
+                $table.tableReset();
 
-            $scope.selectedItem = item;
+                $scope.selectedItem = item;
 
-            if (backup)
-                $scope.backupItem = backup;
-            else if (item)
-                $scope.backupItem = angular.copy(item);
+                if (backup)
+                    $scope.backupItem = backup;
+                else if (item)
+                    $scope.backupItem = angular.copy(item);
+                else
+                    $scope.backupItem = undefined;
+
+                if (item)
+                    sessionStorage.clusterSelectedItem = angular.toJson(item);
+                else
+                    sessionStorage.removeItem('clusterSelectedItem');
+
+                $timeout(function () {
+                    if (changed)
+                        markChanged();
+                    else
+                        markPristine();
+                }, 50);
+            }
+
+            if (clusterChanged())
+                $confirm.show('<span>Current cluster is modified.<br/><br/>Discard unsaved changes?</span>').then(
+                    function () {
+                        selectItem();
+                    }
+                );
             else
-                $scope.backupItem = undefined;
+                selectItem();
 
-
-            if (item)
-                sessionStorage.clusterSelectedItem = angular.toJson(item);
-            else
-                sessionStorage.removeItem('clusterSelectedItem');
+            $scope.ui.formTitle = $scope.backupItem._id ? 'Cluster "' + $scope.backupItem.name + '" editing' : 'New cluster';
         };
 
         // Add new cluster.
@@ -280,6 +325,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         function save(item) {
             $http.post('clusters/save', item)
                 .success(function (_id) {
+                    markPristine();
+
                     var idx = _.findIndex($scope.clusters, function (cluster) {
                         return cluster._id == _id;
                     });
@@ -334,6 +381,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
             $confirm.show('Are you sure you want to remove cluster: "' + selectedItem.name + '"?').then(
                 function () {
+                    markPristine();
+
                     var _id = selectedItem._id;
 
                     $http.post('clusters/remove', {_id: _id})

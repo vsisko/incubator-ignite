@@ -16,8 +16,8 @@
  */
 
 controlCenterModule.controller('cachesController', [
-        '$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table',
-        function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
+        '$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table',
+        function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table) {
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
             $scope.javaBuildInClasses = $common.javaBuildInClasses;
@@ -27,7 +27,14 @@ controlCenterModule.controller('cachesController', [
             $scope.tableNewItemActive = $table.tableNewItemActive;
             $scope.tableEditing = $table.tableEditing;
             $scope.tableStartEdit = $table.tableStartEdit;
-            $scope.tableRemove = $table.tableRemove;
+            $scope.tableRemove = function (item, field, index) {
+                $table.tableRemove(item, field, index);
+
+                markChanged();
+
+                // Dirty state do not change automatically.
+                $scope.ui.inputForm.$dirty = true;
+            }
 
             $scope.tableSimpleSave = $table.tableSimpleSave;
             $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
@@ -84,6 +91,22 @@ controlCenterModule.controller('cachesController', [
 
                 $common.hidePopover();
             };
+
+            function markChanged() {
+                sessionStorage.cacheBackupItemChanged = true;
+
+                $scope.ui.inputForm.$setDirty;
+            }
+
+            function markPristine() {
+                $scope.ui.inputForm.$setPristine();
+
+                sessionStorage.removeItem('cacheBackupItemChanged');
+            }
+
+            function cacheChanged() {
+                return $common.isDefined($scope.ui.inputForm) && $scope.ui.inputForm.$dirty;
+            }
 
             $scope.panels = {activePanels: [0]};
 
@@ -225,42 +248,63 @@ controlCenterModule.controller('cachesController', [
                                     });
                                 }
 
-                                $scope.selectItem(cache, restoredItem);
+                                $scope.selectItem(cache, restoredItem, sessionStorage.cacheBackupItemChanged);
                             }
                             else
                                 sessionStorage.removeItem('cacheBackupItem');
                         }
                         else
-                            $scope.backupItem = restoredItem;
+                            $scope.selectItem(undefined, restoredItem, sessionStorage.cacheBackupItemChanged)
                     }
                     else if ($scope.caches.length > 0)
                         $scope.selectItem($scope.caches[0]);
 
                     $scope.$watch('backupItem', function (val) {
-                        if (val)
+                        if (val) {
                             sessionStorage.cacheBackupItem = angular.toJson(val);
+
+                            markChanged();
+                        }
                     }, true);
                 })
                 .error(function (errMsg) {
                     $common.showError(errMsg);
                 });
 
-            $scope.selectItem = function (item, backup) {
-                $table.tableReset();
+            $scope.selectItem = function (item, backup, changed) {
+                function selectItem() {
+                    $table.tableReset();
 
-                $scope.selectedItem = item;
+                    if (backup)
+                        $scope.backupItem = backup;
+                    else if (item)
+                        $scope.backupItem = angular.copy(item);
+                    else
+                        $scope.backupItem = undefined;
 
-                if (backup)
-                    $scope.backupItem = backup;
-                else if (item)
-                    $scope.backupItem = angular.copy(item);
+                    $scope.selectedItem = item;
+
+                    if (item)
+                        sessionStorage.cacheSelectedItem = angular.toJson(item);
+                    else
+                        sessionStorage.removeItem('cacheSelectedItem');
+
+                    $timeout(function () {
+                        if (changed)
+                            markChanged();
+                        else
+                            markPristine();
+                    }, 50);
+                }
+
+                if (cacheChanged())
+                    $confirm.show('<span>Current cache is modified.<br/><br/>Discard unsaved changes?</span>').then(
+                        function () {
+                            selectItem();
+                        }
+                    );
                 else
-                    $scope.backupItem = undefined;
-
-                if (item)
-                    sessionStorage.cacheSelectedItem = angular.toJson(item);
-                else
-                    sessionStorage.removeItem('cacheSelectedItem');
+                    selectItem();
             };
 
             // Add new cache.
@@ -334,6 +378,8 @@ controlCenterModule.controller('cachesController', [
             function save(item) {
                 $http.post('caches/save', item)
                     .success(function (_id) {
+                        markPristine();
+
                         var idx = _.findIndex($scope.caches, function (cache) {
                             return cache._id == _id;
                         });
@@ -388,6 +434,8 @@ controlCenterModule.controller('cachesController', [
 
                 $confirm.show('Are you sure you want to remove cache: "' + selectedItem.name + '"?').then(
                     function () {
+                        markPristine();
+
                         var _id = selectedItem._id;
 
                         $http.post('caches/remove', {_id: _id})

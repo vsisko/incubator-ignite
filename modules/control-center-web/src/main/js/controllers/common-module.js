@@ -479,6 +479,34 @@ controlCenterModule.service('$common', [
             return false;
         }
 
+        var win = $(window);
+
+        var elem = undefined;
+        var offsetTop = undefined;
+        var cont = undefined;
+        var scrollspyWidth = 0
+
+        win.scroll(function() {
+            if (!isDefined(offsetTop)) {
+                elem = $('#scrolled')
+
+                if (elem.length > 0) {
+                    cont = $('.docs-content');
+
+                    offsetTop = elem.offset().top;
+
+                    scrollspyWidth = elem[0].getBoundingClientRect().width
+
+                    console.log(scrollspyWidth)
+                }
+            }
+            else {
+                elem.toggleClass('panel-sticky', win.scrollTop() > offsetTop);
+
+                elem.width(scrollspyWidth)
+            }
+        });
+
         return {
             getModel: function (obj, field) {
                 var path = field.path;
