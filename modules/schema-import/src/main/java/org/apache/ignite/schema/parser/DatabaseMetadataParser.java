@@ -35,7 +35,7 @@ public class DatabaseMetadataParser {
      * @throws SQLException If schemas loading failed.
      */
     public static ObservableList<SchemaDescriptor> schemas(Connection conn) throws SQLException  {
-        List<String> dbSchemas = DbMetadataReader.getInstance().schemas(conn);
+        Collection<String> dbSchemas = DbMetadataReader.getInstance().schemas(conn);
 
         List<SchemaDescriptor> uiSchemas = new ArrayList<>(dbSchemas.size());
 
@@ -60,7 +60,7 @@ public class DatabaseMetadataParser {
 
         Map<String, Collection<PojoDescriptor>> childrens = new HashMap<>();
 
-        for (DbTable tbl : DbMetadataReader.getInstance().extractMetadata(conn, schemas, tblsOnly)) {
+        for (DbTable tbl : DbMetadataReader.getInstance().metadata(conn, schemas, tblsOnly)) {
             String schema = tbl.schema();
 
             PojoDescriptor parent = parents.get(schema);

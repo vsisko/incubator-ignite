@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class MySQLMetadataDialect extends JdbcMetadataDialect {
     /** {@inheritDoc} */
-    @Override public List<String> schemas(Connection conn) throws SQLException {
+    @Override public Collection<String> schemas(Connection conn) throws SQLException {
         List<String> schemas = new ArrayList<>();
 
         ResultSet rs = conn.getMetaData().getCatalogs();

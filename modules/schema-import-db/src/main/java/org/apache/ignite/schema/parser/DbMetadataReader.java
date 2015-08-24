@@ -77,7 +77,7 @@ public class DbMetadataReader {
      * @return List of schema names.
      * @throws SQLException If schemas loading failed.
      */
-    public List<String> schemas(Connection conn) throws SQLException  {
+    public Collection<String> schemas(Connection conn) throws SQLException  {
         return dialect(conn).schemas(conn);
     }
 
@@ -88,7 +88,7 @@ public class DbMetadataReader {
      * @param schemas List of database schemas to process. In case of empty list all schemas will be processed.
      * @param tblsOnly Tables only flag.
      */
-    public Collection<DbTable> extractMetadata(Connection conn, List<String> schemas, boolean tblsOnly) throws SQLException {
+    public Collection<DbTable> metadata(Connection conn, List<String> schemas, boolean tblsOnly) throws SQLException {
         DatabaseMetadataDialect dialect;
 
         try {

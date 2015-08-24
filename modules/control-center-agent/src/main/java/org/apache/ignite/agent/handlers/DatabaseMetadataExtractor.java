@@ -58,23 +58,59 @@ public class DatabaseMetadataExtractor {
      * @param jdbcDriverCls JDBC driver class.
      * @param jdbcUrl JDBC URL.
      * @param jdbcInfo Properties to connect to database.
-     * @return Collection of tables.
+     * @return Connection to database.
+     * @throws SQLException
      */
-    @Remote
-    public Collection<DbTable> extractMetadata(String jdbcDriverJarPath, String jdbcDriverCls, String jdbcUrl,
-        Properties jdbcInfo, boolean tblsOnly) throws SQLException {
-        log.log(Level.INFO, "Collecting database metadata...");
-
+    private Connection connect(String jdbcDriverJarPath, String jdbcDriverCls, String jdbcUrl, Properties jdbcInfo) throws SQLException {
         if (!new File(jdbcDriverJarPath).isAbsolute() && driversFolder != null)
             jdbcDriverJarPath = new File(driversFolder, jdbcDriverJarPath).getPath();
 
-        Connection conn = DbMetadataReader.getInstance().connect(jdbcDriverJarPath, jdbcDriverCls, jdbcUrl, jdbcInfo);
+        return DbMetadataReader.getInstance().connect(jdbcDriverJarPath, jdbcDriverCls, jdbcUrl, jdbcInfo);
+    }
 
-        Collection<DbTable> metadata = DbMetadataReader.getInstance().extractMetadata(conn, tblsOnly);
+    /**
+     * @param jdbcDriverJarPath JDBC driver JAR path.
+     * @param jdbcDriverCls JDBC driver class.
+     * @param jdbcUrl JDBC URL.
+     * @param jdbcInfo Properties to connect to database.
+     * @return Collection of schema names.
+     * @throws SQLException
+     */
+    @Remote
+    public Collection<String> schemas(String jdbcDriverJarPath, String jdbcDriverCls, String jdbcUrl,
+        Properties jdbcInfo) throws SQLException {
+        log.log(Level.INFO, "Collecting database schemas...");
 
-        log.log(Level.INFO, "Collected: " + metadata.size());
+        try (Connection conn = connect(jdbcDriverJarPath, jdbcDriverCls, jdbcUrl, jdbcInfo)) {
+            Collection<String> schemas = DbMetadataReader.getInstance().schemas(conn);
 
-        return metadata;
+            log.log(Level.INFO, "Collected schemas: " + schemas.size());
+
+            return schemas;
+        }
+    }
+
+    /**
+     * @param jdbcDriverJarPath JDBC driver JAR path.
+     * @param jdbcDriverCls JDBC driver class.
+     * @param jdbcUrl JDBC URL.
+     * @param jdbcInfo Properties to connect to database.
+     * @param schemas List of schema names to process.
+     * @param tblsOnly If {@code true} then only tables will be processed otherwise views also will be processed.
+     * @return Collection of tables.
+     */
+    @Remote
+    public Collection<DbTable> metadata(String jdbcDriverJarPath, String jdbcDriverCls, String jdbcUrl,
+        Properties jdbcInfo, List<String> schemas, boolean tblsOnly) throws SQLException {
+        log.log(Level.INFO, "Collecting database metadata...");
+
+        try (Connection conn = connect(jdbcDriverJarPath, jdbcDriverCls, jdbcUrl, jdbcInfo)) {
+            Collection<DbTable> metadata = DbMetadataReader.getInstance().metadata(conn, schemas, tblsOnly);
+
+            log.log(Level.INFO, "Collected metadata: " + metadata.size());
+
+            return metadata;
+        }
     }
 
     /**
@@ -82,17 +118,17 @@ public class DatabaseMetadataExtractor {
      */
     private static class JdbcDriver {
         /** */
-        private final String jdbcDriverClass;
-        /** */
         private final String jdbcDriverJar;
+        /** */
+        private final String jdbcDriverClass;
 
         /**
-         * @param jdbcDriverClass Optional JDBC driver class.
          * @param jdbcDriverJar File name of driver jar file.
+         * @param jdbcDriverClass Optional JDBC driver class.
          */
-        public JdbcDriver(String jdbcDriverClass, String jdbcDriverJar) {
-            this.jdbcDriverClass = jdbcDriverClass;
+        public JdbcDriver(String jdbcDriverJar, String jdbcDriverClass) {
             this.jdbcDriverJar = jdbcDriverJar;
+            this.jdbcDriverClass = jdbcDriverClass;
         }
     }
 
@@ -139,15 +175,15 @@ public class DatabaseMetadataExtractor {
                     URL url = new URL(spec);
 
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
-                        String jdbcDriverClass = reader.readLine();
+                        String jdbcDriverCls = reader.readLine();
 
-                        res.add(new JdbcDriver(jdbcDriverClass, fileName));
+                        res.add(new JdbcDriver(fileName, jdbcDriverCls));
 
-                        log.log(Level.INFO, "Found: [driver=" + fileName + ", class=" + jdbcDriverClass + "]");
+                        log.log(Level.INFO, "Found: [driver=" + fileName + ", class=" + jdbcDriverCls + "]");
                     }
                 }
                 catch (IOException e) {
-                    res.add(new JdbcDriver(null, fileName));
+                    res.add(new JdbcDriver(fileName, null));
 
                     log.log(Level.INFO, "Found: [driver=" + fileName + "]");
                     log.log(Level.INFO, "Failed to detect driver class: " + e.getMessage());
