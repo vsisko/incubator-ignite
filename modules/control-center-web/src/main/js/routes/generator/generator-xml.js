@@ -38,12 +38,12 @@ function _escapeAttr(s) {
 }
 
 function _addProperty(res, obj, propName, setterName) {
-    var val = obj[propName];
+    if ($commonUtils.isDefined(obj)) {
+        var val = obj[propName];
 
-    if ($commonUtils.isDefined(val))
-        _addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', _escapeAttr(val));
-
-    return val;
+        if ($commonUtils.isDefined(val))
+            _addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', _escapeAttr(val));
+    }
 }
 
 function _addClassNameProperty(res, obj, propName) {
@@ -51,8 +51,6 @@ function _addClassNameProperty(res, obj, propName) {
 
     if ($commonUtils.isDefined(val))
         _addElement(res, 'property', 'name', propName, 'value', $generatorCommon.javaBuildInClass(val));
-
-    return val;
 }
 
 function _addListProperty(res, obj, propName, listType, rowFactory) {
