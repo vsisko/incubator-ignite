@@ -97,6 +97,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                 $common.previewHeightUpdate();
             })
         });
+
         var simpleTables = {
             addresses: {msg: 'Such IP address already exists!', id: 'IpAddress'},
             regions: {msg: 'Such region already exists!', id: 'Region'},
@@ -141,9 +142,11 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
         // When landing on the page, get clusters and show them.
         $http.post('clusters/list')
             .success(function (data) {
-                $scope.caches = data.caches;
                 $scope.spaces = data.spaces;
                 $scope.clusters = data.clusters;
+                $scope.caches = _.map(data.caches, function (cache) {
+                    return {value: cache._id, label: cache.name, cache: cache};
+                });
 
                 var restoredItem = angular.fromJson(sessionStorage.clusterBackupItem);
 
@@ -190,7 +193,15 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                     if (val) {
                         sessionStorage.clusterBackupItem = angular.toJson(val);
 
-                        $scope.preview.general = $generatorXml.general(val).join('');
+                        var clusterCaches = _.reduce($scope.caches, function(memo, cache){
+                            if (_.contains(val.caches, cache.value)) {
+                                memo.push(cache.cache);
+                            }
+
+                            return memo;
+                        }, []);
+
+                        $scope.preview.general = $generatorXml.caches(clusterCaches, $generatorXml.general(val)).join('');
                         $scope.preview.atomics = $generatorXml.atomics(val).join('');
                         $scope.preview.communication = $generatorXml.communication(val).join('');
                         $scope.preview.deployment = $generatorXml.deployment(val).join('');
@@ -226,6 +237,10 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                 sessionStorage.clusterSelectedItem = angular.toJson(item);
             else
                 sessionStorage.removeItem('clusterSelectedItem');
+
+            $timeout(function () {
+                $common.previewHeightUpdate();
+            });
         };
 
         // Add new cluster.
@@ -252,9 +267,6 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                 return showPopoverMessage($scope.panels, 'general-data', 'clusterName', 'Name should not be empty');
                     sessionStorage.removeItem('clusterSelectedItem');
 
-                $timeout(function () {
-                    $common.previewHeightUpdate();
-                })
             if (item.discovery.kind == 'Vm' && item.discovery.Vm.addresses.length == 0)
                 return showPopoverMessage($scope.panels, 'general-data', 'addresses', 'Addresses are not specified');
 
@@ -290,7 +302,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                     if (idx >= 0) {
                         var cache = $scope.caches[idx];
 
-                        if (cache.swapEnabled) {
+                        if (cache.cache.swapEnabled) {
                             $scope.ui.expanded = true;
 
                             return showPopoverMessage($scope.panels, 'swap-data', 'swapSpaceSpi',

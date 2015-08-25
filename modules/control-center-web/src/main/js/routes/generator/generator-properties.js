@@ -64,7 +64,10 @@ $generatorCommon.builder = function () {
     var res = [];
 
     res.deep = 0;
+
     res.lineStart = true;
+
+    res.datasources = [];
 
     res.append = function (s) {
         if (this.lineStart) {

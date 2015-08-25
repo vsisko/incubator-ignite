@@ -71,7 +71,7 @@ $dataStructures.JAVA_BUILD_IN_CLASSES = [
  * @returns 'true' if given class name is a java build-in type.
  */
 $dataStructures.isJavaBuildInClass = function (clsName) {
-    if (_isDefined(clsName)) {
+    if ($commonUtils.isDefined(clsName)) {
         for (var i = 0; i < $dataStructures.JAVA_BUILD_IN_CLASSES.length; i++) {
             var jbic = $dataStructures.JAVA_BUILD_IN_CLASSES[i];
 
