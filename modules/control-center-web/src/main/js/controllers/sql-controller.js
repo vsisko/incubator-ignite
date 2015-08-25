@@ -135,6 +135,15 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
                 $common.showError('Receive agent error: ' + err);
         });
 
+    var _appendOnLast = function(item) {
+        var idx = _.findIndex($scope.notebook.paragraphs, function (paragraph) {
+            return paragraph == item;
+        });
+
+        if ($scope.notebook.paragraphs.length == (idx + 1))
+            $scope.addParagraph();
+    };
+
     var _processQueryResult = function(item) {
         return function(res) {
             item.meta = [];
@@ -155,6 +164,8 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     };
 
     $scope.execute = function(item) {
+        _appendOnLast(item);
+
         $http.post('/agent/query', {query: item.query, pageSize: item.pageSize, cacheName: item.cache.name})
             .success(_processQueryResult(item))
             .error(function (errMsg) {
@@ -163,14 +174,18 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     };
 
     $scope.explain = function(item) {
+        _appendOnLast(item);
+
         $http.post('/agent/query', {query: 'EXPLAIN ' + item.query, pageSize: item.pageSize, cacheName: item.cache.name})
-            .success(_processQueryResult)
+            .success(_processQueryResult(item))
             .error(function (errMsg) {
                 $common.showError(errMsg);
             });
     };
 
     $scope.scan = function(item) {
+        _appendOnLast(item);
+
         $http.post('/agent/scan', {pageSize: item.pageSize, cacheName: item.cache.name})
             .success(_processQueryResult(item))
             .error(function (errMsg) {
@@ -193,6 +208,10 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
             .error(function (errMsg) {
                 $common.showError(errMsg);
             });
+    };
+
+    $scope.resultMode = function(paragraph, type) {
+        return (paragraph.result === type);
     };
 
     $scope.getter = function (value) {

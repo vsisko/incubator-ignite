@@ -38,7 +38,7 @@ var AccountSchema = new Schema({
 });
 
 // Install passport plugin.
-AccountSchema.plugin(passportLocalMongoose, {usernameField: 'email', limitAttempts: true, lastLoginField: 'lastLogin',
+AccountSchema.plugin(passportLocalMongoose, {usernameField: 'email', limitAttempts: false, lastLoginField: 'lastLogin',
     usernameLowerCase: true});
 
 // Configure transformation to JSON.
@@ -338,8 +338,10 @@ exports.Cluster = mongoose.model('Cluster', ClusterSchema);
 var NotebookSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
-    paragraph: [{
-        query: String
+    paragraphs: [{
+        name: String,
+        query: String,
+        result: {type: String, enum: ['table', 'bar']}
     }]
 });
 

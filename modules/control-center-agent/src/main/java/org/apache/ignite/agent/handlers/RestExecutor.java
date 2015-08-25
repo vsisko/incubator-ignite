@@ -141,13 +141,13 @@ public class RestExecutor {
     }
 
     /**
-     *
+     * Request result.
      */
     public static class RestResult {
-        /** */
+        /** Status code. */
         private int code;
 
-        /** */
+        /** Message. */
         private String message;
 
         /**

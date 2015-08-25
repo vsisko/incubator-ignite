@@ -18,8 +18,10 @@
 package org.apache.ignite.agent;
 
 import com.google.gson.*;
+import org.apache.http.auth.*;
 import org.apache.ignite.agent.handlers.*;
 import org.apache.ignite.agent.remote.*;
+import org.apache.ignite.agent.testdrive.*;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 
@@ -156,17 +158,23 @@ public class AgentSocket implements WebSocketSender {
      */
     @Remote
     public void authResult(String errorMsg) {
-        if (errorMsg == null)
-            log.info("Authentication success.");
-        else {
-            log.info("Authentication failed: " + errorMsg);
+        if (errorMsg != null) {
+            onClose(401, "Authentication failed: " + errorMsg);
 
-            ses.close();
+            System.exit(1);
         }
+
+        log.info("Authentication success.");
+
+        if (cfg.testDriveMetadata())
+            AgentMetadataTestDrive.testDrive();
+
+        if (cfg.testDriveSql())
+            AgentSqlTestDrive.testDrive();
     }
 
     /**
-     *
+     * Await socket close.
      */
     public void waitForClose() throws InterruptedException {
         closeLatch.await();

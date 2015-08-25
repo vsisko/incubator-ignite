@@ -43,8 +43,8 @@ block container
                                     a(bs-collapse-toggle ng-click='hidePopover()') {{paragraph.name}}
                                     i.fa.fa-pencil.tipLabel(ng-click='paragraph.edit = true; paragraph.edit_name = paragraph.name;' bs-tooltip data-title='Rename paragraph' data-trigger='hover')
                                     .result.btn-group(ng-model='paragraph.result')
-                                        i.btn.btn-default.fa.fa-table(ng-click='paragraph.result="table"' bs-tooltip data-title='Show table' data-trigger='hover')
-                                        i.btn.btn-default.fa.fa-bar-chart(ng-click='paragraph.result="bar"' bs-tooltip data-title='Show bar chart' data-trigger='hover')
+                                        i.btn.btn-default.fa.fa-table(ng-click='paragraph.result="table"' ng-class="{'active': resultMode(paragraph, 'table')}" bs-tooltip data-title='Show table' data-trigger='hover')
+                                        i.btn.btn-default.fa.fa-bar-chart(ng-click='paragraph.result="bar"' ng-class="{'active': resultMode(paragraph, 'bar')}" bs-tooltip data-title='Show bar chart' data-trigger='hover')
                                 h3(ng-show='paragraph.edit')
                                     input.sql-name-input(ng-model='paragraph.edit_name' on-enter='renameParagraph(paragraph, paragraph.edit_name)' on-escape='paragraph.edit = false;')
                                     i.tipLabel.fa.fa-floppy-o(ng-click='renameParagraph(paragraph, paragraph.edit_name)' bs-tooltip data-title='Save paragraph name' data-trigger='hover')
@@ -73,7 +73,7 @@ block container
                                         button.btn.btn-primary(ng-click='explain(paragraph)') Explain
                                         button.btn.btn-primary(ng-click='execute(paragraph)') Execute
                                         button.btn.btn-primary(ng-click='scan(paragraph)') Scan
-                                .panel-body(ng-show='paragraph.result == "table')
+                                .panel-body(ng-show='paragraph.result === "table"')
                                     table.table.table-striped.col-sm-12.sql-results(st-table='displayedCollection' st-safe-src='paragraph.rows')
                                         thead
                                             tr(style='border-size: 0')

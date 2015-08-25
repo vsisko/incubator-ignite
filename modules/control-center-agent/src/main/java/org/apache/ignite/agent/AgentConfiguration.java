@@ -72,7 +72,7 @@ public class AgentConfiguration {
     private Boolean sql;
 
     /** */
-    @Parameter(names = { "-h", "--help" }, description = "Print this help message")
+    @Parameter(names = { "-h", "--help" }, help = true, description = "Print this help message")
     private Boolean help;
 
     /**

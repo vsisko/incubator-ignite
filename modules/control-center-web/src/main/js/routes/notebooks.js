@@ -126,7 +126,7 @@ router.get('/new', function (req, res) {
 
         var name = 'Notebook' + ' ' + utils.randomValueHex(8);
 
-        (new db.Notebook({space: space.id, name: name, paragraph: []})).save(function (err, notebook) {
+        (new db.Notebook({space: space.id, name: name, paragraphs: []})).save(function (err, notebook) {
             if (err)
                 return res.status(500).send(err.message);
 
