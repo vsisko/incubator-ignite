@@ -484,7 +484,7 @@ controlCenterModule.service('$common', [
         var elem = undefined;
         var offsetTop = undefined;
         var cont = undefined;
-        var scrollspyWidth = 0
+        var scrollspyWidth = 0;
 
         win.scroll(function() {
             if (!isDefined(offsetTop)) {
@@ -495,15 +495,25 @@ controlCenterModule.service('$common', [
 
                     offsetTop = elem.offset().top;
 
-                    scrollspyWidth = elem[0].getBoundingClientRect().width
+                    scrollspyWidth = cont[0].getBoundingClientRect().width | 0;
 
-                    console.log(scrollspyWidth)
+                    console.log(scrollspyWidth);
                 }
             }
             else {
                 elem.toggleClass('panel-sticky', win.scrollTop() > offsetTop);
 
-                elem.width(scrollspyWidth)
+                elem.width(scrollspyWidth);
+
+                console.log(scrollspyWidth + " " + cont[0].getBoundingClientRect().width);
+            }
+        });
+
+        win.resize(function () {
+            if (isDefined(offsetTop)) {
+                scrollspyWidth = cont[0].getBoundingClientRect().width | 0;
+
+                elem.width(scrollspyWidth);
             }
         });
 
