@@ -656,8 +656,8 @@ $generatorXml.cacheQuery = function(cache, res) {
         for (var i = 0; i < cache.indexedTypes.length; i++) {
             var pair = cache.indexedTypes[i];
 
-            res.line('<value>' + $generatorCommon.fullClassName(pair.keyClass) + '</value>');
-            res.line('<value>' + $generatorCommon.fullClassName(pair.valueClass) + '</value>');
+            res.line('<value>' + $dataStructures.fullClassName(pair.keyClass) + '</value>');
+            res.line('<value>' + $dataStructures.fullClassName(pair.valueClass) + '</value>');
         }
 
         res.endBlock('</list>');
