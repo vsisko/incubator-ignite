@@ -58,7 +58,7 @@ block container
                                             'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='paragraph.query'
                                             ng-class='{"disable": paragraph.status == "RUNNING" || paragraph.status == "PENDING" }')
                                         .col-xs-4.col-sm-3
-                                            div(ng-hide='caches.length == 0' style='margin-top: 0.65em')
+                                            div(ng-hide='caches.length == 0' style='padding-left:10px')
                                                 lable.labelHeader Caches:
                                                 table.links(st-table='caches')
                                                     tbody
@@ -73,7 +73,7 @@ block container
                                         button.btn.btn-primary(ng-click='explain(paragraph)') Explain
                                         button.btn.btn-primary(ng-click='execute(paragraph)') Execute
                                         button.btn.btn-primary(ng-click='scan(paragraph)') Scan
-                                .panel-body(ng-show='paragraph.result === "table"')
+                                .panel-body.table-responsive(ng-show='paragraph.result === "table"')
                                     table.table.table-striped.col-sm-12.sql-results(st-table='displayedCollection' st-safe-src='paragraph.rows')
                                         thead
                                             tr(style='border-size: 0')
@@ -88,7 +88,7 @@ block container
                                                         //.input-tip
                                                         //    input.form-control(st-search placeholder='Filter...' type='search')
                                             tr
-                                                th(ng-repeat='col in paragraph.meta track by $index' st-sort='getter' data-ng-bind='::col.fieldName' bs-tooltip='col.schemaName + "." + col.typeName + "." + col.fieldName')
+                                                th(ng-repeat='col in paragraph.meta track by $index' st-sort='getter' data-ng-bind='::col.fieldName' bs-tooltip='columnToolTip(col)')
                                         tbody
                                             //tr
                                             //    td(colspan='{{#{tab}.cols.length}}')
