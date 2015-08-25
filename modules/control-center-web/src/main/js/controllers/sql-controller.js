@@ -123,8 +123,8 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
 
             $scope.caches = node.caches;
 
-            $scope.addParagraph();
-            $scope.addParagraph();
+            if (!$scope.notebook.paragraphs || $scope.notebook.paragraphs.length == 0)
+                $scope.addParagraph();
         })
         .error(function (err, status) {
             $scope.caches = undefined;
@@ -208,6 +208,19 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
             .error(function (errMsg) {
                 $common.showError(errMsg);
             });
+    };
+
+    $scope.columnToolTip = function(col) {
+        var res = [];
+
+        if (col.schemaName)
+            res.push(col.schemaName);
+        if (col.typeName)
+            res.push(col.typeName);
+
+        res.push(col.fieldName);
+
+        return res.join(".");
     };
 
     $scope.resultMode = function(paragraph, type) {
