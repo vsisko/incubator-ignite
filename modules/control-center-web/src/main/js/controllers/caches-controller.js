@@ -94,6 +94,7 @@ controlCenterModule.controller('cachesController', [
                     $common.previewHeightUpdate();
                 })
             });
+
             $scope.general = [];
             $scope.advanced = [];
 
@@ -268,6 +269,10 @@ controlCenterModule.controller('cachesController', [
                     sessionStorage.cacheSelectedItem = angular.toJson(item);
                 else
                     sessionStorage.removeItem('cacheSelectedItem');
+
+                $timeout(function () {
+                    $common.previewHeightUpdate();
+                })
             };
 
             // Add new cache.
@@ -295,9 +300,6 @@ controlCenterModule.controller('cachesController', [
                     return showPopoverMessage($scope.panels, 'general-data', 'cacheName', 'Name should not be empty');
                         sessionStorage.removeItem('cacheSelectedItem');
 
-                    $timeout(function () {
-                        $common.previewHeightUpdate();
-                    })
                 if (item.memoryMode == 'OFFHEAP_TIERED' && item.offHeapMaxMemory == null)
                     return showPopoverMessage($scope.panels, 'memory-data', 'offHeapMaxMemory',
                         'Off-heap max memory should be specified');

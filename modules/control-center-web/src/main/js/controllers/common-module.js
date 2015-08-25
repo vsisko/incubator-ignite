@@ -485,13 +485,15 @@ controlCenterModule.service('$common', [
             if (left.height() > 0) {
                 var right = $('#' + el.id + '-right');
 
-                var scrollHeight = right.find('.ace_scrollbar-h').height()
+                var scrollHeight = right.find('.ace_scrollbar-h').height();
 
-                var parent = right.parent()
+                var parent = right.parent();
 
-                parent.outerHeight(left.height() - 2 * parent.css('marginTop').replace("px", ""));
+                var parentHeight = Math.max(75, left.height() - 2 * parent.css('marginTop').replace("px", ""));
 
-                right.height(left.height() - scrollHeight - 2 * parent.css('marginTop').replace("px", ""));
+                parent.outerHeight(parentHeight);
+
+                right.height(parentHeight - scrollHeight);
 
                 right.resize();
             }
@@ -650,6 +652,13 @@ controlCenterModule.service('$common', [
                 $('.panel-collapse').each(function (ix, el) {
                     resizePreview(el);
                 })
+            },
+            initPreview: function () {
+                $('.panel-collapse').each(function (ix, el) {
+                    $('#' + el.id + '-left').bind('DOMSubtreeModified', function () {
+                        resizePreview(el);
+                    });
+                });
             }
         }
     }]);

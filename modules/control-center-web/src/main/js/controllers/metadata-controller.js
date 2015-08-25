@@ -186,6 +186,10 @@ controlCenterModule.controller('metadataController', [
 
                 $scope.selectedItem = sel;
                 $scope.backupItem = bak;
+
+                $timeout(function () {
+                    $common.previewHeightUpdate();
+                })
             }
 
             $scope.selectAllSchemas = function () {
@@ -497,7 +501,6 @@ controlCenterModule.controller('metadataController', [
                     $scope.selectedItem = sel;
 
                     $timeout(function () {
-                        $common.previewHeightUpdate();
                         $scope.$apply();
                     });
 

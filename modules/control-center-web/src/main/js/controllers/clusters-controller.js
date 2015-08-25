@@ -215,6 +215,10 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                         $scope.preview.transactions = $generatorXml.transactions(val).join('');
                     }
                 }, true);
+
+                $timeout(function () {
+                    $common.initPreview();
+                })
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);
@@ -232,6 +236,9 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
             else
                 $scope.backupItem = undefined;
 
+            $timeout(function () {
+                $common.previewHeightUpdate();
+            });
 
             if (item)
                 sessionStorage.clusterSelectedItem = angular.toJson(item);
