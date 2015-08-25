@@ -1434,10 +1434,11 @@ a {
     }
 }
 
+.ace_hidden-cursors { opacity:0 }
+
 .ace_editor, #ace_document {
     margin: 0.65em 0 0 0;
 
-    width: 100%;
     height: 400px;
 
     .ace_gutter {
@@ -1453,7 +1454,7 @@ a {
 }
 
 .ace-preview {
-
+    .ace_cursor { opacity:0 }
 }
 
 .loading-indicator {

@@ -462,4 +462,5 @@ mixin advanced-options-bottom
         a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
 
 mixin preview(previewModel)
-    div(ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{previewModel}]')
+    .panel-details(style='margin-left: 20px; padding: 0 3px')
+        .ace-preview(ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{previewModel}]')
