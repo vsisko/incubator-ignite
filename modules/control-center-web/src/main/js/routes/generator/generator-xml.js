@@ -646,6 +646,27 @@ $generatorXml.cacheConcurrency = function(cache, res) {
     return res;
 };
 
+$generatorXml.cacheRebalance = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.serverNearCache = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.statistics = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
 // Generate caches configs.
 $generatorXml.cache = function(cache, res) {
     if (!res)

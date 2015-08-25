@@ -489,7 +489,7 @@ controlCenterModule.service('$common', [
 
                 var parent = right.parent();
 
-                var parentHeight = Math.max(75, left.height() - 2 * parent.css('marginTop').replace("px", ""));
+                var parentHeight = Math.max(75, left.height() - parent.css('marginTop').replace("px", ""));
 
                 parent.outerHeight(parentHeight);
 
@@ -654,9 +654,17 @@ controlCenterModule.service('$common', [
                 })
             },
             initPreview: function () {
+                MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
                 $('.panel-collapse').each(function (ix, el) {
-                    $('#' + el.id + '-left').bind('DOMSubtreeModified', function () {
+                    var observer = new MutationObserver(function(mutations, observer) {
                         resizePreview(el);
+                    });
+
+                    observer.observe($('#' + el.id + '-left')[0], {
+                        childList: true,
+                        attributes: true,
+                        subtree: true
                     });
                 });
             }

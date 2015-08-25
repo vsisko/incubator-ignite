@@ -251,6 +251,13 @@ controlCenterModule.controller('cachesController', [
                             sessionStorage.cacheBackupItem = angular.toJson(val);
 
                             $scope.preview.general = $generatorXml.cacheGeneral(val).join('');
+                            $scope.preview.memory = $generatorXml.cacheMemory(val).join('');
+                            $scope.preview.query = $generatorXml.cacheQuery(val).join('');
+                            $scope.preview.store = $generatorXml.cacheStore(val).join('');
+                            $scope.preview.concurrency = $generatorXml.cacheConcurrency(val).join('');
+                            $scope.preview.rebalance = $generatorXml.cacheRebalance(val).join('');
+                            $scope.preview.serverNearCache = $generatorXml.serverNearCache(val).join('');
+                            $scope.preview.statistics = $generatorXml.statistics(val).join('');
                         }
                     }, true);
 
