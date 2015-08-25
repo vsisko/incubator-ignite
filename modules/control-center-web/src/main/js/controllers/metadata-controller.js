@@ -148,6 +148,11 @@ controlCenterModule.controller('metadataController', [
 
             $scope.panels = {activePanels: [0, 1]};
 
+            $scope.$watchCollection('panels.activePanels', function () {
+                $timeout(function() {
+                    $common.previewHeightUpdate();
+                })
+            });
             $scope.metadatas = [];
 
             $scope.isJavaBuildInClass = function () {
@@ -489,8 +494,10 @@ controlCenterModule.controller('metadataController', [
                     }
                     else
                         selectFirstItem();
+                    $scope.selectedItem = sel;
 
                     $timeout(function () {
+                        $common.previewHeightUpdate();
                         $scope.$apply();
                     });
 

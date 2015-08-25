@@ -21,7 +21,7 @@ var nodemailer = require('nodemailer');
 
 var db = require('../db');
 var config = require('../helpers/configuration-loader.js');
-var utils = require('./utils');
+var utils = require('./../helpers/common-utils');
 
 // GET dropdown-menu template.
 router.get('/select', function (req, res) {

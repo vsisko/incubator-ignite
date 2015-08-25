@@ -19,10 +19,10 @@ var db = require('../db');
 
 var router = require('express').Router();
 
-var generatorCommon = require('./generator/common');
-var generatorXml = require('./generator/xml');
-var generatorJava = require('./generator/java');
-var generatorDocker = require('./generator/docker');
+var $generatorXml = require('./generator/generator-xml');
+var $generatorJava = require('./generator/generator-java');
+var $generatorDocker = require('./generator/generator-docker');
+var $generatorProperties = require('./generator/generator-properties');
 
 /* GET summary page. */
 router.get('/', function (req, res) {
@@ -42,15 +42,15 @@ router.post('/generator', function (req, res) {
 
         if (clientCache)
             return res.send({
-                xmlClient: generatorXml.generateClusterConfiguration(cluster, clientCache),
-                javaClient: generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientCache)
+                xmlClient: $generatorXml.clusterConfiguration(cluster, clientCache),
+                javaClient: $generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientCache)
             });
 
         return res.send({
-            xmlServer: generatorXml.generateClusterConfiguration(cluster),
-            javaSnippetServer: generatorJava.generateClusterConfiguration(cluster, false),
-            javaClassServer: generatorJava.generateClusterConfiguration(cluster, true),
-            docker: generatorDocker.generateClusterConfiguration(cluster, '%OS%')
+            xmlServer: $generatorXml.clusterConfiguration(cluster),
+            javaSnippetServer: $generatorJava.generateClusterConfiguration(cluster, false),
+            javaClassServer: $generatorJava.generateClusterConfiguration(cluster, true),
+            docker: $generatorDocker.generateClusterConfiguration(cluster, '%OS%')
         });
     });
 });
@@ -87,18 +87,18 @@ router.post('/download', function (req, res) {
         zip.pipe(res);
 
         if (!clientNearConfiguration) {
-            zip.append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"});
+            zip.append($generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: 'Dockerfile'});
 
-            var props = generatorCommon.generateProperties(cluster);
+            var props = $generatorProperties.generateProperties(cluster);
 
             if (props)
-                zip.append(props, {name: "secret.properties"});
+                zip.append(props, {name: 'secret.properties'});
         }
 
-        zip.append(generatorXml.generateClusterConfiguration(cluster, clientNearConfiguration), {name: cluster.name + ".xml"})
-            .append(generatorJava.generateClusterConfiguration(cluster, false, clientNearConfiguration),
+        zip.append($generatorXml.clusterConfiguration(cluster, clientNearConfiguration), {name: cluster.name + '.xml'})
+            .append($generatorJava.generateClusterConfiguration(cluster, false, clientNearConfiguration),
                 {name: cluster.name + '.snippet.java'})
-            .append(generatorJava.generateClusterConfiguration(cluster, true, clientNearConfiguration),
+            .append($generatorJava.generateClusterConfiguration(cluster, true, clientNearConfiguration),
                 {name: 'ConfigurationFactory.java'})
             .finalize();
     });

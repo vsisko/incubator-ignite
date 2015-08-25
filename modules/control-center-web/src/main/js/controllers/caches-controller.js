@@ -89,6 +89,11 @@ controlCenterModule.controller('cachesController', [
 
             $scope.panels = {activePanels: [0]};
 
+            $scope.$watchCollection('panels.activePanels', function () {
+                $timeout(function() {
+                    $common.previewHeightUpdate();
+                })
+            });
             $scope.general = [];
             $scope.advanced = [];
 
@@ -288,7 +293,11 @@ controlCenterModule.controller('cachesController', [
             function validate(item) {
                 if ($common.isEmptyString(item.name))
                     return showPopoverMessage($scope.panels, 'general-data', 'cacheName', 'Name should not be empty');
+                        sessionStorage.removeItem('cacheSelectedItem');
 
+                    $timeout(function () {
+                        $common.previewHeightUpdate();
+                    })
                 if (item.memoryMode == 'OFFHEAP_TIERED' && item.offHeapMaxMemory == null)
                     return showPopoverMessage($scope.panels, 'memory-data', 'offHeapMaxMemory',
                         'Off-heap max memory should be specified');

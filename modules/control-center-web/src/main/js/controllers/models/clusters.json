@@ -330,6 +330,7 @@
   "advanced": [
     {
       "label": "Atomics configuration",
+      "id": "atomics-data",
       "preview": "atomics",
       "tip": [
         "Configuration for atomic data structures.",
@@ -377,6 +378,7 @@
     },
     {
       "label": "Communication",
+      "id": "communication-data",
       "preview": "communication",
       "tip": [
         "Cluster communication network properties."
@@ -445,6 +447,7 @@
     },
     {
       "label": "Deployment",
+      "id": "deployment-data",
       "preview": "deployment",
       "tip": [
         "Task and resources deployment in cluster."
@@ -471,6 +474,7 @@
     },
     {
       "label": "Events",
+      "id": "events-data",
       "preview": "events",
       "tip": [
         " Grid events are used for notification about what happens within the grid."
@@ -491,6 +495,7 @@
     },
     {
       "label": "Marshaller",
+      "id": "marshaller-data",
       "preview": "marshaller",
       "tip": [
         "Marshaller allows to marshal or unmarshal objects in grid.",
@@ -571,6 +576,7 @@
     },
     {
       "label": "Metrics",
+      "id": "metrics-data",
       "preview": "metrics",
       "tip": [
         "Cluster runtime metrics settings."
@@ -623,6 +629,7 @@
     },
     {
       "label": "Peer Class Loading",
+      "id": "p2p-data",
       "preview": "p2p",
       "tip": [
         "Cluster peer class loading settings."
@@ -669,6 +676,7 @@
     },
     {
       "label": "Swap",
+      "id": "swap-data",
       "preview": "swap",
       "id": "swap-data",
       "tip": [
@@ -752,6 +760,7 @@
     },
     {
       "label": "Time configuration",
+      "id": "time-data",
       "preview": "time",
       "tip": [
         "Time settings for CLOCK write ordering mode."
@@ -801,6 +810,7 @@
     },
     {
       "label": "Thread pools size",
+      "id": "pools-data",
       "preview": "pools",
       "tip": [
         "Settings for node thread pools."
@@ -846,6 +856,7 @@
     },
     {
       "label": "Transactions",
+      "id": "transactions-data",
       "preview": "transactions",
       "tip": [
         "Settings for transactions."

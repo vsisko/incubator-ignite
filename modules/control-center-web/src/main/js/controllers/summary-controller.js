@@ -50,7 +50,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
 
     $scope.aceInit = function (editor) {
         editor.setReadOnly(true);
-        editor.setOption("highlightActiveLine", false);
+        editor.setOption('highlightActiveLine', false);
+        editor.$blockScrolling = Infinity;
 
         var renderer = editor.renderer;
 

@@ -69,6 +69,7 @@ app.use(require('node-sass-middleware')({
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'controllers')));
 app.use(express.static(path.join(__dirname, 'helpers')));
+app.use(express.static(path.join(__dirname, 'routes/generator')));
 
 app.use(cookieParser('keyboard cat'));
 

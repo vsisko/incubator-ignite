@@ -18,7 +18,7 @@
 var router = require('express').Router();
 
 var db = require('../db');
-var utils = require('./utils');
+var utils = require('./../helpers/common-utils');
 
 /**
  * Get notebooks names accessed for user account.
