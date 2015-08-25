@@ -38,12 +38,12 @@ function _escapeAttr(s) {
 }
 
 function _addProperty(res, obj, propName, setterName) {
-    var val = obj[propName];
+    if ($commonUtils.isDefined(obj)) {
+        var val = obj[propName];
 
-    if ($commonUtils.isDefined(val))
-        _addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', _escapeAttr(val));
-
-    return val;
+        if ($commonUtils.isDefined(val))
+            _addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', _escapeAttr(val));
+    }
 }
 
 function _addClassNameProperty(res, obj, propName) {
@@ -51,8 +51,6 @@ function _addClassNameProperty(res, obj, propName) {
 
     if ($commonUtils.isDefined(val))
         _addElement(res, 'property', 'name', propName, 'value', $generatorCommon.javaBuildInClass(val));
-
-    return val;
 }
 
 function _addListProperty(res, obj, propName, listType, rowFactory) {
@@ -241,7 +239,7 @@ function _generateCacheTypeMetadataConfiguration(res, meta) {
 
     var kind = meta.kind;
 
-    var keyType = addClassNameProperty(res, meta, 'keyType');
+    var keyType = _addClassNameProperty(res, meta, 'keyType');
 
     _addProperty(res, meta, 'valueType');
 
@@ -249,193 +247,20 @@ function _generateCacheTypeMetadataConfiguration(res, meta) {
         _addProperty(res, meta, 'databaseSchema');
         _addProperty(res, meta, 'databaseTable');
 
-        if (!generatorCommon.isJavaBuildInClass(keyType))
-            addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+        if (!$dataStructures.isJavaBuildInClass(keyType))
+            _addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
 
-        addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
+        _addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
     }
 
     if (kind != 'store') {
-        addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
-        addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
-        addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
+        _addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+        _addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+        _addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
 
         _addListProperty(res, meta, 'textFields');
 
-        addCacheTypeMetadataGroups(res, meta);
-    }
-
-    res.endBlock('</bean>');
-
-    return res;
-}
-
-function _generateCacheConfiguration(res, cacheCfg) {
-    if (!res)
-        res = $generatorCommon.builder();
-
-    res.startBlock('<bean class="org.apache.ignite.configuration.CacheConfiguration">');
-
-    _addProperty(res, cacheCfg, 'name');
-
-    res.needEmptyLine = true;
-
-    var cacheMode = _addProperty(res, cacheCfg, 'mode', 'cacheMode');
-
-    _addProperty(res, cacheCfg, 'atomicityMode');
-
-    if (cacheMode == 'PARTITIONED')
-        _addProperty(res, cacheCfg, 'backups');
-
-    _addProperty(res, cacheCfg, 'readFromBackup');
-
-    _addProperty(res, cacheCfg, 'startSize');
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cacheCfg, 'memoryMode');
-    _addProperty(res, cacheCfg, 'offHeapMaxMemory');
-    _addProperty(res, cacheCfg, 'swapEnabled');
-    _addProperty(res, cacheCfg, 'copyOnRead');
-
-    res.needEmptyLine = true;
-
-    _createEvictionPolicy(res, cacheCfg.evictionPolicy, 'evictionPolicy');
-
-    res.needEmptyLine = true;
-
-    if (cacheCfg.nearCacheEnabled) {
-        res.emptyLineIfNeeded();
-
-        res.startBlock('<property name="nearConfiguration">');
-        res.startBlock('<bean class="org.apache.ignite.configuration.NearCacheConfiguration">');
-
-        if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearStartSize)
-            _addProperty(res, cacheCfg.nearConfiguration, 'nearStartSize');
-
-        if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy.kind)
-            _createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
-
-        res.endBlock('</bean>');
-        res.endBlock('</property>');
-    }
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cacheCfg, 'sqlEscapeAll');
-    _addProperty(res, cacheCfg, 'sqlOnheapRowCacheSize');
-    _addProperty(res, cacheCfg, 'longQueryWarningTimeout');
-
-    if (cacheCfg.indexedTypes && cacheCfg.indexedTypes.length > 0) {
-        res.startBlock('<property name="indexedTypes">');
-        res.startBlock('<list>');
-
-        for (var i = 0; i < cacheCfg.indexedTypes.length; i++) {
-            var pair = cacheCfg.indexedTypes[i];
-
-            res.line('<value>' + $generatorCommon.javaBuildInClass(pair.keyClass) + '</value>');
-            res.line('<value>' + $generatorCommon.javaBuildInClass(pair.valueClass) + '</value>');
-        }
-
-        res.endBlock('</list>');
-        res.endBlock('</property>');
-    }
-
-    _addListProperty(res, cacheCfg, 'sqlFunctionClasses', 'array');
-
-    res.needEmptyLine = true;
-
-    if (cacheMode != 'LOCAL') {
-        _addProperty(res, cacheCfg, 'rebalanceMode');
-        _addProperty(res, cacheCfg, 'rebalanceThreadPoolSize');
-        _addProperty(res, cacheCfg, 'rebalanceBatchSize');
-        _addProperty(res, cacheCfg, 'rebalanceOrder');
-        _addProperty(res, cacheCfg, 'rebalanceDelay');
-        _addProperty(res, cacheCfg, 'rebalanceTimeout');
-        _addProperty(res, cacheCfg, 'rebalanceThrottle');
-
-        res.needEmptyLine = true;
-    }
-
-    if (cacheCfg.cacheStoreFactory && cacheCfg.cacheStoreFactory.kind) {
-        var storeFactory = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
-        var data = $generatorCommon.STORE_FACTORIES[cacheCfg.cacheStoreFactory.kind];
-
-        _addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', data.className, data.fields, true);
-
-        if (storeFactory.dialect) {
-            if (_.findIndex(res.datasources, function (ds) {
-                    return ds.dataSourceBean == storeFactory.dataSourceBean;
-                }) < 0) {
-                res.datasources.push({
-                    dataSourceBean: storeFactory.dataSourceBean,
-                    className: $generatorCommon.DATA_SOURCES[storeFactory.dialect]
-                });
-            }
-        }
-    }
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cacheCfg, 'loadPreviousValue');
-    _addProperty(res, cacheCfg, 'readThrough');
-    _addProperty(res, cacheCfg, 'writeThrough');
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cacheCfg, 'invalidate');
-    _addProperty(res, cacheCfg, 'defaultLockTimeout');
-    _addProperty(res, cacheCfg, 'transactionManagerLookupClassName');
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cacheCfg, 'writeBehindEnabled');
-    _addProperty(res, cacheCfg, 'writeBehindBatchSize');
-    _addProperty(res, cacheCfg, 'writeBehindFlushSize');
-    _addProperty(res, cacheCfg, 'writeBehindFlushFrequency');
-    _addProperty(res, cacheCfg, 'writeBehindFlushThreadCount');
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cacheCfg, 'statisticsEnabled');
-    _addProperty(res, cacheCfg, 'managementEnabled');
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cacheCfg, 'maxConcurrentAsyncOperations');
-
-    // Generate cache type metadata configs.
-    if ((cacheCfg.queryMetadata && cacheCfg.queryMetadata.length > 0) ||
-        (cacheCfg.storeMetadata && cacheCfg.storeMetadata.length > 0)) {
-        res.emptyLineIfNeeded();
-
-        res.startBlock('<property name="typeMetadata">');
-        res.startBlock('<list>');
-
-        var metaNames = [];
-
-        if (cacheCfg.queryMetadata && cacheCfg.queryMetadata.length > 0) {
-            _.forEach(cacheCfg.queryMetadata, function (meta) {
-                if (!_.contains(metaNames, meta.name)) {
-                    metaNames.push(meta.name);
-
-                    _generateCacheTypeMetadataConfiguration(res, meta);
-                }
-            });
-        }
-
-        if (cacheCfg.storeMetadata && cacheCfg.storeMetadata.length > 0) {
-            _.forEach(cacheCfg.storeMetadata, function (meta) {
-                if (!_.contains(metaNames, meta.name)) {
-                    metaNames.push(meta.name);
-
-                    _generateCacheTypeMetadataConfiguration(res, meta);
-                }
-            });
-        }
-
-        res.endBlock('</list>');
-        res.endBlock('</property>');
+        _addCacheTypeMetadataGroups(res, meta);
     }
 
     res.endBlock('</bean>');
@@ -462,11 +287,11 @@ function _addElement(res, tag, attr1, val1, attr2, val2) {
 
 $generatorXml = {};
 
-$generatorXml.general = function (cluster, res) {
+// Generate discovery.
+$generatorXml.clusterGeneral = function (cluster, caches, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    // Generate discovery.
     if (cluster.discovery) {
         res.startBlock('<property name="discoverySpi">');
         res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">');
@@ -575,7 +400,7 @@ $generatorXml.general = function (cluster, res) {
 };
 
 // Generate atomics group.
-$generatorXml.atomics = function (cluster, res) {
+$generatorXml.clusterAtomics = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -589,7 +414,7 @@ $generatorXml.atomics = function (cluster, res) {
 };
 
 // Generate communication group.
-$generatorXml.communication = function (cluster, res) {
+$generatorXml.clusterCommunication = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -606,7 +431,7 @@ $generatorXml.communication = function (cluster, res) {
 };
 
 // Generate deployment group.
-$generatorXml.deployment = function (cluster, res) {
+$generatorXml.clusterDeployment = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -618,7 +443,7 @@ $generatorXml.deployment = function (cluster, res) {
 };
 
 // Generate events group.
-$generatorXml.events = function (cluster, res) {
+$generatorXml.clusterEvents = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -659,7 +484,7 @@ $generatorXml.events = function (cluster, res) {
 };
 
 // Generate marshaller group.
-$generatorXml.marshaller = function (cluster, res) {
+$generatorXml.clusterMarshaller = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -683,7 +508,7 @@ $generatorXml.marshaller = function (cluster, res) {
 };
 
 // Generate metrics group.
-$generatorXml.metrics = function (cluster, res) {
+$generatorXml.clusterMetrics = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -698,7 +523,7 @@ $generatorXml.metrics = function (cluster, res) {
 };
 
 // Generate PeerClassLoading group.
-$generatorXml.p2p = function (cluster, res) {
+$generatorXml.clusterP2p = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -713,7 +538,7 @@ $generatorXml.p2p = function (cluster, res) {
 };
 
 // Generate swap group.
-$generatorXml.swap = function (cluster, res) {
+$generatorXml.clusterSwap = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -730,7 +555,7 @@ $generatorXml.swap = function (cluster, res) {
 };
 
 // Generate time group.
-$generatorXml.time = function (cluster, res) {
+$generatorXml.clusterTime = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -745,7 +570,7 @@ $generatorXml.time = function (cluster, res) {
 };
 
 // Generate thread pools group.
-$generatorXml.pools = function (cluster, res) {
+$generatorXml.clusterPools = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -759,7 +584,7 @@ $generatorXml.pools = function (cluster, res) {
 };
 
 // Generate transactions group.
-$generatorXml.transactions = function (cluster, res) {
+$generatorXml.clusterTransactions = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -772,11 +597,267 @@ $generatorXml.transactions = function (cluster, res) {
     return res;
 };
 
-$generatorXml.clusterConfiguration = function (cluster, clientNearConfiguration) {
-    var res = $generatorCommon.builder();
+$generatorXml.cacheGeneral = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
 
-    res.datasources = [];
-    res.deep = 1;
+    _addProperty(res, cache, 'name');
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'cacheMode');
+    _addProperty(res, cache, 'atomicityMode');
+
+    if (cache.cacheMode == 'PARTITIONED')
+        _addProperty(res, cache, 'backups');
+
+    _addProperty(res, cache, 'readFromBackup');
+    _addProperty(res, cache, 'copyOnRead');
+    _addProperty(res, cache, 'invalidate');
+
+    return res;
+};
+
+$generatorXml.cacheMemory = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.cacheQuery = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.cacheStore = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.cacheConcurrency = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.cacheRebalance = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.serverNearCache = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.statistics = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+// Generate caches configs.
+$generatorXml.cache = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.startBlock('<bean class="org.apache.ignite.configuration.CacheConfiguration">');
+
+    $generatorXml.cacheGeneral(cache, res);
+
+    _addProperty(res, cache, 'startSize');
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'memoryMode');
+    _addProperty(res, cache, 'offHeapMaxMemory');
+    _addProperty(res, cache, 'swapEnabled');
+
+    res.needEmptyLine = true;
+
+    _createEvictionPolicy(res, cache.evictionPolicy, 'evictionPolicy');
+
+    res.needEmptyLine = true;
+
+    if (cache.nearCacheEnabled) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="nearConfiguration">');
+        res.startBlock('<bean class="org.apache.ignite.configuration.NearCacheConfiguration">');
+
+        if (cache.nearConfiguration && cache.nearConfiguration.nearStartSize)
+            _addProperty(res, cache.nearConfiguration, 'nearStartSize');
+
+        if (cache.nearConfiguration && cache.nearConfiguration.nearEvictionPolicy.kind)
+            _createEvictionPolicy(res, cache.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
+
+        res.endBlock('</bean>');
+        res.endBlock('</property>');
+    }
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'sqlEscapeAll');
+    _addProperty(res, cache, 'sqlOnheapRowCacheSize');
+    _addProperty(res, cache, 'longQueryWarningTimeout');
+
+    if (cache.indexedTypes && cache.indexedTypes.length > 0) {
+        res.startBlock('<property name="indexedTypes">');
+        res.startBlock('<list>');
+
+        for (var i = 0; i < cache.indexedTypes.length; i++) {
+            var pair = cache.indexedTypes[i];
+
+            res.line('<value>' + $generatorCommon.fullClassName(pair.keyClass) + '</value>');
+            res.line('<value>' + $generatorCommon.fullClassName(pair.valueClass) + '</value>');
+        }
+
+        res.endBlock('</list>');
+        res.endBlock('</property>');
+    }
+
+    _addListProperty(res, cache, 'sqlFunctionClasses', 'array');
+
+    res.needEmptyLine = true;
+
+    if (cache.cacheMode != 'LOCAL') {
+        _addProperty(res, cache, 'rebalanceMode');
+        _addProperty(res, cache, 'rebalanceThreadPoolSize');
+        _addProperty(res, cache, 'rebalanceBatchSize');
+        _addProperty(res, cache, 'rebalanceOrder');
+        _addProperty(res, cache, 'rebalanceDelay');
+        _addProperty(res, cache, 'rebalanceTimeout');
+        _addProperty(res, cache, 'rebalanceThrottle');
+
+        res.needEmptyLine = true;
+    }
+
+    if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
+        var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
+
+        var storeFactoryDesc = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
+
+        _addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', storeFactoryDesc.className, storeFactoryDesc.fields, true);
+
+        if (storeFactory.dialect) {
+            if (_.findIndex(res.datasources, function (ds) {
+                    return ds.dataSourceBean == storeFactory.dataSourceBean;
+                }) < 0) {
+                res.datasources.push({
+                    dataSourceBean: storeFactory.dataSourceBean,
+                    className: $generatorCommon.DATA_SOURCES[storeFactory.dialect]
+                });
+            }
+        }
+    }
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'loadPreviousValue');
+    _addProperty(res, cache, 'readThrough');
+    _addProperty(res, cache, 'writeThrough');
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'defaultLockTimeout');
+    _addProperty(res, cache, 'transactionManagerLookupClassName');
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'writeBehindEnabled');
+    _addProperty(res, cache, 'writeBehindBatchSize');
+    _addProperty(res, cache, 'writeBehindFlushSize');
+    _addProperty(res, cache, 'writeBehindFlushFrequency');
+    _addProperty(res, cache, 'writeBehindFlushThreadCount');
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'statisticsEnabled');
+    _addProperty(res, cache, 'managementEnabled');
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'maxConcurrentAsyncOperations');
+
+    // Generate cache type metadata configs.
+    if ((cache.queryMetadata && cache.queryMetadata.length > 0) ||
+        (cache.storeMetadata && cache.storeMetadata.length > 0)) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="typeMetadata">');
+        res.startBlock('<list>');
+
+        var metaNames = [];
+
+        if (cache.queryMetadata && cache.queryMetadata.length > 0) {
+            _.forEach(cache.queryMetadata, function (meta) {
+                if (!_.contains(metaNames, meta.name)) {
+                    metaNames.push(meta.name);
+
+                    _generateCacheTypeMetadataConfiguration(res, meta);
+                }
+            });
+        }
+
+        if (cache.storeMetadata && cache.storeMetadata.length > 0) {
+            _.forEach(cache.storeMetadata, function (meta) {
+                if (!_.contains(metaNames, meta.name)) {
+                    metaNames.push(meta.name);
+
+                    _generateCacheTypeMetadataConfiguration(res, meta);
+                }
+            });
+        }
+
+        res.endBlock('</list>');
+        res.endBlock('</property>');
+    }
+
+    res.endBlock('</bean>');
+
+    return res;
+};
+
+// Generate caches configs.
+$generatorXml.clusterCaches = function(caches, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    if (caches && caches.length > 0) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="cacheConfiguration">');
+        res.startBlock('<list>');
+
+        for (var i = 0; i < caches.length; i++) {
+            if (i > 0)
+                res.line();
+
+            $generatorXml.cache(caches[i], res);
+        }
+
+        res.endBlock('</list>');
+        res.endBlock('</property>');
+
+        res.needEmptyLine = true;
+    }
+
+    return res;
+};
+
+$generatorXml.cluster = function (cluster, clientNearConfiguration) {
+    var res = $generatorCommon.builder();
 
     if (clientNearConfiguration) {
         res.startBlock('<bean id="nearCacheBean" class="org.apache.ignite.configuration.NearCacheConfiguration">');
@@ -801,51 +882,31 @@ $generatorXml.clusterConfiguration = function (cluster, clientNearConfiguration)
         res.line();
     }
 
-    $generatorXml.general(cluster, res);
+    $generatorXml.clusterGeneral(cluster, res);
 
-    $generatorXml.atomics(cluster, res);
+    $generatorXml.clusterAtomics(cluster, res);
 
-    $generatorXml.communication(cluster, res);
+    $generatorXml.clusterCommunication(cluster, res);
 
-    $generatorXml.deployment(cluster, res);
+    $generatorXml.clusterDeployment(cluster, res);
 
-    $generatorXml.events(cluster, res);
+    $generatorXml.clusterEvents(cluster, res);
 
-    $generatorXml.marshaller(cluster, res);
+    $generatorXml.clusterMarshaller(cluster, res);
 
-    $generatorXml.metrics(cluster, res);
+    $generatorXml.clusterMetrics(cluster, res);
 
-    $generatorXml.p2p(cluster, res);
+    $generatorXml.clusterP2p(cluster, res);
 
-    $generatorXml.swap(cluster, res);
+    $generatorXml.clusterSwap(cluster, res);
 
-    $generatorXml.time(cluster, res);
+    $generatorXml.clusterTime(cluster, res);
 
-    $generatorXml.pools(cluster, res);
+    $generatorXml.clusterPools(cluster, res);
 
-    $generatorXml.transactions(cluster, res);
+    $generatorXml.clusterTransactions(cluster, res);
 
-    // Generate caches configs.
-    if (cluster.caches && cluster.caches.length > 0) {
-        res.emptyLineIfNeeded();
-
-        res.startBlock('<property name="cacheConfiguration">');
-        res.startBlock('<list>');
-
-        for (var i = 0; i < cluster.caches.length; i++) {
-            if (i > 0)
-                res.line();
-
-            var cache = cluster.caches[i];
-
-            _generateCacheConfiguration(res, cache);
-        }
-
-        res.endBlock('</list>');
-        res.endBlock('</property>');
-
-        res.needEmptyLine = true;
-    }
+    $generatorXml.clusterCaches(cluster.caches, res);
 
     res.endBlock('</bean>');
 

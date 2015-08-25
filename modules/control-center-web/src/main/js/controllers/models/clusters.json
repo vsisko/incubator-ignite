@@ -338,16 +338,6 @@
       ],
       "fields": [
         {
-          "label": "Backups",
-          "type": "number",
-          "path": "atomicConfiguration",
-          "model": "backups",
-          "placeholder": 0,
-          "tip": [
-            "Number of backup nodes."
-          ]
-        },
-        {
           "label": "Cache mode",
           "type": "dropdown",
           "path": "atomicConfiguration",
@@ -372,6 +362,17 @@
           "tip": [
             "Default number of sequence values reserved for IgniteAtomicSequence instances.",
             "After a certain number has been reserved, consequent increments of sequence will happen locally, without communication with other nodes, until the next reservation has to be made."
+          ]
+        },
+        {
+          "label": "Backups",
+          "type": "number",
+          "path": "atomicConfiguration",
+          "model": "backups",
+          "hide": "backupItem.atomicConfiguration &&  backupItem.atomicConfiguration.cacheMode && backupItem.atomicConfiguration.cacheMode != 'PARTITIONED'",
+          "placeholder": 0,
+          "tip": [
+            "Number of backup nodes."
           ]
         }
       ]
