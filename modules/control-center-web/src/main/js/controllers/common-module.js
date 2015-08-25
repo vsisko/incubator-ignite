@@ -923,6 +923,7 @@ controlCenterModule.service('$preview', [function () {
 
             var renderer = editor.renderer;
 
+            renderer.setShowGutter(false);
             renderer.setHighlightGutterLine(false);
             renderer.setShowPrintMargin(false);
             renderer.setOption('fontSize', '10px');
