@@ -16,8 +16,8 @@
  */
 
 controlCenterModule.controller('cachesController', [
-        '$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
-        function ($scope, $http, $common, $focus, $confirm, $copy, $table, $preview) {
+        '$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
+        function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview) {
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
             $scope.javaBuildInClasses = $common.javaBuildInClasses;
@@ -47,7 +47,7 @@ controlCenterModule.controller('cachesController', [
 
             $scope.atomicities = $common.mkOptions(['ATOMIC', 'TRANSACTIONAL']);
 
-            $scope.modes = $common.mkOptions(['PARTITIONED', 'REPLICATED', 'LOCAL']);
+            $scope.cacheModes = $common.mkOptions(['PARTITIONED', 'REPLICATED', 'LOCAL']);
 
             $scope.atomicWriteOrderModes = $common.mkOptions(['CLOCK', 'PRIMARY']);
 
@@ -111,6 +111,8 @@ controlCenterModule.controller('cachesController', [
             $scope.caches = [];
             $scope.queryMetadata = [];
             $scope.storeMetadata = [];
+
+            $scope.preview = {};
 
             $scope.required = function (field) {
                 var model = $common.isDefined(field.path) ? field.path + '.' + field.model : field.model;
@@ -245,10 +247,17 @@ controlCenterModule.controller('cachesController', [
                         $scope.selectItem($scope.caches[0]);
 
                     $scope.$watch('backupItem', function (val) {
-                        if (val)
+                        if (val) {
                             sessionStorage.cacheBackupItem = angular.toJson(val);
+
+                            $scope.preview.general = $generatorXml.cacheGeneral(val).join('');
+                        }
                     }, true);
-                })
+
+                    $timeout(function () {
+                        $common.initPreview();
+                    })
+               })
                 .error(function (errMsg) {
                     $common.showError(errMsg);
                 });
@@ -282,7 +291,7 @@ controlCenterModule.controller('cachesController', [
 
                 var newItem = {
                     space: $scope.spaces[0]._id,
-                    mode: 'PARTITIONED',
+                    cacheModes: 'PARTITIONED',
                     atomicityMode: 'ATOMIC',
                     readFromBackup: true,
                     copyOnRead: true,

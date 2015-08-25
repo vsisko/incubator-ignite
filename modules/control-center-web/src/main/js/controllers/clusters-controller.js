@@ -201,18 +201,18 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                             return memo;
                         }, []);
 
-                        $scope.preview.general = $generatorXml.caches(clusterCaches, $generatorXml.general(val)).join('');
-                        $scope.preview.atomics = $generatorXml.atomics(val).join('');
-                        $scope.preview.communication = $generatorXml.communication(val).join('');
-                        $scope.preview.deployment = $generatorXml.deployment(val).join('');
-                        $scope.preview.events = $generatorXml.events(val).join('');
-                        $scope.preview.marshaller = $generatorXml.marshaller(val).join('');
-                        $scope.preview.metrics = $generatorXml.metrics(val).join('');
-                        $scope.preview.p2p = $generatorXml.p2p(val).join('');
-                        $scope.preview.swap = $generatorXml.swap(val).join('');
-                        $scope.preview.time = $generatorXml.time(val).join('');
-                        $scope.preview.pools = $generatorXml.pools(val).join('');
-                        $scope.preview.transactions = $generatorXml.transactions(val).join('');
+                        $scope.preview.general = $generatorXml.clusterCaches(clusterCaches, $generatorXml.clusterGeneral(val)).join('');
+                        $scope.preview.atomics = $generatorXml.clusterAtomics(val).join('');
+                        $scope.preview.communication = $generatorXml.clusterCommunication(val).join('');
+                        $scope.preview.deployment = $generatorXml.clusterDeployment(val).join('');
+                        $scope.preview.events = $generatorXml.clusterEvents(val).join('');
+                        $scope.preview.marshaller = $generatorXml.clusterMarshaller(val).join('');
+                        $scope.preview.metrics = $generatorXml.clusterMetrics(val).join('');
+                        $scope.preview.p2p = $generatorXml.clusterP2p(val).join('');
+                        $scope.preview.swap = $generatorXml.clusterSwap(val).join('');
+                        $scope.preview.time = $generatorXml.clusterTime(val).join('');
+                        $scope.preview.pools = $generatorXml.clusterPools(val).join('');
+                        $scope.preview.transactions = $generatorXml.clusterTransactions(val).join('');
                     }
                 }, true);
 
@@ -235,10 +235,6 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                 $scope.backupItem = angular.copy(item);
             else
                 $scope.backupItem = undefined;
-
-            $timeout(function () {
-                $common.previewHeightUpdate();
-            });
 
             if (item)
                 sessionStorage.clusterSelectedItem = angular.toJson(item);

@@ -288,7 +288,7 @@ function _addElement(res, tag, attr1, val1, attr2, val2) {
 $generatorXml = {};
 
 // Generate discovery.
-$generatorXml.general = function (cluster, caches, res) {
+$generatorXml.clusterGeneral = function (cluster, caches, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -400,7 +400,7 @@ $generatorXml.general = function (cluster, caches, res) {
 };
 
 // Generate atomics group.
-$generatorXml.atomics = function (cluster, res) {
+$generatorXml.clusterAtomics = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -414,7 +414,7 @@ $generatorXml.atomics = function (cluster, res) {
 };
 
 // Generate communication group.
-$generatorXml.communication = function (cluster, res) {
+$generatorXml.clusterCommunication = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -431,7 +431,7 @@ $generatorXml.communication = function (cluster, res) {
 };
 
 // Generate deployment group.
-$generatorXml.deployment = function (cluster, res) {
+$generatorXml.clusterDeployment = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -443,7 +443,7 @@ $generatorXml.deployment = function (cluster, res) {
 };
 
 // Generate events group.
-$generatorXml.events = function (cluster, res) {
+$generatorXml.clusterEvents = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -484,7 +484,7 @@ $generatorXml.events = function (cluster, res) {
 };
 
 // Generate marshaller group.
-$generatorXml.marshaller = function (cluster, res) {
+$generatorXml.clusterMarshaller = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -508,7 +508,7 @@ $generatorXml.marshaller = function (cluster, res) {
 };
 
 // Generate metrics group.
-$generatorXml.metrics = function (cluster, res) {
+$generatorXml.clusterMetrics = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -523,7 +523,7 @@ $generatorXml.metrics = function (cluster, res) {
 };
 
 // Generate PeerClassLoading group.
-$generatorXml.p2p = function (cluster, res) {
+$generatorXml.clusterP2p = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -538,7 +538,7 @@ $generatorXml.p2p = function (cluster, res) {
 };
 
 // Generate swap group.
-$generatorXml.swap = function (cluster, res) {
+$generatorXml.clusterSwap = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -555,7 +555,7 @@ $generatorXml.swap = function (cluster, res) {
 };
 
 // Generate time group.
-$generatorXml.time = function (cluster, res) {
+$generatorXml.clusterTime = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -570,7 +570,7 @@ $generatorXml.time = function (cluster, res) {
 };
 
 // Generate thread pools group.
-$generatorXml.pools = function (cluster, res) {
+$generatorXml.clusterPools = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -584,7 +584,7 @@ $generatorXml.pools = function (cluster, res) {
 };
 
 // Generate transactions group.
-$generatorXml.transactions = function (cluster, res) {
+$generatorXml.clusterTransactions = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -597,6 +597,55 @@ $generatorXml.transactions = function (cluster, res) {
     return res;
 };
 
+$generatorXml.cacheGeneral = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    _addProperty(res, cache, 'name');
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'cacheMode');
+    _addProperty(res, cache, 'atomicityMode');
+
+    if (cache.cacheMode == 'PARTITIONED')
+        _addProperty(res, cache, 'backups');
+
+    _addProperty(res, cache, 'readFromBackup');
+    _addProperty(res, cache, 'copyOnRead');
+    _addProperty(res, cache, 'invalidate');
+
+    return res;
+};
+
+$generatorXml.cacheMemory = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.cacheQuery = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.cacheStore = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+$generatorXml.cacheConcurrency = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
 // Generate caches configs.
 $generatorXml.cache = function(cache, res) {
     if (!res)
@@ -604,18 +653,7 @@ $generatorXml.cache = function(cache, res) {
 
     res.startBlock('<bean class="org.apache.ignite.configuration.CacheConfiguration">');
 
-    _addProperty(res, cache, 'name');
-
-    res.needEmptyLine = true;
-
-    var cacheMode = _addProperty(res, cache, 'mode', 'cacheMode');
-
-    _addProperty(res, cache, 'atomicityMode');
-
-    if (cacheMode == 'PARTITIONED')
-        _addProperty(res, cache, 'backups');
-
-    _addProperty(res, cache, 'readFromBackup');
+    $generatorXml.cacheGeneral(cache, res);
 
     _addProperty(res, cache, 'startSize');
 
@@ -624,7 +662,6 @@ $generatorXml.cache = function(cache, res) {
     _addProperty(res, cache, 'memoryMode');
     _addProperty(res, cache, 'offHeapMaxMemory');
     _addProperty(res, cache, 'swapEnabled');
-    _addProperty(res, cache, 'copyOnRead');
 
     res.needEmptyLine = true;
 
@@ -673,7 +710,7 @@ $generatorXml.cache = function(cache, res) {
 
     res.needEmptyLine = true;
 
-    if (cacheMode != 'LOCAL') {
+    if (cache.cacheMode != 'LOCAL') {
         _addProperty(res, cache, 'rebalanceMode');
         _addProperty(res, cache, 'rebalanceThreadPoolSize');
         _addProperty(res, cache, 'rebalanceBatchSize');
@@ -712,7 +749,6 @@ $generatorXml.cache = function(cache, res) {
 
     res.needEmptyLine = true;
 
-    _addProperty(res, cache, 'invalidate');
     _addProperty(res, cache, 'defaultLockTimeout');
     _addProperty(res, cache, 'transactionManagerLookupClassName');
 
@@ -773,7 +809,7 @@ $generatorXml.cache = function(cache, res) {
 };
 
 // Generate caches configs.
-$generatorXml.caches = function(caches, res) {
+$generatorXml.clusterCaches = function(caches, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -799,7 +835,7 @@ $generatorXml.caches = function(caches, res) {
     return res;
 };
 
-$generatorXml.clusterConfiguration = function (cluster, clientNearConfiguration) {
+$generatorXml.cluster = function (cluster, clientNearConfiguration) {
     var res = $generatorCommon.builder();
 
     if (clientNearConfiguration) {
@@ -825,31 +861,31 @@ $generatorXml.clusterConfiguration = function (cluster, clientNearConfiguration)
         res.line();
     }
 
-    $generatorXml.general(cluster, res);
+    $generatorXml.clusterGeneral(cluster, res);
 
-    $generatorXml.atomics(cluster, res);
+    $generatorXml.clusterAtomics(cluster, res);
 
-    $generatorXml.communication(cluster, res);
+    $generatorXml.clusterCommunication(cluster, res);
 
-    $generatorXml.deployment(cluster, res);
+    $generatorXml.clusterDeployment(cluster, res);
 
-    $generatorXml.events(cluster, res);
+    $generatorXml.clusterEvents(cluster, res);
 
-    $generatorXml.marshaller(cluster, res);
+    $generatorXml.clusterMarshaller(cluster, res);
 
-    $generatorXml.metrics(cluster, res);
+    $generatorXml.clusterMetrics(cluster, res);
 
-    $generatorXml.p2p(cluster, res);
+    $generatorXml.clusterP2p(cluster, res);
 
-    $generatorXml.swap(cluster, res);
+    $generatorXml.clusterSwap(cluster, res);
 
-    $generatorXml.time(cluster, res);
+    $generatorXml.clusterTime(cluster, res);
 
-    $generatorXml.pools(cluster, res);
+    $generatorXml.clusterPools(cluster, res);
 
-    $generatorXml.transactions(cluster, res);
+    $generatorXml.clusterTransactions(cluster, res);
 
-    $generatorXml.caches(cluster.caches, res);
+    $generatorXml.clusterCaches(cluster.caches, res);
 
     res.endBlock('</bean>');
 

@@ -42,12 +42,12 @@ router.post('/generator', function (req, res) {
 
         if (clientCache)
             return res.send({
-                xmlClient: $generatorXml.clusterConfiguration(cluster, clientCache),
+                xmlClient: $generatorXml.cluster(cluster, clientCache),
                 javaClient: $generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientCache)
             });
 
         return res.send({
-            xmlServer: $generatorXml.clusterConfiguration(cluster),
+            xmlServer: $generatorXml.cluster(cluster),
             javaSnippetServer: $generatorJava.generateClusterConfiguration(cluster, false),
             javaClassServer: $generatorJava.generateClusterConfiguration(cluster, true),
             docker: $generatorDocker.generateClusterConfiguration(cluster, '%OS%')
@@ -95,7 +95,7 @@ router.post('/download', function (req, res) {
                 zip.append(props, {name: 'secret.properties'});
         }
 
-        zip.append($generatorXml.clusterConfiguration(cluster, clientNearConfiguration), {name: cluster.name + '.xml'})
+        zip.append($generatorXml.cluster(cluster, clientNearConfiguration), {name: cluster.name + '.xml'})
             .append($generatorJava.generateClusterConfiguration(cluster, false, clientNearConfiguration),
                 {name: cluster.name + '.snippet.java'})
             .append($generatorJava.generateClusterConfiguration(cluster, true, clientNearConfiguration),
