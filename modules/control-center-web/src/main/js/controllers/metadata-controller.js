@@ -16,8 +16,8 @@
  */
 
 controlCenterModule.controller('metadataController', [
-        '$scope', '$controller', '$http', '$modal', '$common', '$timeout', '$focus', '$confirm', '$copy', '$table',
-        function ($scope, $controller, $http, $modal, $common, $timeout, $focus, $confirm, $copy, $table) {
+        '$scope', '$controller', '$http', '$modal', '$common', '$timeout', '$focus', '$confirm', '$copy', '$table', '$preview',
+        function ($scope, $controller, $http, $modal, $common, $timeout, $focus, $confirm, $copy, $table, $preview) {
             // Initialize the super class and extend it.
             angular.extend(this, $controller('agent-download', {$scope: $scope}));
             $scope.ui = {}
@@ -28,6 +28,7 @@ controlCenterModule.controller('metadataController', [
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
             $scope.javaBuildInClasses = $common.javaBuildInClasses;
+            $scope.compactJavaName = $common.compactJavaName;
 
             $scope.tableReset = $table.tableReset;
             $scope.tableNewItem = $table.tableNewItem;
@@ -53,9 +54,10 @@ controlCenterModule.controller('metadataController', [
             $scope.tablePairSave = $table.tablePairSave;
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
-            $scope.compactJavaName = $common.compactJavaName;
+            $scope.previewInit = $preview.previewInit;
 
             $scope.hidePopover = $common.hidePopover;
+
             var showPopoverMessage = $common.showPopoverMessage;
 
             var presets = [

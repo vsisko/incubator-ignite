@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table',
-    function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table) {
+controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview', '$code',
+    function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview, $code) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
@@ -39,6 +39,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
         $scope.tableSimpleUp = $table.tableSimpleUp;
         $scope.tableSimpleDown = $table.tableSimpleDown;
         $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
+
+        $scope.previewInit = $preview.previewInit;
 
         $scope.hidePopover = $common.hidePopover;
         var showPopoverMessage = $common.showPopoverMessage;
@@ -72,6 +74,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                 $scope.events.push({value: eventGroupName, label: eventGroupName});
             }
         }
+
+        $scope.preview = {};
 
         $scope.cacheModes = $common.mkOptions(['LOCAL', 'REPLICATED', 'PARTITIONED']);
 
@@ -203,6 +207,19 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                 $scope.$watch('backupItem', function (val) {
                     if (val) {
                         sessionStorage.clusterBackupItem = angular.toJson(val);
+
+                        $scope.preview.general = $code.xmlClusterGeneral(val).join('');
+                        $scope.preview.atomics = $code.xmlClusterAtomics(val).join('');
+                        $scope.preview.communication = $code.xmlClusterCommunication(val).join('');
+                        $scope.preview.deployment = $code.xmlClusterDeployment(val).join('');
+                        $scope.preview.events = $code.xmlClusterEvents(val).join('');
+                        $scope.preview.marshaller = $code.xmlClusterMarshaller(val).join('');
+                        $scope.preview.metrics = $code.xmlClusterMetrics(val).join('');
+                        $scope.preview.p2p = $code.xmlClusterP2P(val).join('');
+                        $scope.preview.swap = $code.xmlClusterSwap(val).join('');
+                        $scope.preview.time = $code.xmlClusterTime(val).join('');
+                        $scope.preview.pools = $code.xmlClusterPools(val).join('');
+                        $scope.preview.transactions = $code.xmlClusterTransactions(val).join('');
 
                         markChanged();
                     }

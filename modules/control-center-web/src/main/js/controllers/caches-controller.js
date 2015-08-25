@@ -16,11 +16,12 @@
  */
 
 controlCenterModule.controller('cachesController', [
-        '$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table',
-        function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table) {
+        '$scope', '$http', '$common', '$timeout', '$focus', '$confirm', '$copy', '$table', '$preview',
+        function ($scope, $http, $common, $timeout, $focus, $confirm, $copy, $table, $preview) {
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
             $scope.javaBuildInClasses = $common.javaBuildInClasses;
+            $scope.compactJavaName = $common.compactJavaName;
 
             $scope.tableReset = $table.tableReset;
             $scope.tableNewItem = $table.tableNewItem;
@@ -45,9 +46,10 @@ controlCenterModule.controller('cachesController', [
             $scope.tablePairSave = $table.tablePairSave;
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
-            $scope.compactJavaName = $common.compactJavaName;
+            $scope.previewInit = $preview.previewInit;
 
             $scope.hidePopover = $common.hidePopover;
+
             var showPopoverMessage = $common.showPopoverMessage;
 
             $scope.atomicities = $common.mkOptions(['ATOMIC', 'TRANSACTIONAL']);

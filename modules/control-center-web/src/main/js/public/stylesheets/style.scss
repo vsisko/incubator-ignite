@@ -764,6 +764,11 @@ button .caret, .btn .caret {
 
 .theme-line .panel-body {
     padding: 10px 20px;
+
+    [class*="col-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
 }
 
 .theme-line .main-content a.customize {
@@ -1466,6 +1471,10 @@ a {
         padding-left: 0.65em;
         padding-right: 0.9em;
     }
+}
+
+.ace-preview {
+
 }
 
 .loading-indicator {
