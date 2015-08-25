@@ -28,6 +28,7 @@
     {
       "label": "Metadata common",
       "id": "metadata-data",
+      "preview": "general",
       "tip": [
         "Metadata properties common to Query and Store."
       ],
@@ -67,6 +68,7 @@
     {
       "label": "Metadata for SQL query",
       "id": "metadataQuery-data",
+      "preview": "query",
       "tip": [],
       "fields": [
         {
@@ -148,6 +150,7 @@
     {
       "label": "Metadata for cache store",
       "id": "metadataCache-data",
+      "preview": "store",
       "tip": [],
       "fields": [
         {

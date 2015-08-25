@@ -23,13 +23,6 @@ if (typeof window === 'undefined') {
     $generatorCommon = require('./generator-common');
 }
 
-function _escape(s) {
-    if (typeof(s) != 'string')
-        return s;
-
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
 function _escapeAttr(s) {
     if (typeof(s) != 'string')
         return s;
@@ -50,7 +43,7 @@ function _addClassNameProperty(res, obj, propName) {
     var val = obj[propName];
 
     if ($commonUtils.isDefined(val))
-        _addElement(res, 'property', 'name', propName, 'value', $generatorCommon.javaBuildInClass(val));
+        _addElement(res, 'property', 'name', propName, 'value', $dataStructures.fullClassName(val));
 }
 
 function _addListProperty(res, obj, propName, listType, rowFactory) {
@@ -155,6 +148,8 @@ function _addCacheTypeMetadataDatabaseFields(res, meta, fieldProperty) {
     var fields = meta[fieldProperty];
 
     if (fields && fields.length > 0) {
+        res.emptyLineIfNeeded();
+
         res.startBlock('<property name="' + fieldProperty + '">');
 
         res.startBlock('<list>');
@@ -177,6 +172,8 @@ function _addCacheTypeMetadataDatabaseFields(res, meta, fieldProperty) {
 
         res.endBlock('</list>');
         res.endBlock('</property>');
+
+        res.needEmptyLine = true;
     }
 }
 
@@ -184,17 +181,19 @@ function _addCacheTypeMetadataQueryFields(res, meta, fieldProperty) {
     var fields = meta[fieldProperty];
 
     if (fields && fields.length > 0) {
-        res.startBlock('<property name="' + fieldProperty + '">');
+        res.emptyLineIfNeeded();
 
+        res.startBlock('<property name="' + fieldProperty + '">');
         res.startBlock('<map>');
 
         _.forEach(fields, function (field) {
-            _addElement(res, 'entry', 'key', field.name, 'value', $generatorCommon.javaBuildInClass(field.className));
+            _addElement(res, 'entry', 'key', field.name, 'value', $dataStructures.fullClassName(field.className));
         });
 
         res.endBlock('</map>');
-
         res.endBlock('</property>');
+
+        res.needEmptyLine = true;
     }
 }
 
@@ -202,6 +201,8 @@ function _addCacheTypeMetadataGroups(res, meta) {
     var groups = meta.groups;
 
     if (groups && groups.length > 0) {
+        res.emptyLineIfNeeded();
+
         res.startBlock('<property name="groups">');
         res.startBlock('<map>');
 
@@ -216,7 +217,7 @@ function _addCacheTypeMetadataGroups(res, meta) {
                     res.startBlock('<entry key="' + field.name + '">');
 
                     res.startBlock('<bean class="org.apache.ignite.lang.IgniteBiTuple">');
-                    res.line('<constructor-arg value="' + $generatorCommon.javaBuildInClass(field.className) + '"/>');
+                    res.line('<constructor-arg value="' + $dataStructures.fullClassName(field.className) + '"/>');
                     res.line('<constructor-arg value="' + field.direction + '"/>');
                     res.endBlock('</bean>');
 
@@ -230,44 +231,9 @@ function _addCacheTypeMetadataGroups(res, meta) {
 
         res.endBlock('</map>');
         res.endBlock('</property>');
+
+        res.needEmptyLine = true;
     }
-}
-
-function _generateCacheTypeMetadataConfiguration(res, meta) {
-    if (!res)
-        res = $generatorCommon.builder();
-
-    res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeMetadata">');
-
-    var kind = meta.kind;
-
-    var keyType = _addClassNameProperty(res, meta, 'keyType');
-
-    _addProperty(res, meta, 'valueType');
-
-    if (kind != 'query') {
-        _addProperty(res, meta, 'databaseSchema');
-        _addProperty(res, meta, 'databaseTable');
-
-        if (!$dataStructures.isJavaBuildInClass(keyType))
-            _addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
-
-        _addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
-    }
-
-    if (kind != 'store') {
-        _addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
-        _addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
-        _addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
-
-        _addListProperty(res, meta, 'textFields');
-
-        _addCacheTypeMetadataGroups(res, meta);
-    }
-
-    res.endBlock('</bean>');
-
-    return res;
 }
 
 function _addElement(res, tag, attr1, val1, attr2, val2) {
@@ -751,7 +717,7 @@ $generatorXml.cacheRebalance = function(cache, res) {
     return res;
 };
 
-$generatorXml.serverNearCache = function(cache, res) {
+$generatorXml.cacheServerNearCache = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -776,12 +742,58 @@ $generatorXml.serverNearCache = function(cache, res) {
     return res;
 };
 
-$generatorXml.statistics = function(cache, res) {
+$generatorXml.cacheStatistics = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
     _addProperty(res, cache, 'statisticsEnabled');
     _addProperty(res, cache, 'managementEnabled');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorXml.metadataGeneral = function(meta, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    _addClassNameProperty(res, meta, 'keyType');
+    _addProperty(res, meta, 'valueType');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorXml.metadataQuery = function(meta, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    _addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+    _addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+    _addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
+
+    _addListProperty(res, meta, 'textFields');
+
+    _addCacheTypeMetadataGroups(res, meta);
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorXml.metadataStore = function(meta, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    _addProperty(res, meta, 'databaseSchema');
+    _addProperty(res, meta, 'databaseTable');
+
+    if (!$dataStructures.isJavaBuildInClass(meta.keyType))
+        _addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+
+    _addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
 
     res.needEmptyLine = true;
 
@@ -807,10 +819,9 @@ $generatorXml.cache = function(cache, res) {
 
     $generatorXml.cacheRebalance(cache, res);
 
-    $generatorXml.serverNearCache(cache, res);
+    $generatorXml.cacheServerNearCache(cache, res);
 
-    $generatorXml.statistics(cache, res);
-
+    $generatorXml.cacheStatistics(cache, res);
 
     // Generate cache type metadata configs.
     if ((cache.queryMetadata && cache.queryMetadata.length > 0) ||
@@ -827,7 +838,13 @@ $generatorXml.cache = function(cache, res) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    _generateCacheTypeMetadataConfiguration(res, meta);
+                    res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeMetadata">');
+
+                    $generatorXml.metadataGeneral(meta, res);
+                    $generatorXml.metadataQuery(meta, res);
+                    $generatorXml.metadataStore(meta, res);
+
+                    res.endBlock('</bean>');
                 }
             });
         }

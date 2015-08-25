@@ -51,6 +51,8 @@ controlCenterModule.controller('metadataController', [
 
             var showPopoverMessage = $common.showPopoverMessage;
 
+            $scope.preview = {};
+
             var presets = [
                 {
                     db: 'oracle',
@@ -498,15 +500,19 @@ controlCenterModule.controller('metadataController', [
                     }
                     else
                         selectFirstItem();
-                    $scope.selectedItem = sel;
 
                     $timeout(function () {
                         $scope.$apply();
                     });
 
                     $scope.$watch('backupItem', function (val) {
-                        if (val)
+                        if (val) {
                             sessionStorage.metadataBackupItem = angular.toJson(val);
+
+                            $scope.preview.general = $generatorXml.metadataGeneral(val).join('');
+                            $scope.preview.query = $generatorXml.metadataQuery(val).join('');
+                            $scope.preview.store = $generatorXml.metadataStore(val).join('');
+                        }
                     }, true);
                 })
                 .error(function (errMsg) {

@@ -256,8 +256,8 @@ controlCenterModule.controller('cachesController', [
                             $scope.preview.store = $generatorXml.cacheStore(val).join('');
                             $scope.preview.concurrency = $generatorXml.cacheConcurrency(val).join('');
                             $scope.preview.rebalance = $generatorXml.cacheRebalance(val).join('');
-                            $scope.preview.serverNearCache = $generatorXml.serverNearCache(val).join('');
-                            $scope.preview.statistics = $generatorXml.statistics(val).join('');
+                            $scope.preview.serverNearCache = $generatorXml.cacheServerNearCache(val).join('');
+                            $scope.preview.statistics = $generatorXml.cacheStatistics(val).join('');
                         }
                     }, true);
 
