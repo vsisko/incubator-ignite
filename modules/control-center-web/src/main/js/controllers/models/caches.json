@@ -119,6 +119,7 @@
     {
       "label": "Memory",
       "id": "memory-data",
+      "preview": "memory",
       "tip": [
         "Cache memory settings."
       ],
@@ -318,6 +319,7 @@
     {
       "label": "Queries & Indexing",
       "id": "queriesAndIndexing-data",
+      "preview": "query",
       "tip": [
         "Cache query settings."
       ],
@@ -396,6 +398,7 @@
     {
       "label": "Store",
       "id": "store-data",
+      "preview": "store",
       "tip": [
         "Cache store settings."
       ],
@@ -674,6 +677,7 @@
     {
       "label": "Concurrency control",
       "id": "concurrency-data",
+      "preview": "concurrency",
       "tip": [
         "Cache concurrent usage settings."
       ],
@@ -718,6 +722,7 @@
     {
       "label": "Rebalance",
       "id": "rebalance-data",
+      "preview": "rebalance",
       "hide": "backupItem.cacheMode == 'LOCAL'",
       "tip": [
         "Cache rebalance settings."
@@ -799,6 +804,7 @@
     {
       "label": "Server near cache",
       "id": "serverNearCache-data",
+      "preview": "serverNearCache",
       "hide": "backupItem.cacheMode != 'PARTITIONED'",
       "tip": [
         "Near cache settings.",
@@ -965,6 +971,7 @@
     {
       "label": "Statistics",
       "id": "statistics-data",
+      "preview": "statistics",
       "tip": [
         "Cache statistics and management settings."
       ],

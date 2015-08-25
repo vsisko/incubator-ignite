@@ -143,7 +143,7 @@ function _addBeanWithProperties(res, bean, beanPropName, beanClass, props, creat
 
 function _createEvictionPolicy(res, evictionPolicy, propertyName) {
     if (evictionPolicy && evictionPolicy.kind) {
-        var e = $generatorCommon.evictionPolicies[evictionPolicy.kind];
+        var e = $generatorCommon.EVICTION_POLICIES[evictionPolicy.kind];
 
         var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
 
@@ -682,22 +682,24 @@ $generatorXml.cacheStore = function(cache, res) {
     if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
         var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
 
-        var storeFactoryDesc = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
+        if (storeFactory) {
+            var storeFactoryDesc = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
 
-        _addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', storeFactoryDesc.className, storeFactoryDesc.fields, true);
+            _addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', storeFactoryDesc.className, storeFactoryDesc.fields, true);
 
-        if (storeFactory.dialect) {
-            if (_.findIndex(res.datasources, function (ds) {
-                    return ds.dataSourceBean == storeFactory.dataSourceBean;
-                }) < 0) {
-                res.datasources.push({
-                    dataSourceBean: storeFactory.dataSourceBean,
-                    className: $generatorCommon.DATA_SOURCES[storeFactory.dialect]
-                });
+            if (storeFactory.dialect) {
+                if (_.findIndex(res.datasources, function (ds) {
+                        return ds.dataSourceBean == storeFactory.dataSourceBean;
+                    }) < 0) {
+                    res.datasources.push({
+                        dataSourceBean: storeFactory.dataSourceBean,
+                        className: $generatorCommon.DATA_SOURCES[storeFactory.dialect]
+                    });
+                }
             }
-        }
 
-        res.needEmptyLine = true;
+            res.needEmptyLine = true;
+        }
     }
 
     _addProperty(res, cache, 'loadPreviousValue');
