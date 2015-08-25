@@ -75,6 +75,8 @@ function _addListProperty(res, obj, propName, listType, rowFactory) {
 
         res.endBlock('</' + listType + '>');
         res.endBlock('</property>');
+
+        res.needEmptyLine = true;
     }
 }
 
@@ -622,12 +624,53 @@ $generatorXml.cacheMemory = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
+    _addProperty(res, cache, 'memoryMode');
+    _addProperty(res, cache, 'offHeapMaxMemory');
+
+    res.needEmptyLine = true;
+
+    _createEvictionPolicy(res, cache.evictionPolicy, 'evictionPolicy');
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'swapEnabled');
+    _addProperty(res, cache, 'startSize');
+
+    res.needEmptyLine = true;
+
     return res;
 };
 
 $generatorXml.cacheQuery = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
+
+    _addProperty(res, cache, 'sqlOnheapRowCacheSize');
+
+    _addProperty(res, cache, 'longQueryWarningTimeout');
+
+    if (cache.indexedTypes && cache.indexedTypes.length > 0) {
+        res.startBlock('<property name="indexedTypes">');
+        res.startBlock('<list>');
+
+        for (var i = 0; i < cache.indexedTypes.length; i++) {
+            var pair = cache.indexedTypes[i];
+
+            res.line('<value>' + $generatorCommon.fullClassName(pair.keyClass) + '</value>');
+            res.line('<value>' + $generatorCommon.fullClassName(pair.valueClass) + '</value>');
+        }
+
+        res.endBlock('</list>');
+        res.endBlock('</property>');
+
+        res.needEmptyLine = true;
+    }
+
+    _addListProperty(res, cache, 'sqlFunctionClasses', 'array');
+
+    _addProperty(res, cache, 'sqlEscapeAll');
+
+    res.needEmptyLine = true;
 
     return res;
 };
@@ -636,12 +679,53 @@ $generatorXml.cacheStore = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
+    if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
+        var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
+
+        var storeFactoryDesc = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
+
+        _addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', storeFactoryDesc.className, storeFactoryDesc.fields, true);
+
+        if (storeFactory.dialect) {
+            if (_.findIndex(res.datasources, function (ds) {
+                    return ds.dataSourceBean == storeFactory.dataSourceBean;
+                }) < 0) {
+                res.datasources.push({
+                    dataSourceBean: storeFactory.dataSourceBean,
+                    className: $generatorCommon.DATA_SOURCES[storeFactory.dialect]
+                });
+            }
+        }
+
+        res.needEmptyLine = true;
+    }
+
+    _addProperty(res, cache, 'loadPreviousValue');
+    _addProperty(res, cache, 'readThrough');
+    _addProperty(res, cache, 'writeThrough');
+
+    res.needEmptyLine = true;
+
+    _addProperty(res, cache, 'writeBehindEnabled');
+    _addProperty(res, cache, 'writeBehindBatchSize');
+    _addProperty(res, cache, 'writeBehindFlushSize');
+    _addProperty(res, cache, 'writeBehindFlushFrequency');
+    _addProperty(res, cache, 'writeBehindFlushThreadCount');
+
+    res.needEmptyLine = true;
+
     return res;
 };
 
 $generatorXml.cacheConcurrency = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
+
+    _addProperty(res, cache, 'maxConcurrentAsyncOperations');
+    _addProperty(res, cache, 'defaultLockTimeout');
+    _addProperty(res, cache, 'atomicWriteOrderMode');
+
+    res.needEmptyLine = true;
 
     return res;
 };
@@ -650,45 +734,24 @@ $generatorXml.cacheRebalance = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
+    if (cache.cacheMode != 'LOCAL') {
+        _addProperty(res, cache, 'rebalanceMode');
+        _addProperty(res, cache, 'rebalanceThreadPoolSize');
+        _addProperty(res, cache, 'rebalanceBatchSize');
+        _addProperty(res, cache, 'rebalanceOrder');
+        _addProperty(res, cache, 'rebalanceDelay');
+        _addProperty(res, cache, 'rebalanceTimeout');
+        _addProperty(res, cache, 'rebalanceThrottle');
+
+        res.needEmptyLine = true;
+    }
+
     return res;
 };
 
 $generatorXml.serverNearCache = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
-
-    return res;
-};
-
-$generatorXml.statistics = function(cache, res) {
-    if (!res)
-        res = $generatorCommon.builder();
-
-    return res;
-};
-
-// Generate caches configs.
-$generatorXml.cache = function(cache, res) {
-    if (!res)
-        res = $generatorCommon.builder();
-
-    res.startBlock('<bean class="org.apache.ignite.configuration.CacheConfiguration">');
-
-    $generatorXml.cacheGeneral(cache, res);
-
-    _addProperty(res, cache, 'startSize');
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cache, 'memoryMode');
-    _addProperty(res, cache, 'offHeapMaxMemory');
-    _addProperty(res, cache, 'swapEnabled');
-
-    res.needEmptyLine = true;
-
-    _createEvictionPolicy(res, cache.evictionPolicy, 'evictionPolicy');
-
-    res.needEmptyLine = true;
 
     if (cache.nearCacheEnabled) {
         res.emptyLineIfNeeded();
@@ -708,87 +771,44 @@ $generatorXml.cache = function(cache, res) {
 
     res.needEmptyLine = true;
 
-    _addProperty(res, cache, 'sqlEscapeAll');
-    _addProperty(res, cache, 'sqlOnheapRowCacheSize');
-    _addProperty(res, cache, 'longQueryWarningTimeout');
+    return res;
+};
 
-    if (cache.indexedTypes && cache.indexedTypes.length > 0) {
-        res.startBlock('<property name="indexedTypes">');
-        res.startBlock('<list>');
-
-        for (var i = 0; i < cache.indexedTypes.length; i++) {
-            var pair = cache.indexedTypes[i];
-
-            res.line('<value>' + $generatorCommon.fullClassName(pair.keyClass) + '</value>');
-            res.line('<value>' + $generatorCommon.fullClassName(pair.valueClass) + '</value>');
-        }
-
-        res.endBlock('</list>');
-        res.endBlock('</property>');
-    }
-
-    _addListProperty(res, cache, 'sqlFunctionClasses', 'array');
-
-    res.needEmptyLine = true;
-
-    if (cache.cacheMode != 'LOCAL') {
-        _addProperty(res, cache, 'rebalanceMode');
-        _addProperty(res, cache, 'rebalanceThreadPoolSize');
-        _addProperty(res, cache, 'rebalanceBatchSize');
-        _addProperty(res, cache, 'rebalanceOrder');
-        _addProperty(res, cache, 'rebalanceDelay');
-        _addProperty(res, cache, 'rebalanceTimeout');
-        _addProperty(res, cache, 'rebalanceThrottle');
-
-        res.needEmptyLine = true;
-    }
-
-    if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
-        var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
-
-        var storeFactoryDesc = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
-
-        _addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', storeFactoryDesc.className, storeFactoryDesc.fields, true);
-
-        if (storeFactory.dialect) {
-            if (_.findIndex(res.datasources, function (ds) {
-                    return ds.dataSourceBean == storeFactory.dataSourceBean;
-                }) < 0) {
-                res.datasources.push({
-                    dataSourceBean: storeFactory.dataSourceBean,
-                    className: $generatorCommon.DATA_SOURCES[storeFactory.dialect]
-                });
-            }
-        }
-    }
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cache, 'loadPreviousValue');
-    _addProperty(res, cache, 'readThrough');
-    _addProperty(res, cache, 'writeThrough');
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cache, 'defaultLockTimeout');
-    _addProperty(res, cache, 'transactionManagerLookupClassName');
-
-    res.needEmptyLine = true;
-
-    _addProperty(res, cache, 'writeBehindEnabled');
-    _addProperty(res, cache, 'writeBehindBatchSize');
-    _addProperty(res, cache, 'writeBehindFlushSize');
-    _addProperty(res, cache, 'writeBehindFlushFrequency');
-    _addProperty(res, cache, 'writeBehindFlushThreadCount');
-
-    res.needEmptyLine = true;
+$generatorXml.statistics = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
 
     _addProperty(res, cache, 'statisticsEnabled');
     _addProperty(res, cache, 'managementEnabled');
 
     res.needEmptyLine = true;
 
-    _addProperty(res, cache, 'maxConcurrentAsyncOperations');
+    return res;
+};
+
+// Generate caches configs.
+$generatorXml.cache = function(cache, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.startBlock('<bean class="org.apache.ignite.configuration.CacheConfiguration">');
+
+    $generatorXml.cacheGeneral(cache, res);
+
+    $generatorXml.cacheMemory(cache, res);
+
+    $generatorXml.cacheQuery(cache, res);
+
+    $generatorXml.cacheStore(cache, res);
+
+    $generatorXml.cacheConcurrency(cache, res);
+
+    $generatorXml.cacheRebalance(cache, res);
+
+    $generatorXml.serverNearCache(cache, res);
+
+    $generatorXml.statistics(cache, res);
+
 
     // Generate cache type metadata configs.
     if ((cache.queryMetadata && cache.queryMetadata.length > 0) ||

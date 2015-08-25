@@ -489,11 +489,11 @@ controlCenterModule.service('$common', [
 
                 var parent = right.parent();
 
-                var parentHeight = Math.max(75, left.height() - parent.css('marginTop').replace("px", ""));
+                var parentHeight = Math.max(75, left.height() - 2 * parent.css('marginTop').replace("px", ""));
 
                 parent.outerHeight(parentHeight);
 
-                right.height(parentHeight - scrollHeight);
+                right.height(parentHeight - scrollHeight / 2);
 
                 right.resize();
             }
