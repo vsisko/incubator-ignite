@@ -183,7 +183,11 @@ controlCenterModule.controller('cachesController', [
                     $scope.caches = data.caches;
                     $scope.clusters = data.clusters;
 
-                    _.forEach(data.metadatas, function (meta) {
+                    var metadatas = _.map(data.metadatas, function (meta) {
+                        return {value: meta._id, label: meta.name, kind: meta.kind, meta: meta}
+                    });
+
+                    _.forEach(metadatas, function (meta) {
                         var kind = meta.kind;
 
                         if (kind == 'query' || kind == 'both')
@@ -250,10 +254,26 @@ controlCenterModule.controller('cachesController', [
                         if (val) {
                             sessionStorage.cacheBackupItem = angular.toJson(val);
 
+                            var qryMeta = _.reduce($scope.queryMetadata, function(memo, meta){
+                                if (_.contains(val.queryMetadata, meta.value)) {
+                                    memo.push(meta.meta);
+                                }
+
+                                return memo;
+                            }, []);
+
+                            var storeMeta = _.reduce($scope.storeMetadata, function(memo, meta){
+                                if (_.contains(val.storeMetadata, meta.value)) {
+                                    memo.push(meta.meta);
+                                }
+
+                                return memo;
+                            }, []);
+
                             $scope.preview.general = $generatorXml.cacheGeneral(val).join('');
                             $scope.preview.memory = $generatorXml.cacheMemory(val).join('');
-                            $scope.preview.query = $generatorXml.cacheQuery(val).join('');
-                            $scope.preview.store = $generatorXml.cacheStore(val).join('');
+                            $scope.preview.query = $generatorXml.cacheMetadatas(qryMeta, null, $generatorXml.cacheQuery(val)).join('');
+                            $scope.preview.store = $generatorXml.cacheMetadatas(null, storeMeta, $generatorXml.cacheStore(val)).join('');
                             $scope.preview.concurrency = $generatorXml.cacheConcurrency(val).join('');
                             $scope.preview.rebalance = $generatorXml.cacheRebalance(val).join('');
                             $scope.preview.serverNearCache = $generatorXml.cacheServerNearCache(val).join('');

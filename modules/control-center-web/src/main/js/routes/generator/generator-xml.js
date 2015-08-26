@@ -23,11 +23,33 @@ if (typeof window === 'undefined') {
     $generatorCommon = require('./generator-common');
 }
 
+function _escape(s) {
+    if (typeof(s) != 'string')
+        return s;
+
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function _escapeAttr(s) {
     if (typeof(s) != 'string')
         return s;
 
     return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+function _addElement(res, tag, attr1, val1, attr2, val2) {
+    var elem = '<' + tag;
+
+    if (attr1)
+        elem += ' ' + attr1 + '="' + val1 + '"';
+
+    if (attr2)
+        elem += ' ' + attr2 + '="' + val2 + '"';
+
+    elem += '/>';
+
+    res.emptyLineIfNeeded();
+    res.line(elem);
 }
 
 function _addProperty(res, obj, propName, setterName) {
@@ -57,7 +79,7 @@ function _addListProperty(res, obj, propName, listType, rowFactory) {
 
         if (!rowFactory)
             rowFactory = function (val) {
-                return '<value>' + escape(val) + '</value>'
+                return '<value>' + _escape(val) + '</value>'
             };
 
         res.startBlock('<property name="' + propName + '">');
@@ -107,7 +129,7 @@ function _addBeanWithProperties(res, bean, beanPropName, beanClass, props, creat
                                 var eqIndex = nameAndValue.indexOf('=');
                                 if (eqIndex >= 0) {
                                     res.line('<prop key="' + _escapeAttr(nameAndValue.substring(0, eqIndex)) + '">' +
-                                        escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
+                                        _escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
                                 }
                             }
 
@@ -234,23 +256,6 @@ function _addCacheTypeMetadataGroups(res, meta) {
 
         res.needEmptyLine = true;
     }
-}
-
-function _addElement(res, tag, attr1, val1, attr2, val2) {
-    var elem = '<' + tag;
-
-    if (attr1) {
-        elem += ' ' + attr1 + '="' + val1 + '"'
-    }
-
-    if (attr2) {
-        elem += ' ' + attr2 + '="' + val2 + '"'
-    }
-
-    elem += '/>';
-
-    res.emptyLineIfNeeded();
-    res.line(elem);
 }
 
 $generatorXml = {};
@@ -565,6 +570,7 @@ $generatorXml.clusterTransactions = function (cluster, res) {
     return res;
 };
 
+// Generate cache general group.
 $generatorXml.cacheGeneral = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -586,6 +592,7 @@ $generatorXml.cacheGeneral = function(cache, res) {
     return res;
 };
 
+// Generate cache memory group.
 $generatorXml.cacheMemory = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -607,6 +614,7 @@ $generatorXml.cacheMemory = function(cache, res) {
     return res;
 };
 
+// Generate cache query & indexing group.
 $generatorXml.cacheQuery = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -641,6 +649,7 @@ $generatorXml.cacheQuery = function(cache, res) {
     return res;
 };
 
+// Generate cache store group.
 $generatorXml.cacheStore = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -685,6 +694,7 @@ $generatorXml.cacheStore = function(cache, res) {
     return res;
 };
 
+// Generate cache concurrency group.
 $generatorXml.cacheConcurrency = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -698,6 +708,7 @@ $generatorXml.cacheConcurrency = function(cache, res) {
     return res;
 };
 
+// Generate cache rebalance group.
 $generatorXml.cacheRebalance = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -717,6 +728,7 @@ $generatorXml.cacheRebalance = function(cache, res) {
     return res;
 };
 
+// Generate cache server near cache group.
 $generatorXml.cacheServerNearCache = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -742,6 +754,7 @@ $generatorXml.cacheServerNearCache = function(cache, res) {
     return res;
 };
 
+// Generate cache statistics group.
 $generatorXml.cacheStatistics = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -754,6 +767,7 @@ $generatorXml.cacheStatistics = function(cache, res) {
     return res;
 };
 
+// Generate metadata general group.
 $generatorXml.metadataGeneral = function(meta, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -766,6 +780,7 @@ $generatorXml.metadataGeneral = function(meta, res) {
     return res;
 };
 
+// Generate metadata for query group.
 $generatorXml.metadataQuery = function(meta, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -783,6 +798,7 @@ $generatorXml.metadataQuery = function(meta, res) {
     return res;
 };
 
+// Generate metadata for store group.
 $generatorXml.metadataStore = function(meta, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -800,6 +816,7 @@ $generatorXml.metadataStore = function(meta, res) {
     return res;
 };
 
+// Generate cache type metadata config.
 $generatorXml.cacheMetadata = function(meta, res) {
     if (!res)
         res = $generatorCommon.builder();
@@ -811,6 +828,53 @@ $generatorXml.cacheMetadata = function(meta, res) {
     $generatorXml.metadataStore(meta, res);
 
     res.endBlock('</bean>');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+// Generate cache type metadata configs.
+$generatorXml.cacheMetadatas = function(qryMeta, storeMeta, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    if ((qryMeta && qryMeta.length > 0) ||
+        (storeMeta && storeMeta.length > 0)) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="typeMetadata">');
+        res.startBlock('<list>');
+
+        var metaNames = [];
+
+        if (qryMeta && qryMeta.length > 0) {
+            _.forEach(qryMeta, function (meta) {
+                if (!_.contains(metaNames, meta.name)) {
+                    metaNames.push(meta.name);
+
+                    $generatorXml.cacheMetadata(meta, res);
+                }
+            });
+        }
+
+        if (storeMeta && storeMeta.length > 0) {
+            _.forEach(storeMeta, function (meta) {
+                if (!_.contains(metaNames, meta.name)) {
+                    metaNames.push(meta.name);
+
+                    $generatorXml.cacheMetadata(meta, res);
+                }
+            });
+        }
+
+        res.endBlock('</list>');
+        res.endBlock('</property>');
+
+        res.needEmptyLine = true;
+    }
+
+    return res;
 };
 
 // Generate caches configs.
@@ -836,39 +900,7 @@ $generatorXml.cache = function(cache, res) {
 
     $generatorXml.cacheStatistics(cache, res);
 
-    // Generate cache type metadata configs.
-    if ((cache.queryMetadata && cache.queryMetadata.length > 0) ||
-        (cache.storeMetadata && cache.storeMetadata.length > 0)) {
-        res.emptyLineIfNeeded();
-
-        res.startBlock('<property name="typeMetadata">');
-        res.startBlock('<list>');
-
-        var metaNames = [];
-
-        if (cache.queryMetadata && cache.queryMetadata.length > 0) {
-            _.forEach(cache.queryMetadata, function (meta) {
-                if (!_.contains(metaNames, meta.name)) {
-                    metaNames.push(meta.name);
-
-                    $generatorXml.cacheMetadata(meta, res);
-                }
-            });
-        }
-
-        if (cache.storeMetadata && cache.storeMetadata.length > 0) {
-            _.forEach(cache.storeMetadata, function (meta) {
-                if (!_.contains(metaNames, meta.name)) {
-                    metaNames.push(meta.name);
-
-                    $generatorXml.cacheMetadata(meta, res);
-                }
-            });
-        }
-
-        res.endBlock('</list>');
-        res.endBlock('</property>');
-    }
+    $generatorXml.cacheMetadatas(cache.queryMetadata, cache.storeMetadata);
 
     res.endBlock('</bean>');
 
@@ -902,17 +934,17 @@ $generatorXml.clusterCaches = function(caches, res) {
     return res;
 };
 
-$generatorXml.cluster = function (cluster, clientNearConfiguration) {
+$generatorXml.cluster = function (cluster, clientNearCfg) {
     var res = $generatorCommon.builder();
 
-    if (clientNearConfiguration) {
+    if (clientNearCfg) {
         res.startBlock('<bean id="nearCacheBean" class="org.apache.ignite.configuration.NearCacheConfiguration">');
 
-        if (clientNearConfiguration.nearStartSize)
-            _addProperty(res, clientNearConfiguration, 'nearStartSize');
+        if (clientNearCfg.nearStartSize)
+            _addProperty(res, clientNearCfg, 'nearStartSize');
 
-        if (clientNearConfiguration.nearEvictionPolicy && clientNearConfiguration.nearEvictionPolicy.kind)
-            _createEvictionPolicy(res, clientNearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
+        if (clientNearCfg.nearEvictionPolicy && clientNearCfg.nearEvictionPolicy.kind)
+            _createEvictionPolicy(res, clientNearCfg.nearEvictionPolicy, 'nearEvictionPolicy');
 
         res.endBlock('</bean>');
 
@@ -922,7 +954,7 @@ $generatorXml.cluster = function (cluster, clientNearConfiguration) {
     // Generate Ignite Configuration.
     res.startBlock('<bean class="org.apache.ignite.configuration.IgniteConfiguration">');
 
-    if (clientNearConfiguration) {
+    if (clientNearCfg) {
         res.line('<property name="clientMode" value="true" />');
 
         res.line();
