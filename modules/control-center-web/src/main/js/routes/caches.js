@@ -44,7 +44,7 @@ router.post('/list', function (req, res) {
             db.Cluster.find({space: {$in: space_ids}}, '_id name').sort('name').exec(function (err, clusters) {
                 if (db.processed(err, res)) {
                     // Get all caches type metadata for spaces.
-                    db.CacheTypeMetadata.find({space: {$in: space_ids}}, '_id name kind', function (err, metadatas) {
+                    db.CacheTypeMetadata.find({space: {$in: space_ids}}).sort('name').exec(function (err, metadatas) {
                         if (db.processed(err, res)) {
                             // Get all caches for spaces.
                             db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
@@ -78,9 +78,7 @@ router.post('/list', function (req, res) {
                                         clusters: clusters.map(function(cluster) {
                                             return {value: cluster._id, label: cluster.name};
                                         }),
-                                        metadatas: metadatas.map(function (meta) {
-                                            return {value: meta._id, label: meta.name, kind: meta.kind};
-                                        }),
+                                        metadatas: metadatas,
                                         caches: caches});
                                 }
                             });

@@ -210,6 +210,14 @@ var CacheSchema = new Schema({
     }
 });
 
+// Install deep populate plugin.
+CacheSchema.plugin(deepPopulate, {
+    whitelist: [
+        'queryMetadata',
+        'storeMetadata'
+    ]
+});
+
 // Define Cache model.
 exports.Cache = mongoose.model('Cache', CacheSchema);
 

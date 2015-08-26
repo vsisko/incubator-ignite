@@ -29,7 +29,7 @@ block content
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Clusters:', 'clusters', 'clusterName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:"Discovery not set"}}')
         .padding-top-dflt
-            button.btn.btn-primary(on-click-focus='clusterName' ng-click='createItem()') Add cluster
+            button.btn.btn-primary(ng-click='createItem()') Add cluster
             label(style='margin-left: 10px; margin-right: 10px') Use template:
             button.form-control.line-control(ng-model='template' bs-options='item.value as item.label for item in templates' bs-select)
             i.tipLabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')

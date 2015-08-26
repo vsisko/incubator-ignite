@@ -509,11 +509,15 @@ controlCenterModule.controller('metadataController', [
                         if (val) {
                             sessionStorage.metadataBackupItem = angular.toJson(val);
 
-                            $scope.preview.general = $generatorXml.metadataGeneral(val).join('');
-                            $scope.preview.query = $generatorXml.metadataQuery(val).join('');
-                            $scope.preview.store = $generatorXml.metadataStore(val).join('');
+                            $scope.preview.generalXml = $generatorXml.metadataGeneral(val).join('');
+                            $scope.preview.queryXml = $generatorXml.metadataQuery(val).join('');
+                            $scope.preview.storeXml = $generatorXml.metadataStore(val).join('');
                         }
                     }, true);
+
+                    $timeout(function () {
+                        $common.initPreview();
+                    });
                 })
                 .error(function (errMsg) {
                     $common.showError(errMsg);
@@ -543,7 +547,10 @@ controlCenterModule.controller('metadataController', [
             // Add new metadata.
             $scope.createItem = function () {
                 $table.tableReset();
-                $common.ensureActivePanel($scope.panels, 'metadata-data');
+
+                $timeout(function () {
+                    $common.ensureActivePanel($scope.panels, 'metadata-data', 'metadataName');
+                });
 
                 $scope.selectedItem = undefined;
 

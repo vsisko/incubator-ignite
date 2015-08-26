@@ -432,7 +432,7 @@ controlCenterModule.service('$common', [
 
         var popover = null;
 
-        function ensureActivePanel(panels, id) {
+        function ensureActivePanel(panels, id, focusId) {
             if (panels) {
                 var idx = _.findIndex($('div.panel-collapse'), function(pnl) {
                     return pnl.id == id;
@@ -451,11 +451,14 @@ controlCenterModule.service('$common', [
                         panels.activePanels = newActivePanels;
                     }
                 }
+
+                if (isDefined(focusId))
+                    $focus(focusId)
             }
         }
 
         function showPopoverMessage(panels, panelId, id, message) {
-            ensureActivePanel(panels, panelId);
+            ensureActivePanel(panels, panelId, id);
 
             var el = $('body').find('#' + id);
 
@@ -465,10 +468,9 @@ controlCenterModule.service('$common', [
             var newPopover = $popover(el, {content: message});
 
             $timeout(function () {
-                $focus(id);
-            }, 50);
+                // Workaround for FireFox browser.
+                newPopover.$options.container;
 
-            $timeout(function () {
                 newPopover.show();
 
                 popover = newPopover;
@@ -638,8 +640,8 @@ controlCenterModule.service('$common', [
 
                 return result;
             },
-            ensureActivePanel: function (panels, id) {
-                ensureActivePanel(panels, id);
+            ensureActivePanel: function (panels, id, focusId) {
+                ensureActivePanel(panels, id, focusId);
             },
             showPopoverMessage: function (panels, panelId, id, message) {
                 return showPopoverMessage(panels, panelId, id, message)
@@ -661,9 +663,8 @@ controlCenterModule.service('$common', [
                         resizePreview(el);
                     });
 
-                    observer.observe($('#' + el.id + '-left')[0], {
+                    observer.observe(el, {
                         childList: true,
-                        attributes: true,
                         subtree: true
                     });
                 });
