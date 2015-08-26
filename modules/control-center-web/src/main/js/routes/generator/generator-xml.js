@@ -800,6 +800,19 @@ $generatorXml.metadataStore = function(meta, res) {
     return res;
 };
 
+$generatorXml.cacheMetadata = function(meta, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeMetadata">');
+
+    $generatorXml.metadataGeneral(meta, res);
+    $generatorXml.metadataQuery(meta, res);
+    $generatorXml.metadataStore(meta, res);
+
+    res.endBlock('</bean>');
+};
+
 // Generate caches configs.
 $generatorXml.cache = function(cache, res) {
     if (!res)
@@ -838,13 +851,7 @@ $generatorXml.cache = function(cache, res) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeMetadata">');
-
-                    $generatorXml.metadataGeneral(meta, res);
-                    $generatorXml.metadataQuery(meta, res);
-                    $generatorXml.metadataStore(meta, res);
-
-                    res.endBlock('</bean>');
+                    $generatorXml.cacheMetadata(meta, res);
                 }
             });
         }
@@ -854,7 +861,7 @@ $generatorXml.cache = function(cache, res) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    _generateCacheTypeMetadataConfiguration(res, meta);
+                    $generatorXml.cacheMetadata(meta, res);
                 }
             });
         }
