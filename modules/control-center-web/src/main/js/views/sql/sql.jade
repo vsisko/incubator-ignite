@@ -52,7 +52,7 @@ block container
                                 .panel-body(ng-show='paragraph.editor')
                                     .row
                                         .col-xs-8.col-sm-9(style='border-right: 1px solid #eee')
-                                            div(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
+                                            .sql-editor(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
                                             'require: ["ace/ext/language_tools"],' +
                                             'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
                                             'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='paragraph.query'
