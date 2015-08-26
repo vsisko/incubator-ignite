@@ -26,7 +26,7 @@ function _client(req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
     if (!client) {
-        res.status(503).send("Client not found");
+        res.status(503).send('Client not found');
 
         return null;
     }
@@ -47,7 +47,7 @@ router.post('/topology', function (req, res) {
         client.ignite().cluster().then(function (clusters) {
             res.json(clusters.map(function (cluster) {
                 var caches = Object.keys(cluster._caches).map(function (key) {
-                    return {"name": key, "mode": cluster._caches[key]}
+                    return {name: key, mode: cluster._caches[key]}
                 });
 
                 return {nodeId: cluster._nodeId, caches: caches};
@@ -105,11 +105,11 @@ router.post('/query/fetch', function (req, res) {
     if (client) {
         var cache = client.ignite().cache(req.body.cacheName);
 
-        var cmd = cache._createCommand("qryfetch").addParam("qryId", req.body.queryId).
-            addParam("pageSize", req.body.pageSize);
+        var cmd = cache._createCommand('qryfetch').addParam('qryId', req.body.queryId).
+            addParam('pageSize', req.body.pageSize);
 
         cache.__createPromise(cmd).then(function (page) {
-            res.json({rows: page["items"], last: page === null || page["last"]});
+            res.json({rows: page['items'], last: page === null || page['last']});
         }, function (err) {
             res.status(500).send(err);
         });

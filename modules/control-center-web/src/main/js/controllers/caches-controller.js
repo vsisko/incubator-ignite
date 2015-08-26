@@ -16,8 +16,8 @@
  */
 
 controlCenterModule.controller('cachesController', [
-        '$scope', '$http', '$common', '$timeout', '$focus', '$confirm', '$copy', '$table', '$preview',
-        function ($scope, $http, $common, $timeout, $focus, $confirm, $copy, $table, $preview) {
+        '$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
+        function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview) {
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
             $scope.javaBuildInClasses = $common.javaBuildInClasses;
@@ -54,7 +54,7 @@ controlCenterModule.controller('cachesController', [
 
             $scope.atomicities = $common.mkOptions(['ATOMIC', 'TRANSACTIONAL']);
 
-            $scope.modes = $common.mkOptions(['PARTITIONED', 'REPLICATED', 'LOCAL']);
+            $scope.cacheModes = $common.mkOptions(['PARTITIONED', 'REPLICATED', 'LOCAL']);
 
             $scope.atomicWriteOrderModes = $common.mkOptions(['CLOCK', 'PRIMARY']);
 
@@ -112,6 +112,12 @@ controlCenterModule.controller('cachesController', [
 
             $scope.panels = {activePanels: [0]};
 
+            $scope.$watchCollection('panels.activePanels', function () {
+                $timeout(function() {
+                    $common.previewHeightUpdate();
+                })
+            });
+
             $scope.general = [];
             $scope.advanced = [];
 
@@ -128,6 +134,8 @@ controlCenterModule.controller('cachesController', [
             $scope.caches = [];
             $scope.queryMetadata = [];
             $scope.storeMetadata = [];
+
+            $scope.preview = {};
 
             $scope.required = function (field) {
                 var model = $common.isDefined(field.path) ? field.path + '.' + field.model : field.model;
@@ -265,10 +273,23 @@ controlCenterModule.controller('cachesController', [
                         if (val) {
                             sessionStorage.cacheBackupItem = angular.toJson(val);
 
+                            $scope.preview.general = $generatorXml.cacheGeneral(val).join('');
+                            $scope.preview.memory = $generatorXml.cacheMemory(val).join('');
+                            $scope.preview.query = $generatorXml.cacheQuery(val).join('');
+                            $scope.preview.store = $generatorXml.cacheStore(val).join('');
+                            $scope.preview.concurrency = $generatorXml.cacheConcurrency(val).join('');
+                            $scope.preview.rebalance = $generatorXml.cacheRebalance(val).join('');
+                            $scope.preview.serverNearCache = $generatorXml.cacheServerNearCache(val).join('');
+                            $scope.preview.statistics = $generatorXml.cacheStatistics(val).join('');
+
                             markChanged();
                         }
                     }, true);
-                })
+
+                    $timeout(function () {
+                        $common.initPreview();
+                    })
+               })
                 .error(function (errMsg) {
                     $common.showError(errMsg);
                 });
@@ -290,6 +311,10 @@ controlCenterModule.controller('cachesController', [
                         sessionStorage.cacheSelectedItem = angular.toJson(item);
                     else
                         sessionStorage.removeItem('cacheSelectedItem');
+
+                    $timeout(function () {
+                        $common.previewHeightUpdate();
+                    })
 
                     $timeout(function () {
                         if (changed)
@@ -316,7 +341,7 @@ controlCenterModule.controller('cachesController', [
 
                 var newItem = {
                     space: $scope.spaces[0]._id,
-                    mode: 'PARTITIONED',
+                    cacheModes: 'PARTITIONED',
                     atomicityMode: 'ATOMIC',
                     readFromBackup: true,
                     copyOnRead: true,
@@ -332,6 +357,7 @@ controlCenterModule.controller('cachesController', [
             function validate(item) {
                 if ($common.isEmptyString(item.name))
                     return showPopoverMessage($scope.panels, 'general-data', 'cacheName', 'Name should not be empty');
+                        sessionStorage.removeItem('cacheSelectedItem');
 
                 if (item.memoryMode == 'OFFHEAP_TIERED' && item.offHeapMaxMemory == null)
                     return showPopoverMessage($scope.panels, 'memory-data', 'offHeapMaxMemory',

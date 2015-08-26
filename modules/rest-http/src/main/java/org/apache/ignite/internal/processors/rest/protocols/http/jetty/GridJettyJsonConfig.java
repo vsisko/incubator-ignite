@@ -30,23 +30,65 @@ public class GridJettyJsonConfig extends JsonConfig {
      * Constructs default jetty json config.
      */
     public GridJettyJsonConfig() {
-        registerJsonValueProcessor(UUID.class, new ToStringJsonProcessor());
+        registerJsonValueProcessor(UUID.class, new UUIDToStringJsonProcessor());
+        registerJsonValueProcessor(Date.class, new DateToStringJsonProcessor());
+        registerJsonValueProcessor(java.sql.Date.class, new DateToStringJsonProcessor());
     }
 
     /**
      * Helper class for simple to-string conversion for the beans.
      */
-    private static class ToStringJsonProcessor implements JsonValueProcessor {
+    private static class UUIDToStringJsonProcessor implements JsonValueProcessor {
         /** {@inheritDoc} */
         @Override public Object processArrayValue(Object val, JsonConfig jsonCfg) {
-            if (val != null && val.getClass() == UUID.class)
+            if (val instanceof UUID)
                 return val.toString();
+
+            if (val instanceof UUID[]) {
+                UUID[] uuids = (UUID[])val;
+
+                String[] result = new String[uuids.length];
+
+                for (int i = 0; i < uuids.length; i++)
+                    result[i] = uuids[i] == null ? null : uuids[i].toString();
+
+                return result;
+            }
 
             throw new UnsupportedOperationException("Serialize array to string is not supported: " + val);
         }
 
         /** {@inheritDoc} */
         @Override public Object processObjectValue(String key, Object val, JsonConfig jsonCfg) {
+            return val == null ? null : val.toString();
+        }
+    }
+
+    /**
+     * Helper class for simple to-string conversion for the beans.
+     */
+    private static class DateToStringJsonProcessor implements JsonValueProcessor {
+        /** {@inheritDoc} */
+        @Override public Object processArrayValue(Object val, JsonConfig jsonCfg) {
+            if (val instanceof Date)
+                return val.toString();
+
+            if (val instanceof Date[]) {
+                Date[] dates = (Date[])val;
+
+                String[] result = new String[dates.length];
+
+                for (int i = 0; i < dates.length; i++)
+                    result[i] = dates[i] == null ? null : dates[i].toString();
+
+                return result;
+            }
+
+            throw new UnsupportedOperationException("Serialize array to string is not supported: " + val);
+        }
+
+        /** {@inheritDoc} */
+        @Override public Object processObjectValue(String key, Object val, JsonConfig jsonConfig) {
             return val == null ? null : val.toString();
         }
     }

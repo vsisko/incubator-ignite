@@ -21,6 +21,7 @@
     {
       "label": "General",
       "id": "general-data",
+      "preview": "general",
       "fields": [
         {
           "label": "Name",
@@ -47,9 +48,9 @@
         {
           "label": "Mode",
           "type": "dropdown",
-          "model": "mode",
+          "model": "cacheMode",
           "placeholder": "PARTITIONED",
-          "items": "modes",
+          "items": "cacheModes",
           "tip": [
             "Cache modes:",
             "<ul>",
@@ -77,7 +78,7 @@
           "label": "Backups",
           "type": "number",
           "model": "backups",
-          "hide": "backupItem.mode != 'PARTITIONED'",
+          "hide": "backupItem.cacheMode != 'PARTITIONED'",
           "placeholder": 0,
           "tip": [
             "Number of nodes used to back up single partition for partitioned cache."
@@ -88,7 +89,7 @@
           "type": "check",
           "model": "readFromBackup",
           "placeholder": true,
-          "hide": "!backupItem.backups || backupItem.mode == 'LOCAL'",
+          "hide": "!backupItem.backups || backupItem.cacheMode == 'LOCAL'",
           "tip": [
             "Flag indicating whether data can be read from backup.",
             "If not set then always get data from primary node (never from backup)."
@@ -118,6 +119,7 @@
     {
       "label": "Memory",
       "id": "memory-data",
+      "preview": "memory",
       "tip": [
         "Cache memory settings."
       ],
@@ -316,6 +318,8 @@
     },
     {
       "label": "Queries & Indexing",
+      "id": "queriesAndIndexing-data",
+      "preview": "query",
       "tip": [
         "Cache query settings."
       ],
@@ -394,6 +398,7 @@
     {
       "label": "Store",
       "id": "store-data",
+      "preview": "store",
       "tip": [
         "Cache store settings."
       ],
@@ -671,6 +676,8 @@
   "advanced": [
     {
       "label": "Concurrency control",
+      "id": "concurrency-data",
+      "preview": "concurrency",
       "tip": [
         "Cache concurrent usage settings."
       ],
@@ -714,7 +721,9 @@
     },
     {
       "label": "Rebalance",
-      "hide": "backupItem.mode == 'LOCAL'",
+      "id": "rebalance-data",
+      "preview": "rebalance",
+      "hide": "backupItem.cacheMode == 'LOCAL'",
       "tip": [
         "Cache rebalance settings."
       ],
@@ -794,7 +803,9 @@
     },
     {
       "label": "Server near cache",
-      "hide": "backupItem.mode != 'PARTITIONED'",
+      "id": "serverNearCache-data",
+      "preview": "serverNearCache",
+      "hide": "backupItem.cacheMode != 'PARTITIONED'",
       "tip": [
         "Near cache settings.",
         "Near cache is a small local cache that stores most recently or most frequently accessed data.",
@@ -959,6 +970,8 @@
     },
     {
       "label": "Statistics",
+      "id": "statistics-data",
+      "preview": "statistics",
       "tip": [
         "Cache statistics and management settings."
       ],

@@ -15,7 +15,13 @@
  * limitations under the License.
  */
 
-eventGroups = {
+if (typeof window === 'undefined') {
+    $commonUtils = require('./common-utils');
+}
+
+$dataStructures = {};
+
+$dataStructures.EVENT_GROUPS = {
     EVTS_CHECKPOINT: ['EVT_CHECKPOINT_SAVED', 'EVT_CHECKPOINT_LOADED', 'EVT_CHECKPOINT_REMOVED'],
     EVTS_DEPLOYMENT: ['EVT_CLASS_DEPLOYED', 'EVT_CLASS_UNDEPLOYED', 'EVT_CLASS_DEPLOY_FAILED', 'EVT_TASK_DEPLOYED',
         'EVT_TASK_UNDEPLOYED', 'EVT_TASK_DEPLOY_FAILED'],
@@ -44,6 +50,56 @@ eventGroups = {
         'EVT_IGFS_META_UPDATED', 'EVT_IGFS_DIR_CREATED', 'EVT_IGFS_DIR_RENAMED', 'EVT_IGFS_DIR_DELETED']
 };
 
+$dataStructures.JAVA_BUILD_IN_CLASSES = [
+    {short: 'BigDecimal', full: 'java.math.BigDecimal'},
+    {short: 'Boolean', full: 'java.lang.Boolean'},
+    {short: 'Byte', full: 'java.lang.Byte'},
+    {short: 'Date', full: 'java.sql.Date'},
+    {short: 'Double', full: 'java.lang.Double'},
+    {short: 'Float', full: 'java.lang.Float'},
+    {short: 'Integer', full: 'java.lang.Integer'},
+    {short: 'Long', full: 'java.lang.Long'},
+    {short: 'Short', full: 'java.lang.Short'},
+    {short: 'String', full: 'java.lang.String'},
+    {short: 'Time', full: 'java.sql.Time'},
+    {short: 'Timestamp', full: 'java.sql.Timestamp'},
+    {short: 'UUID', full: 'java.util.UUID'}
+];
+
+/**
+ * @param clsName Class name to check.
+ * @returns 'true' if given class name is a java build-in type.
+ */
+$dataStructures.isJavaBuildInClass = function (clsName) {
+    if ($commonUtils.isDefined(clsName)) {
+        for (var i = 0; i < $dataStructures.JAVA_BUILD_IN_CLASSES.length; i++) {
+            var jbic = $dataStructures.JAVA_BUILD_IN_CLASSES[i];
+
+            if (clsName == jbic.short || clsName == jbic.full)
+                return true;
+        }
+    }
+
+    return false;
+};
+
+/**
+ * @param clsName Class name to check.
+ * @returns Full class name for java build-in types or source class otherwise.
+ */
+$dataStructures.fullClassName = function (clsName) {
+    if ($commonUtils.isDefined(clsName)) {
+        for (var i = 0; i < $dataStructures.JAVA_BUILD_IN_CLASSES.length; i++) {
+            var jbic = $dataStructures.JAVA_BUILD_IN_CLASSES[i];
+
+            if (clsName == jbic.short)
+                return jbic.full;
+        }
+    }
+
+    return clsName;
+};
+
 if (typeof window === 'undefined') {
-    exports.eventGroups = eventGroups;
+    module.exports = $dataStructures;
 }

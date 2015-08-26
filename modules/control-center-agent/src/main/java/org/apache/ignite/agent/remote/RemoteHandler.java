@@ -18,6 +18,7 @@
 package org.apache.ignite.agent.remote;
 
 import com.google.gson.*;
+import org.apache.http.auth.*;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -128,6 +129,12 @@ public class RemoteHandler implements AutoCloseable {
                     res = desc.mtd.invoke(desc.hnd, args);
                 }
                 catch (Throwable e) {
+                    if (e instanceof AuthenticationException) {
+                        close();
+
+                        return;
+                    }
+
                     if (e instanceof InvocationTargetException)
                         e = ((InvocationTargetException)e).getTargetException();
 

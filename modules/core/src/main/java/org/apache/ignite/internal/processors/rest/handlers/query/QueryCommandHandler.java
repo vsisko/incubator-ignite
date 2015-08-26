@@ -169,9 +169,25 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
 
                 CacheQueryResult res = createQueryResult(qryCurs, cur, req, qryId, ctx);
 
-                List<GridQueryFieldMetadata> fieldsMeta = ((QueryCursorImpl) qryCur).fieldsMeta();
+                switch (req.queryType()) {
+                    case SQL:
+                    case SQL_FIELDS:
+                        List<GridQueryFieldMetadata> fieldsMeta = ((QueryCursorImpl) qryCur).fieldsMeta();
 
-                res.setFieldsMetadata(convertMetadata(fieldsMeta));
+                        res.setFieldsMetadata(convertMetadata(fieldsMeta));
+
+                        break;
+                    case SCAN:
+                        CacheQueryFieldsMetaResult keyField = new CacheQueryFieldsMetaResult();
+                        keyField.setFieldName("Key");
+
+                        CacheQueryFieldsMetaResult valField = new CacheQueryFieldsMetaResult();
+                        valField.setFieldName("Value");
+
+                        res.setFieldsMetadata(U.sealList(keyField, valField));
+
+                        break;
+                }
 
                 return new GridRestResponse(res);
             }

@@ -15,11 +15,13 @@
  * limitations under the License.
  */
 
-exports.isDefined = function isDefined(v) {
+$commonUtils = {};
+
+$commonUtils.isDefined = function isDefined(v) {
     return !(v === undefined || v === null);
 };
 
-exports.hasProperty = function (obj, props) {
+$commonUtils.hasProperty = function (obj, props) {
     for (var propName in props) {
         if (props.hasOwnProperty(propName)) {
             if (obj[propName])
@@ -30,8 +32,12 @@ exports.hasProperty = function (obj, props) {
     return false;
 };
 
-exports.randomValueHex = function randomValueHex(len) {
-    return require('crypto').randomBytes(Math.ceil(len / 2))
-        .toString('hex') // convert to hexadecimal format
-        .slice(0, len);  // return required number of characters
-};
+if (typeof window === 'undefined') {
+    $commonUtils.randomValueHex = function randomValueHex(len) {
+        return require('crypto').randomBytes(Math.ceil(len / 2))
+            .toString('hex') // convert to hexadecimal format
+            .slice(0, len);  // return required number of characters
+    };
+
+    module.exports = $commonUtils;
+}

@@ -479,6 +479,26 @@ controlCenterModule.service('$common', [
             return false;
         }
 
+        function resizePreview (el) {
+            var left = $('#' + el.id + '-left');
+
+            if (left.height() > 0) {
+                var right = $('#' + el.id + '-right');
+
+                var scrollHeight = right.find('.ace_scrollbar-h').height();
+
+                var parent = right.parent();
+
+                var parentHeight = Math.max(75, left.height() - 2 * parent.css('marginTop').replace("px", ""));
+
+                parent.outerHeight(parentHeight);
+
+                right.height(parentHeight - scrollHeight / 2);
+
+                right.resize();
+            }
+        }
+
         var win = $(window);
 
         var elem = undefined;
@@ -574,7 +594,7 @@ controlCenterModule.service('$common', [
 
                 return false;
             },
-        isEmptyArray: isEmptyArray,
+            isEmptyArray: isEmptyArray,
             isEmptyString: isEmptyString,
             errorMessage: errorMessage,
             showError: showError,
@@ -665,6 +685,26 @@ controlCenterModule.service('$common', [
             hidePopover: function () {
                 if (popover)
                     popover.hide();
+            },
+            previewHeightUpdate: function () {
+                $('.panel-collapse').each(function (ix, el) {
+                    resizePreview(el);
+                })
+            },
+            initPreview: function () {
+                MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+                $('.panel-collapse').each(function (ix, el) {
+                    var observer = new MutationObserver(function(mutations, observer) {
+                        resizePreview(el);
+                    });
+
+                    observer.observe($('#' + el.id + '-left')[0], {
+                        childList: true,
+                        attributes: true,
+                        subtree: true
+                    });
+                });
             }
         }
     }]);
@@ -956,7 +996,7 @@ controlCenterModule.service('$preview', [function () {
     return {
         previewInit: function (editor) {
             editor.setReadOnly(true);
-            editor.setOption("highlightActiveLine", false);
+            editor.setOption('highlightActiveLine', false);
             editor.$blockScrolling = Infinity;
 
             var renderer = editor.renderer;
@@ -970,612 +1010,6 @@ controlCenterModule.service('$preview', [function () {
         }
     }
 }]);
-
-// Preview support service.
-controlCenterModule.service('$code', ['$common', function ($common) {
-    function builder() {
-        var res = [];
-
-        res.deep = 0;
-        res.lineStart = true;
-
-        res.append = function (s) {
-            if (this.lineStart) {
-                for (var i = 0; i < this.deep; i++)
-                    this.push('    ');
-
-                this.lineStart = false;
-            }
-
-            this.push(s);
-
-            return this;
-        };
-
-        res.line = function (s) {
-            if (s)
-                this.append(s);
-
-            this.push('\n');
-            this.lineStart = true;
-
-            return this;
-        };
-
-        res.startBlock = function (s) {
-            if (s)
-                this.append(s);
-
-            this.push('\n');
-            this.lineStart = true;
-            this.deep++;
-
-            return this;
-        };
-
-        res.endBlock = function (s) {
-            this.deep--;
-
-            if (s)
-                this.append(s);
-
-            this.push('\n');
-            this.lineStart = true;
-
-            return this;
-        };
-
-        res.emptyLineIfNeeded = function () {
-            if (this.needEmptyLine) {
-                this.line();
-
-                this.needEmptyLine = false;
-
-                return true;
-            }
-
-            return false;
-        };
-
-        res.imports = {};
-
-        res.importClass = function (className) {
-            var fullClassName = javaBuildInClass(className);
-
-            var dotIdx = fullClassName.lastIndexOf('.');
-
-            var shortName = dotIdx > 0 ? fullClassName.substr(dotIdx + 1) : fullClassName;
-
-            if (this.imports[shortName]) {
-                if (this.imports[shortName] != fullClassName)
-                    return fullClassName; // Short class names conflict. Return full name.
-            }
-            else
-                this.imports[shortName] = fullClassName;
-
-            return shortName;
-        };
-
-        /**
-         * @returns String with "java imports" section.
-         */
-        res.generateImports = function () {
-            var res = [];
-
-            for (var clsName in this.imports) {
-                if (this.imports.hasOwnProperty(clsName) && this.imports[clsName].lastIndexOf('java.lang.', 0) != 0)
-                    res.push('import ' + this.imports[clsName] + ';');
-            }
-
-            res.sort();
-
-            return res.join('\n')
-        };
-
-        return res;
-    }
-
-    function escapeAttr(s) {
-        if (typeof(s) != 'string')
-            return s;
-
-        return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-    }
-
-    function addElement(res, tag, attr1, val1, attr2, val2) {
-        var elem = '<' + tag;
-
-        if (attr1) {
-            elem += ' ' + attr1 + '="' + val1 + '"'
-        }
-
-        if (attr2) {
-            elem += ' ' + attr2 + '="' + val2 + '"'
-        }
-
-        elem += '/>';
-
-        res.emptyLineIfNeeded();
-        res.line(elem);
-    }
-
-    function addProperty(res, obj, propName, setterName) {
-        var val = obj[propName];
-
-        if ($common.isDefined(val))
-            addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', escapeAttr(val));
-
-        return val;
-    }
-
-    function addClassNameProperty(res, obj, propName) {
-        var val = obj[propName];
-
-        if ($common.isDefined(val))
-            addElement(res, 'property', 'name', propName, 'value', $common.javaBuildInClass(val));
-
-        return val;
-    }
-
-    function addListProperty(res, obj, propName, listType, rowFactory) {
-        var val = obj[propName];
-
-        if (val && val.length > 0) {
-            res.emptyLineIfNeeded();
-
-            if (!listType)
-                listType = 'list';
-
-            if (!rowFactory)
-                rowFactory = function (val) {
-                    return '<value>' + escape(val) + '</value>'
-                };
-
-            res.startBlock('<property name="' + propName + '">');
-            res.startBlock('<' + listType + '>');
-
-            for (var i = 0; i < val.length; i++)
-                res.line(rowFactory(val[i]));
-
-            res.endBlock('</' + listType + '>');
-            res.endBlock('</property>');
-        }
-    }
-
-    function ClassDescriptor(className, fields) {
-        this.className = className;
-        this.fields = fields;
-    }
-
-    var eventGroups = {
-        EVTS_CHECKPOINT: ['EVT_CHECKPOINT_SAVED', 'EVT_CHECKPOINT_LOADED', 'EVT_CHECKPOINT_REMOVED'],
-        EVTS_DEPLOYMENT: ['EVT_CLASS_DEPLOYED', 'EVT_CLASS_UNDEPLOYED', 'EVT_CLASS_DEPLOY_FAILED', 'EVT_TASK_DEPLOYED',
-            'EVT_TASK_UNDEPLOYED', 'EVT_TASK_DEPLOY_FAILED'],
-        EVTS_ERROR: ['EVT_JOB_TIMEDOUT', 'EVT_JOB_FAILED', 'EVT_JOB_FAILED_OVER', 'EVT_JOB_REJECTED', 'EVT_JOB_CANCELLED',
-            'EVT_TASK_TIMEDOUT', 'EVT_TASK_FAILED', 'EVT_CLASS_DEPLOY_FAILED', 'EVT_TASK_DEPLOY_FAILED',
-            'EVT_TASK_DEPLOYED', 'EVT_TASK_UNDEPLOYED', 'EVT_CACHE_REBALANCE_STARTED', 'EVT_CACHE_REBALANCE_STOPPED'],
-        EVTS_DISCOVERY: ['EVT_NODE_JOINED', 'EVT_NODE_LEFT', 'EVT_NODE_FAILED', 'EVT_NODE_SEGMENTED',
-            'EVT_CLIENT_NODE_DISCONNECTED', 'EVT_CLIENT_NODE_RECONNECTED'],
-        EVTS_JOB_EXECUTION: ['EVT_JOB_MAPPED', 'EVT_JOB_RESULTED', 'EVT_JOB_FAILED_OVER', 'EVT_JOB_STARTED',
-            'EVT_JOB_FINISHED', 'EVT_JOB_TIMEDOUT', 'EVT_JOB_REJECTED', 'EVT_JOB_FAILED', 'EVT_JOB_QUEUED',
-            'EVT_JOB_CANCELLED'],
-        EVTS_TASK_EXECUTION: ['EVT_TASK_STARTED', 'EVT_TASK_FINISHED', 'EVT_TASK_FAILED', 'EVT_TASK_TIMEDOUT',
-            'EVT_TASK_SESSION_ATTR_SET', 'EVT_TASK_REDUCED'],
-        EVTS_CACHE: ['EVT_CACHE_ENTRY_CREATED', 'EVT_CACHE_ENTRY_DESTROYED', 'EVT_CACHE_OBJECT_PUT',
-            'EVT_CACHE_OBJECT_READ', 'EVT_CACHE_OBJECT_REMOVED', 'EVT_CACHE_OBJECT_LOCKED', 'EVT_CACHE_OBJECT_UNLOCKED',
-            'EVT_CACHE_OBJECT_SWAPPED', 'EVT_CACHE_OBJECT_UNSWAPPED', 'EVT_CACHE_OBJECT_EXPIRED'],
-        EVTS_CACHE_REBALANCE: ['EVT_CACHE_REBALANCE_STARTED', 'EVT_CACHE_REBALANCE_STOPPED',
-            'EVT_CACHE_REBALANCE_PART_LOADED', 'EVT_CACHE_REBALANCE_PART_UNLOADED', 'EVT_CACHE_REBALANCE_OBJECT_LOADED',
-            'EVT_CACHE_REBALANCE_OBJECT_UNLOADED', 'EVT_CACHE_REBALANCE_PART_DATA_LOST'],
-        EVTS_CACHE_LIFECYCLE: ['EVT_CACHE_STARTED', 'EVT_CACHE_STOPPED', 'EVT_CACHE_NODES_LEFT'],
-        EVTS_CACHE_QUERY: ['EVT_CACHE_QUERY_EXECUTED', 'EVT_CACHE_QUERY_OBJECT_READ'],
-        EVTS_SWAPSPACE: ['EVT_SWAP_SPACE_CLEARED', 'EVT_SWAP_SPACE_DATA_REMOVED', 'EVT_SWAP_SPACE_DATA_READ',
-            'EVT_SWAP_SPACE_DATA_STORED', 'EVT_SWAP_SPACE_DATA_EVICTED'],
-        EVTS_IGFS: ['EVT_IGFS_FILE_CREATED', 'EVT_IGFS_FILE_RENAMED', 'EVT_IGFS_FILE_DELETED', 'EVT_IGFS_FILE_OPENED_READ',
-            'EVT_IGFS_FILE_OPENED_WRITE', 'EVT_IGFS_FILE_CLOSED_WRITE', 'EVT_IGFS_FILE_CLOSED_READ', 'EVT_IGFS_FILE_PURGED',
-            'EVT_IGFS_META_UPDATED', 'EVT_IGFS_DIR_CREATED', 'EVT_IGFS_DIR_RENAMED', 'EVT_IGFS_DIR_DELETED']
-    };
-
-    var atomicConfiguration = new ClassDescriptor('org.apache.ignite.configuration.AtomicConfiguration', {
-        backups: null,
-        cacheMode: {type: 'enum', enumClass: 'CacheMode'},
-        atomicSequenceReserveSize: null
-    });
-
-    var evictionPolicies = {
-        'LRU': new ClassDescriptor('org.apache.ignite.cache.eviction.lru.LruEvictionPolicy',
-            {batchSize: null, maxMemorySize: null, maxSize: null}),
-        'RND': new ClassDescriptor('org.apache.ignite.cache.eviction.random.RandomEvictionPolicy', {maxSize: null}),
-        'FIFO': new ClassDescriptor('org.apache.ignite.cache.eviction.fifo.FifoEvictionPolicy',
-            {batchSize: null, maxMemorySize: null, maxSize: null}),
-        'SORTED': new ClassDescriptor('org.apache.ignite.cache.eviction.sorted.SortedEvictionPolicy',
-            {batchSize: null, maxMemorySize: null, maxSize: null})
-    };
-
-    var marshallers = {
-        OptimizedMarshaller: new ClassDescriptor('org.apache.ignite.marshaller.optimized.OptimizedMarshaller', {
-            poolSize: null,
-            requireSerializable: null
-        }),
-        JdkMarshaller: new ClassDescriptor('org.apache.ignite.marshaller.jdk.JdkMarshaller', {})
-    };
-
-    var swapSpaceSpi = new ClassDescriptor('org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi', {
-        baseDirectory: null,
-        readStripesNumber: null,
-        maximumSparsity: {type: 'float'},
-        maxWriteQueueSize: null,
-        writeBufferSize: null
-    });
-
-    var transactionConfiguration = new ClassDescriptor('org.apache.ignite.configuration.TransactionConfiguration', {
-        defaultTxConcurrency: {type: 'enum', enumClass: 'TransactionConcurrency'},
-        transactionIsolation: {type: 'TransactionIsolation', setterName: 'defaultTxIsolation'},
-        defaultTxTimeout: null,
-        pessimisticTxLogLinger: null,
-        pessimisticTxLogSize: null,
-        txSerializableEnabled: null
-    });
-
-    var knownClasses = {
-        Oracle: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
-        DB2: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.DB2Dialect', {}),
-        SQLServer: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.SQLServerDialect', {}),
-        MySQL: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.MySQLDialect', {}),
-        PostgreSQL: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.BasicJdbcDialect', {}),
-        H2: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.H2Dialect', {})
-    };
-
-    function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
-        if (bean && $common.hasProperty(bean, props)) {
-            res.emptyLineIfNeeded();
-            res.startBlock('<property name="' + beanPropName + '">');
-            res.startBlock('<bean class="' + beanClass + '">');
-
-            for (var propName in props) {
-                if (props.hasOwnProperty(propName)) {
-                    var descr = props[propName];
-
-                    if (descr) {
-                        if (descr.type == 'list') {
-                            addListProperty(res, bean, propName, descr.setterName);
-                        }
-                        else if (descr.type == 'className') {
-                            if (bean[propName]) {
-                                res.startBlock('<property name="' + propName + '">');
-                                res.line('<bean class="' + knownClasses[bean[propName]].className + '"/>');
-                                res.endBlock('</property>');
-                            }
-                        }
-                        else if (descr.type == 'propertiesAsList') {
-                            var val = bean[propName];
-
-                            if (val && val.length > 0) {
-                                res.startBlock('<property name="' + propName + '">');
-                                res.startBlock('<props>');
-
-                                for (var i = 0; i < val.length; i++) {
-                                    var nameAndValue = val[i];
-
-                                    var eqIndex = nameAndValue.indexOf('=');
-                                    if (eqIndex >= 0) {
-                                        res.line('<prop key="' + escapeAttr(nameAndValue.substring(0, eqIndex)) + '">' +
-                                            escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
-                                    }
-                                }
-
-                                res.endBlock('</props>');
-                                res.endBlock('</property>');
-                            }
-                        }
-                        else
-                            addProperty(res, bean, propName, descr.setterName);
-                    }
-                    else
-                        addProperty(res, bean, propName);
-                }
-            }
-
-            res.endBlock('</bean>');
-            res.endBlock('</property>');
-        }
-        else if (createBeanAlthoughNoProps) {
-            res.emptyLineIfNeeded();
-            res.line('<property name="' + beanPropName + '">');
-            res.line('    <bean class="' + beanClass + '"/>');
-            res.line('</property>');
-        }
-    }
-
-    return {
-        xmlClusterGeneral: function (cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate discovery.
-            if (cluster.discovery) {
-                res.startBlock('<property name="discoverySpi">');
-                res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">');
-                res.startBlock('<property name="ipFinder">');
-
-                var d = cluster.discovery;
-
-                switch (d.kind) {
-                    case 'Multicast':
-                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder">');
-
-                        addProperty(res, d.Multicast, 'multicastGroup');
-                        addProperty(res, d.Multicast, 'multicastPort');
-                        addProperty(res, d.Multicast, 'responseWaitTime');
-                        addProperty(res, d.Multicast, 'addressRequestAttempts');
-                        addProperty(res, d.Multicast, 'localAddress');
-
-                        res.endBlock('</bean>');
-
-                        break;
-
-                    case 'Vm':
-                        if (d.Vm.addresses.length > 0) {
-                            res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">');
-
-                            addListProperty(res, d.Vm, 'addresses');
-
-                            res.endBlock('</bean>');
-                        }
-                        else {
-                            res.line('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder"/>');
-                        }
-
-                        break;
-
-                    case 'S3':
-                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder">');
-
-                        if (d.S3 && d.S3.bucketName)
-                            res.line('<property name="bucketName" value="' + escapeAttr(d.S3.bucketName) + '" />');
-
-                        res.endBlock('</bean>');
-
-                        break;
-
-                    case 'Cloud':
-                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder">');
-
-                        addProperty(res, d.Cloud, 'credential');
-                        addProperty(res, d.Cloud, 'credentialPath');
-                        addProperty(res, d.Cloud, 'identity');
-                        addProperty(res, d.Cloud, 'provider');
-                        addListProperty(res, d.Cloud, 'regions');
-                        addListProperty(res, d.Cloud, 'zones');
-
-                        res.endBlock('</bean>');
-
-                        break;
-
-                    case 'GoogleStorage':
-                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder">');
-
-                        addProperty(res, d.GoogleStorage, 'projectName');
-                        addProperty(res, d.GoogleStorage, 'bucketName');
-                        addProperty(res, d.GoogleStorage, 'serviceAccountP12FilePath');
-                        addProperty(res, d.GoogleStorage, 'serviceAccountId');
-
-                        //if (d.GoogleStorage.addrReqAttempts) todo ????
-                        //    res.line('<property name="serviceAccountP12FilePath" value="' + escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
-
-                        res.endBlock('</bean>');
-
-                        break;
-
-                    case 'Jdbc':
-                        res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder">');
-                        res.line('<property name="initSchema" value="' + ($common.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + '"/>');
-                        res.endBlock('</bean>');
-
-                        break;
-
-                    case 'SharedFs':
-                        if (d.SharedFs.path) {
-                            res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder">');
-                            addProperty(res, d.SharedFs, 'path');
-                            res.endBlock('</bean>');
-                        }
-                        else {
-                            res.line('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder"/>');
-                        }
-
-                        break;
-
-                    default:
-                        throw "Unknown discovery kind: " + d.kind;
-                }
-
-                res.endBlock('</property>');
-                res.endBlock('</bean>');
-                res.endBlock('</property>');
-
-                res.needEmptyLine = true;
-            }
-
-            return res;
-        },
-        xmlClusterAtomics: function (cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate atomics group.
-            addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration',
-                atomicConfiguration.className, atomicConfiguration.fields);
-            res.needEmptyLine = true;
-
-            return res;
-        },
-        xmlClusterCommunication: function (cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate communication group.
-            addProperty(res, cluster, 'networkTimeout');
-            addProperty(res, cluster, 'networkSendRetryDelay');
-            addProperty(res, cluster, 'networkSendRetryCount');
-            addProperty(res, cluster, 'segmentCheckFrequency');
-            addProperty(res, cluster, 'waitForSegmentOnStart');
-            addProperty(res, cluster, 'discoveryStartupDelay');
-            res.needEmptyLine = true;
-
-            return res;
-        },
-        xmlClusterDeployment: function(cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate deployment group.
-            addProperty(res, cluster, 'deploymentMode');
-            res.needEmptyLine = true;
-
-            return res;
-        },
-        xmlClusterEvents: function(cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate events group.
-            if (cluster.includeEventTypes && cluster.includeEventTypes.length > 0) {
-                res.emptyLineIfNeeded();
-
-                res.startBlock('<property name="includeEventTypes">');
-
-                if (cluster.includeEventTypes.length == 1)
-                    res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + cluster.includeEventTypes[0] + '"/>');
-                else {
-                    res.startBlock('<array>');
-
-                    for (i = 0; i < cluster.includeEventTypes.length; i++) {
-                        if (i > 0)
-                            res.line();
-
-                        var eventGroup = cluster.includeEventTypes[i];
-
-                        res.line('<!-- EventType.' + eventGroup + ' -->');
-
-                        var eventList = eventGroups[eventGroup];
-
-                        for (var k = 0; k < eventList.length; k++) {
-                            res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + eventList[k] + '"/>')
-                        }
-                    }
-
-                    res.endBlock('</array>');
-                }
-
-                res.endBlock('</property>');
-
-                res.needEmptyLine = true;
-            }
-
-            return res;
-        },
-        xmlClusterMarshaller: function(cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate marshaller group.
-            var marshaller = cluster.marshaller;
-
-            if (marshaller && marshaller.kind) {
-                var marshallerDesc = marshallers[marshaller.kind];
-
-                addBeanWithProperties(res, marshaller[marshaller.kind], 'marshaller', marshallerDesc.className, marshallerDesc.fields, true);
-                res.needEmptyLine = true;
-            }
-
-            addProperty(res, cluster, 'marshalLocalJobs');
-            addProperty(res, cluster, 'marshallerCacheKeepAliveTime');
-            addProperty(res, cluster, 'marshallerCacheThreadPoolSize');
-            res.needEmptyLine = true;
-
-            return res;
-        },
-        xmlClusterMetrics: function(cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate metrics group.
-            addProperty(res, cluster, 'metricsExpireTime');
-            addProperty(res, cluster, 'metricsHistorySize');
-            addProperty(res, cluster, 'metricsLogFrequency');
-            addProperty(res, cluster, 'metricsUpdateFrequency');
-            res.needEmptyLine = true;
-
-            return res;
-        },
-        xmlClusterP2P: function(cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate PeerClassLoading group.
-            addProperty(res, cluster, 'peerClassLoadingEnabled');
-            addListProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
-            addProperty(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
-            addProperty(res, cluster, 'peerClassLoadingThreadPoolSize');
-            res.needEmptyLine = true;
-
-            return res;
-        },
-        xmlClusterSwap: function(cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate swap group.
-            if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
-                addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
-                    swapSpaceSpi.className, swapSpaceSpi.fields, true);
-
-                res.needEmptyLine = true;
-            }
-
-            return res;
-        },
-        xmlClusterTime: function(cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate time group.
-            addProperty(res, cluster, 'clockSyncSamples');
-            addProperty(res, cluster, 'clockSyncFrequency');
-            addProperty(res, cluster, 'timeServerPortBase');
-            addProperty(res, cluster, 'timeServerPortRange');
-            res.needEmptyLine = true;
-
-            return res;
-        },
-        xmlClusterPools: function(cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate thread pools group.
-            addProperty(res, cluster, 'publicThreadPoolSize');
-            addProperty(res, cluster, 'systemThreadPoolSize');
-            addProperty(res, cluster, 'managementThreadPoolSize');
-            addProperty(res, cluster, 'igfsThreadPoolSize');
-            res.needEmptyLine = true;
-
-            return res;
-        },
-        xmlClusterTransactions: function(cluster, res) {
-            if (!res)
-                res = builder();
-
-            // Generate transactions group.
-            addBeanWithProperties(res, cluster.transactionConfiguration, 'transactionConfiguration',
-                transactionConfiguration.className, transactionConfiguration.fields);
-            res.needEmptyLine = true;
-
-            return res;
-        }
-    }
-}]);
-
 
 // Filter to decode name using map(value, label).
 controlCenterModule.filter('displayValue', function () {

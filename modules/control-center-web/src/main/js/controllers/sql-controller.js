@@ -123,8 +123,8 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
 
             $scope.caches = node.caches;
 
-            $scope.addParagraph();
-            $scope.addParagraph();
+            if (!$scope.notebook.paragraphs || $scope.notebook.paragraphs.length == 0)
+                $scope.addParagraph();
         })
         .error(function (err, status) {
             $scope.caches = undefined;
@@ -134,6 +134,15 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
             else
                 $common.showError('Receive agent error: ' + err);
         });
+
+    var _appendOnLast = function(item) {
+        var idx = _.findIndex($scope.notebook.paragraphs, function (paragraph) {
+            return paragraph == item;
+        });
+
+        if ($scope.notebook.paragraphs.length == (idx + 1))
+            $scope.addParagraph();
+    };
 
     var _processQueryResult = function(item) {
         return function(res) {
@@ -155,6 +164,8 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     };
 
     $scope.execute = function(item) {
+        _appendOnLast(item);
+
         $http.post('/agent/query', {query: item.query, pageSize: item.pageSize, cacheName: item.cache.name})
             .success(_processQueryResult(item))
             .error(function (errMsg) {
@@ -163,14 +174,18 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     };
 
     $scope.explain = function(item) {
+        _appendOnLast(item);
+
         $http.post('/agent/query', {query: 'EXPLAIN ' + item.query, pageSize: item.pageSize, cacheName: item.cache.name})
-            .success(_processQueryResult)
+            .success(_processQueryResult(item))
             .error(function (errMsg) {
                 $common.showError(errMsg);
             });
     };
 
     $scope.scan = function(item) {
+        _appendOnLast(item);
+
         $http.post('/agent/scan', {pageSize: item.pageSize, cacheName: item.cache.name})
             .success(_processQueryResult(item))
             .error(function (errMsg) {
@@ -193,6 +208,23 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
             .error(function (errMsg) {
                 $common.showError(errMsg);
             });
+    };
+
+    $scope.columnToolTip = function(col) {
+        var res = [];
+
+        if (col.schemaName)
+            res.push(col.schemaName);
+        if (col.typeName)
+            res.push(col.typeName);
+
+        res.push(col.fieldName);
+
+        return res.join(".");
+    };
+
+    $scope.resultMode = function(paragraph, type) {
+        return (paragraph.result === type);
     };
 
     $scope.getter = function (value) {

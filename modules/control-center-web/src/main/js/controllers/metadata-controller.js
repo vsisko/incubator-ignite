@@ -60,6 +60,8 @@ controlCenterModule.controller('metadataController', [
 
             var showPopoverMessage = $common.showPopoverMessage;
 
+            $scope.preview = {};
+
             var presets = [
                 {
                     db: 'oracle',
@@ -157,6 +159,11 @@ controlCenterModule.controller('metadataController', [
 
             $scope.panels = {activePanels: [0, 1]};
 
+            $scope.$watchCollection('panels.activePanels', function () {
+                $timeout(function() {
+                    $common.previewHeightUpdate();
+                })
+            });
             $scope.metadatas = [];
 
             function markChanged() {
@@ -205,8 +212,12 @@ controlCenterModule.controller('metadataController', [
                 function setSelectedAndBackupItem() {
                     $table.tableReset();
 
-                    $scope.backupItem = bak;
                     $scope.selectedItem = sel;
+                    $scope.backupItem = bak;
+    
+                    $timeout(function () {
+                        $common.previewHeightUpdate();
+                    })
 
                     $timeout(function () {
                         if (changed)
@@ -540,6 +551,10 @@ controlCenterModule.controller('metadataController', [
                     $scope.$watch('backupItem', function (val) {
                         if (val) {
                             sessionStorage.metadataBackupItem = angular.toJson(val);
+
+                            $scope.preview.general = $generatorXml.metadataGeneral(val).join('');
+                            $scope.preview.query = $generatorXml.metadataQuery(val).join('');
+                            $scope.preview.store = $generatorXml.metadataStore(val).join('');
 
                             markChanged();
                         }

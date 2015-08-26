@@ -312,7 +312,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-disabled=fieldDisabled data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
-            a.customize(ng-show='#{fieldMdl} && field.settings && field.details[#{fieldMdl}].fields.length > 0' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? 'Hide settings' : 'Show settings'}}
+            a.customize(ng-if='#{fieldMdl} && field.settings && field.details[#{fieldMdl}].fields.length > 0' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? 'Hide settings' : 'Show settings'}}
             .col-sm-12.panel-details(ng-show='(#{expanded} || !field.settings) && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
@@ -444,11 +444,11 @@ mixin groups(groups, dataSource)
                 i.tipLabel.fa.fa-question-circle.blank(ng-if='!group.tip')
         .panel-collapse(role='tabpanel' bs-collapse-target id='{{::group.id}}' number='{{::group.number}}')
             .panel-body
-                .col-sm-6
+                .col-sm-6(id='{{::group.id + "-left"}}')
                     .settings-row(ng-repeat='field in group.fields')
                         +form-row(dataSource)
                 .col-sm-6
-                    +preview('group.preview')
+                    +preview('group.preview', '{{::group.id + "-right"}}')
 
 mixin advanced-options-top
     .advanced-options
@@ -461,6 +461,6 @@ mixin advanced-options-bottom
         i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
         a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
 
-mixin preview(previewModel)
+mixin preview(previewModel, id)
     .panel-details(style='margin-left: 20px; padding: 0 3px')
-        .ace-preview(ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{previewModel}]')
+        .ace-preview(id='#{id}' ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{previewModel}]')

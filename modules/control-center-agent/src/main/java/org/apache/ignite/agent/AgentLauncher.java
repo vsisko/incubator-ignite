@@ -45,6 +45,7 @@ public class AgentLauncher {
     /**
      * @param args Args.
      */
+    @SuppressWarnings("BusyWait")
     public static void main(String[] args) throws Exception {
         log.log(Level.INFO, "Starting Apache Ignite Control Center Agent...");
 
@@ -77,12 +78,6 @@ public class AgentLauncher {
             cfg.password(new String(System.console().readPassword()));
         }
 
-        if (cfg.testDriveMetadata())
-            AgentMetadataTestDrive.testDrive();
-
-        if (cfg.testDriveSql())
-            AgentSqlTestDrive.testDrive();
-
         RestExecutor restExecutor = new RestExecutor(cfg);
 
         restExecutor.start();
@@ -91,7 +86,7 @@ public class AgentLauncher {
             SslContextFactory sslCtxFactory = new SslContextFactory();
 
             // TODO IGNITE-843 Fix issue with trust all: if (Boolean.TRUE.equals(Boolean.getBoolean("trust.all")))
-                sslCtxFactory.setTrustAll(true);
+            sslCtxFactory.setTrustAll(true);
 
             WebSocketClient client = new WebSocketClient(sslCtxFactory);
 
