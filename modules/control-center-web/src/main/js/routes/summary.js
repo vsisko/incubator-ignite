@@ -43,14 +43,14 @@ router.post('/generator', function (req, res) {
         if (clientCache)
             return res.send({
                 xmlClient: $generatorXml.cluster(cluster, clientCache),
-                javaClient: $generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientCache)
+                javaClient: $generatorJava.cluster(cluster, req.body.javaClass, clientCache)
             });
 
         return res.send({
             xmlServer: $generatorXml.cluster(cluster),
-            javaSnippetServer: $generatorJava.generateClusterConfiguration(cluster, false),
-            javaClassServer: $generatorJava.generateClusterConfiguration(cluster, true),
-            docker: $generatorDocker.generateClusterConfiguration(cluster, '%OS%')
+            javaSnippetServer: $generatorJava.cluster(cluster, false),
+            javaClassServer: $generatorJava.cluster(cluster, true),
+            docker: $generatorDocker.clusterDocker(cluster, '%OS%')
         });
     });
 });
@@ -87,18 +87,18 @@ router.post('/download', function (req, res) {
         zip.pipe(res);
 
         if (!clientNearConfiguration) {
-            zip.append($generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: 'Dockerfile'});
+            zip.append($generatorDocker.clusterDocker(cluster, req.body.os), {name: 'Dockerfile'});
 
-            var props = $generatorProperties.generateProperties(cluster);
+            var props = $generatorProperties.dataSourcesProperties(cluster);
 
             if (props)
                 zip.append(props, {name: 'secret.properties'});
         }
 
         zip.append($generatorXml.cluster(cluster, clientNearConfiguration), {name: cluster.name + '.xml'})
-            .append($generatorJava.generateClusterConfiguration(cluster, false, clientNearConfiguration),
+            .append($generatorJava.cluster(cluster, false, clientNearConfiguration),
                 {name: cluster.name + '.snippet.java'})
-            .append($generatorJava.generateClusterConfiguration(cluster, true, clientNearConfiguration),
+            .append($generatorJava.cluster(cluster, true, clientNearConfiguration),
                 {name: 'ConfigurationFactory.java'})
             .finalize();
     });

@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-exports.generateClusterConfiguration = function (cluster, os) {
+$generatorDocker = {};
+
+$generatorDocker.clusterDocker = function (cluster, os) {
     if (!os)
         os = 'debian:8';
 
@@ -55,3 +57,7 @@ exports.generateClusterConfiguration = function (cluster, os) {
         '\n' +
         'RUN mv /tmp/*.xml /home/$(ls)/config';
 };
+
+if (typeof window === 'undefined') {
+    module.exports = $generatorDocker;
+}
