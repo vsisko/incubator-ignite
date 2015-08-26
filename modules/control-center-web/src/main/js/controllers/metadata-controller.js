@@ -552,9 +552,9 @@ controlCenterModule.controller('metadataController', [
                         if (val) {
                             sessionStorage.metadataBackupItem = angular.toJson(val);
 
-                            $scope.preview.general = $generatorXml.metadataGeneral(val).join('');
-                            $scope.preview.query = $generatorXml.metadataQuery(val).join('');
-                            $scope.preview.store = $generatorXml.metadataStore(val).join('');
+                            $scope.preview.generalXml = $generatorXml.metadataGeneral(val).join('');
+                            $scope.preview.queryXml = $generatorXml.metadataQuery(val).join('');
+                            $scope.preview.storeXml = $generatorXml.metadataStore(val).join('');
 
                             markChanged();
                         }

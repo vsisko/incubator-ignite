@@ -699,9 +699,8 @@ controlCenterModule.service('$common', [
                         resizePreview(el);
                     });
 
-                    observer.observe($('#' + el.id + '-left')[0], {
+                    observer.observe(el, {
                         childList: true,
-                        attributes: true,
                         subtree: true
                     });
                 });

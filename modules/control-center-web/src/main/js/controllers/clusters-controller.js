@@ -224,18 +224,31 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                             return memo;
                         }, []);
 
-                        $scope.preview.general = $generatorXml.clusterCaches(clusterCaches, $generatorXml.clusterGeneral(val)).join('');
-                        $scope.preview.atomics = $generatorXml.clusterAtomics(val).join('');
-                        $scope.preview.communication = $generatorXml.clusterCommunication(val).join('');
-                        $scope.preview.deployment = $generatorXml.clusterDeployment(val).join('');
-                        $scope.preview.events = $generatorXml.clusterEvents(val).join('');
-                        $scope.preview.marshaller = $generatorXml.clusterMarshaller(val).join('');
-                        $scope.preview.metrics = $generatorXml.clusterMetrics(val).join('');
-                        $scope.preview.p2p = $generatorXml.clusterP2p(val).join('');
-                        $scope.preview.swap = $generatorXml.clusterSwap(val).join('');
-                        $scope.preview.time = $generatorXml.clusterTime(val).join('');
-                        $scope.preview.pools = $generatorXml.clusterPools(val).join('');
-                        $scope.preview.transactions = $generatorXml.clusterTransactions(val).join('');
+                        $scope.preview.generalXml = $generatorXml.clusterCaches(clusterCaches, $generatorXml.clusterGeneral(val)).join('');
+                        $scope.preview.atomicsXml = $generatorXml.clusterAtomics(val).join('');
+                        $scope.preview.communicationXml = $generatorXml.clusterCommunication(val).join('');
+                        $scope.preview.deploymentXml = $generatorXml.clusterDeployment(val).join('');
+                        $scope.preview.eventsXml = $generatorXml.clusterEvents(val).join('');
+                        $scope.preview.marshallerXml = $generatorXml.clusterMarshaller(val).join('');
+                        $scope.preview.metricsXml = $generatorXml.clusterMetrics(val).join('');
+                        $scope.preview.p2pXml = $generatorXml.clusterP2p(val).join('');
+                        $scope.preview.swapXml = $generatorXml.clusterSwap(val).join('');
+                        $scope.preview.timeXml = $generatorXml.clusterTime(val).join('');
+                        $scope.preview.poolsXml = $generatorXml.clusterPools(val).join('');
+                        $scope.preview.transactionsXml = $generatorXml.clusterTransactions(val).join('');
+
+                        $scope.preview.generalJava = $generatorJava.clusterCaches(clusterCaches, $generatorJava.clusterGeneral(val)).join('');
+                        $scope.preview.atomicsJava = $generatorJava.clusterAtomics(val).join('');
+                        $scope.preview.communicationJava = $generatorJava.clusterCommunication(val).join('');
+                        //$scope.preview.deploymentJava = $generatorJava.clusterDeployment(val).join('');
+                        //$scope.preview.eventsJava = $generatorJava.clusterEvents(val).join('');
+                        //$scope.preview.marshallerJava = $generatorJava.clusterMarshaller(val).join('');
+                        //$scope.preview.metricsJava = $generatorJava.clusterMetrics(val).join('');
+                        //$scope.preview.p2pJava = $generatorJava.clusterP2p(val).join('');
+                        //$scope.preview.swapJava = $generatorJava.clusterSwap(val).join('');
+                        //$scope.preview.timeJava = $generatorJava.clusterTime(val).join('');
+                        //$scope.preview.poolsJava = $generatorJava.clusterPools(val).join('');
+                        //$scope.preview.transactionsJava = $generatorJava.clusterTransactions(val).join('');
 
                         markChanged();
                     }
