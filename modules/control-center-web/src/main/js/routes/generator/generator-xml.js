@@ -23,21 +23,23 @@ if (typeof window === 'undefined') {
     $generatorCommon = require('./generator-common');
 }
 
-function _escape(s) {
+$generatorXml = {};
+
+$generatorXml._escape = function (s) {
     if (typeof(s) != 'string')
         return s;
 
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
+};
 
-function _escapeAttr(s) {
+$generatorXml._escapeAttr = function (s) {
     if (typeof(s) != 'string')
         return s;
 
     return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-}
+};
 
-function _addElement(res, tag, attr1, val1, attr2, val2) {
+$generatorXml._addElement = function (res, tag, attr1, val1, attr2, val2) {
     var elem = '<' + tag;
 
     if (attr1)
@@ -50,25 +52,25 @@ function _addElement(res, tag, attr1, val1, attr2, val2) {
 
     res.emptyLineIfNeeded();
     res.line(elem);
-}
+};
 
-function _addProperty(res, obj, propName, setterName) {
+$generatorXml._addProperty = function (res, obj, propName, setterName) {
     if ($commonUtils.isDefined(obj)) {
         var val = obj[propName];
 
         if ($commonUtils.isDefined(val))
-            _addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', _escapeAttr(val));
+            $generatorXml._addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', $generatorXml._escapeAttr(val));
     }
-}
+};
 
-function _addClassNameProperty(res, obj, propName) {
+$generatorXml._addClassNameProperty = function (res, obj, propName) {
     var val = obj[propName];
 
     if ($commonUtils.isDefined(val))
-        _addElement(res, 'property', 'name', propName, 'value', $dataStructures.fullClassName(val));
-}
+        $generatorXml._addElement(res, 'property', 'name', propName, 'value', $dataStructures.fullClassName(val));
+};
 
-function _addListProperty(res, obj, propName, listType, rowFactory) {
+$generatorXml._addListProperty = function (res, obj, propName, listType, rowFactory) {
     var val = obj[propName];
 
     if (val && val.length > 0) {
@@ -79,7 +81,7 @@ function _addListProperty(res, obj, propName, listType, rowFactory) {
 
         if (!rowFactory)
             rowFactory = function (val) {
-                return '<value>' + _escape(val) + '</value>'
+                return '<value>' + $generatorXml._escape(val) + '</value>'
             };
 
         res.startBlock('<property name="' + propName + '">');
@@ -93,9 +95,9 @@ function _addListProperty(res, obj, propName, listType, rowFactory) {
 
         res.needEmptyLine = true;
     }
-}
+};
 
-function _addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
+$generatorXml._addBeanWithProperties = function (res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
     if (bean && $commonUtils.hasProperty(bean, props)) {
         res.emptyLineIfNeeded();
         res.startBlock('<property name="' + beanPropName + '">');
@@ -107,7 +109,7 @@ function _addBeanWithProperties(res, bean, beanPropName, beanClass, props, creat
 
                 if (descr) {
                     if (descr.type == 'list') {
-                        _addListProperty(res, bean, propName, descr.setterName);
+                        $generatorXml._addListProperty(res, bean, propName, descr.setterName);
                     }
                     else if (descr.type == 'className') {
                         if (bean[propName]) {
@@ -128,8 +130,8 @@ function _addBeanWithProperties(res, bean, beanPropName, beanClass, props, creat
 
                                 var eqIndex = nameAndValue.indexOf('=');
                                 if (eqIndex >= 0) {
-                                    res.line('<prop key="' + _escapeAttr(nameAndValue.substring(0, eqIndex)) + '">' +
-                                        _escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
+                                    res.line('<prop key="' + $generatorXml._escapeAttr(nameAndValue.substring(0, eqIndex)) + '">' +
+                                        $generatorXml._escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
                                 }
                             }
 
@@ -138,10 +140,10 @@ function _addBeanWithProperties(res, bean, beanPropName, beanClass, props, creat
                         }
                     }
                     else
-                        _addProperty(res, bean, propName, descr.setterName);
+                        $generatorXml._addProperty(res, bean, propName, descr.setterName);
                 }
                 else
-                    _addProperty(res, bean, propName);
+                    $generatorXml._addProperty(res, bean, propName);
             }
         }
 
@@ -154,19 +156,19 @@ function _addBeanWithProperties(res, bean, beanPropName, beanClass, props, creat
         res.line('    <bean class="' + beanClass + '"/>');
         res.line('</property>');
     }
-}
+};
 
-function _createEvictionPolicy(res, evictionPolicy, propertyName) {
+$generatorXml._createEvictionPolicy = function (res, evictionPolicy, propertyName) {
     if (evictionPolicy && evictionPolicy.kind) {
         var e = $generatorCommon.EVICTION_POLICIES[evictionPolicy.kind];
 
         var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
 
-        _addBeanWithProperties(res, obj, propertyName, e.className, e.fields, true);
+        $generatorXml._addBeanWithProperties(res, obj, propertyName, e.className, e.fields, true);
     }
-}
+};
 
-function _addCacheTypeMetadataDatabaseFields(res, meta, fieldProperty) {
+$generatorXml._addCacheTypeMetadataDatabaseFields = function (res, meta, fieldProperty) {
     var fields = meta[fieldProperty];
 
     if (fields && fields.length > 0) {
@@ -179,15 +181,15 @@ function _addCacheTypeMetadataDatabaseFields(res, meta, fieldProperty) {
         _.forEach(fields, function (field) {
             res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeFieldMetadata">');
 
-            _addProperty(res, field, 'databaseName');
+            $generatorXml._addProperty(res, field, 'databaseName');
 
             res.startBlock('<property name="databaseType">');
             res.line('<util:constant static-field="java.sql.Types.' + field.databaseType + '"/>');
             res.endBlock('</property>');
 
-            _addProperty(res, field, 'javaName');
+            $generatorXml._addProperty(res, field, 'javaName');
 
-            _addClassNameProperty(res, field, 'javaType');
+            $generatorXml._addClassNameProperty(res, field, 'javaType');
 
             res.endBlock('</bean>');
         });
@@ -197,9 +199,9 @@ function _addCacheTypeMetadataDatabaseFields(res, meta, fieldProperty) {
 
         res.needEmptyLine = true;
     }
-}
+};
 
-function _addCacheTypeMetadataQueryFields(res, meta, fieldProperty) {
+$generatorXml._addCacheTypeMetadataQueryFields = function (res, meta, fieldProperty) {
     var fields = meta[fieldProperty];
 
     if (fields && fields.length > 0) {
@@ -209,7 +211,7 @@ function _addCacheTypeMetadataQueryFields(res, meta, fieldProperty) {
         res.startBlock('<map>');
 
         _.forEach(fields, function (field) {
-            _addElement(res, 'entry', 'key', field.name, 'value', $dataStructures.fullClassName(field.className));
+            $generatorXml._addElement(res, 'entry', 'key', field.name, 'value', $dataStructures.fullClassName(field.className));
         });
 
         res.endBlock('</map>');
@@ -217,9 +219,9 @@ function _addCacheTypeMetadataQueryFields(res, meta, fieldProperty) {
 
         res.needEmptyLine = true;
     }
-}
+};
 
-function _addCacheTypeMetadataGroups(res, meta) {
+$generatorXml._addCacheTypeMetadataGroups = function (res, meta) {
     var groups = meta.groups;
 
     if (groups && groups.length > 0) {
@@ -256,9 +258,7 @@ function _addCacheTypeMetadataGroups(res, meta) {
 
         res.needEmptyLine = true;
     }
-}
-
-$generatorXml = {};
+};
 
 // Generate discovery.
 $generatorXml.clusterGeneral = function (cluster, res) {
@@ -276,11 +276,11 @@ $generatorXml.clusterGeneral = function (cluster, res) {
             case 'Multicast':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder">');
 
-                _addProperty(res, d.Multicast, 'multicastGroup');
-                _addProperty(res, d.Multicast, 'multicastPort');
-                _addProperty(res, d.Multicast, 'responseWaitTime');
-                _addProperty(res, d.Multicast, 'addressRequestAttempts');
-                _addProperty(res, d.Multicast, 'localAddress');
+                $generatorXml._addProperty(res, d.Multicast, 'multicastGroup');
+                $generatorXml._addProperty(res, d.Multicast, 'multicastPort');
+                $generatorXml._addProperty(res, d.Multicast, 'responseWaitTime');
+                $generatorXml._addProperty(res, d.Multicast, 'addressRequestAttempts');
+                $generatorXml._addProperty(res, d.Multicast, 'localAddress');
 
                 res.endBlock('</bean>');
 
@@ -290,7 +290,7 @@ $generatorXml.clusterGeneral = function (cluster, res) {
                 if (d.Vm.addresses.length > 0) {
                     res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">');
 
-                    _addListProperty(res, d.Vm, 'addresses');
+                    $generatorXml._addListProperty(res, d.Vm, 'addresses');
 
                     res.endBlock('</bean>');
                 }
@@ -304,7 +304,7 @@ $generatorXml.clusterGeneral = function (cluster, res) {
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder">');
 
                 if (d.S3 && d.S3.bucketName)
-                    res.line('<property name="bucketName" value="' + _escapeAttr(d.S3.bucketName) + '" />');
+                    res.line('<property name="bucketName" value="' + $generatorXml._escapeAttr(d.S3.bucketName) + '" />');
 
                 res.endBlock('</bean>');
 
@@ -313,12 +313,12 @@ $generatorXml.clusterGeneral = function (cluster, res) {
             case 'Cloud':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder">');
 
-                _addProperty(res, d.Cloud, 'credential');
-                _addProperty(res, d.Cloud, 'credentialPath');
-                _addProperty(res, d.Cloud, 'identity');
-                _addProperty(res, d.Cloud, 'provider');
-                _addListProperty(res, d.Cloud, 'regions');
-                _addListProperty(res, d.Cloud, 'zones');
+                $generatorXml._addProperty(res, d.Cloud, 'credential');
+                $generatorXml._addProperty(res, d.Cloud, 'credentialPath');
+                $generatorXml._addProperty(res, d.Cloud, 'identity');
+                $generatorXml._addProperty(res, d.Cloud, 'provider');
+                $generatorXml._addListProperty(res, d.Cloud, 'regions');
+                $generatorXml._addListProperty(res, d.Cloud, 'zones');
 
                 res.endBlock('</bean>');
 
@@ -327,13 +327,13 @@ $generatorXml.clusterGeneral = function (cluster, res) {
             case 'GoogleStorage':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder">');
 
-                _addProperty(res, d.GoogleStorage, 'projectName');
-                _addProperty(res, d.GoogleStorage, 'bucketName');
-                _addProperty(res, d.GoogleStorage, 'serviceAccountP12FilePath');
-                _addProperty(res, d.GoogleStorage, 'serviceAccountId');
+                $generatorXml._addProperty(res, d.GoogleStorage, 'projectName');
+                $generatorXml._addProperty(res, d.GoogleStorage, 'bucketName');
+                $generatorXml._addProperty(res, d.GoogleStorage, 'serviceAccountP12FilePath');
+                $generatorXml._addProperty(res, d.GoogleStorage, 'serviceAccountId');
 
                 //if (d.GoogleStorage.addrReqAttempts) todo ????
-                //    res.line('<property name="serviceAccountP12FilePath" value="' + _escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
+                //    res.line('<property name="serviceAccountP12FilePath" value="' + $generatorXml._escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
 
                 res.endBlock('</bean>');
 
@@ -349,7 +349,7 @@ $generatorXml.clusterGeneral = function (cluster, res) {
             case 'SharedFs':
                 if (d.SharedFs.path) {
                     res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder">');
-                    _addProperty(res, d.SharedFs, 'path');
+                    $generatorXml._addProperty(res, d.SharedFs, 'path');
                     res.endBlock('</bean>');
                 }
                 else {
@@ -379,7 +379,7 @@ $generatorXml.clusterAtomics = function (cluster, res) {
 
     var atomicCfg = $generatorCommon.ATOMIC_CONFIGURATION;
 
-    _addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration', atomicCfg.className, atomicCfg.fields);
+    $generatorXml._addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration', atomicCfg.className, atomicCfg.fields);
 
     res.needEmptyLine = true;
 
@@ -391,12 +391,12 @@ $generatorXml.clusterCommunication = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cluster, 'networkTimeout');
-    _addProperty(res, cluster, 'networkSendRetryDelay');
-    _addProperty(res, cluster, 'networkSendRetryCount');
-    _addProperty(res, cluster, 'segmentCheckFrequency');
-    _addProperty(res, cluster, 'waitForSegmentOnStart');
-    _addProperty(res, cluster, 'discoveryStartupDelay');
+    $generatorXml._addProperty(res, cluster, 'networkTimeout');
+    $generatorXml._addProperty(res, cluster, 'networkSendRetryDelay');
+    $generatorXml._addProperty(res, cluster, 'networkSendRetryCount');
+    $generatorXml._addProperty(res, cluster, 'segmentCheckFrequency');
+    $generatorXml._addProperty(res, cluster, 'waitForSegmentOnStart');
+    $generatorXml._addProperty(res, cluster, 'discoveryStartupDelay');
 
     res.needEmptyLine = true;
 
@@ -408,7 +408,7 @@ $generatorXml.clusterDeployment = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cluster, 'deploymentMode');
+    $generatorXml._addProperty(res, cluster, 'deploymentMode');
 
     res.needEmptyLine = true;
 
@@ -466,14 +466,14 @@ $generatorXml.clusterMarshaller = function (cluster, res) {
     if (marshaller && marshaller.kind) {
         var marshallerDesc = $generatorCommon.MARSHALLERS[marshaller.kind];
 
-        _addBeanWithProperties(res, marshaller[marshaller.kind], 'marshaller', marshallerDesc.className, marshallerDesc.fields, true);
+        $generatorXml._addBeanWithProperties(res, marshaller[marshaller.kind], 'marshaller', marshallerDesc.className, marshallerDesc.fields, true);
 
         res.needEmptyLine = true;
     }
 
-    _addProperty(res, cluster, 'marshalLocalJobs');
-    _addProperty(res, cluster, 'marshallerCacheKeepAliveTime');
-    _addProperty(res, cluster, 'marshallerCacheThreadPoolSize');
+    $generatorXml._addProperty(res, cluster, 'marshalLocalJobs');
+    $generatorXml._addProperty(res, cluster, 'marshallerCacheKeepAliveTime');
+    $generatorXml._addProperty(res, cluster, 'marshallerCacheThreadPoolSize');
 
     res.needEmptyLine = true;
 
@@ -485,10 +485,10 @@ $generatorXml.clusterMetrics = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cluster, 'metricsExpireTime');
-    _addProperty(res, cluster, 'metricsHistorySize');
-    _addProperty(res, cluster, 'metricsLogFrequency');
-    _addProperty(res, cluster, 'metricsUpdateFrequency');
+    $generatorXml._addProperty(res, cluster, 'metricsExpireTime');
+    $generatorXml._addProperty(res, cluster, 'metricsHistorySize');
+    $generatorXml._addProperty(res, cluster, 'metricsLogFrequency');
+    $generatorXml._addProperty(res, cluster, 'metricsUpdateFrequency');
 
     res.needEmptyLine = true;
 
@@ -500,10 +500,10 @@ $generatorXml.clusterP2p = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cluster, 'peerClassLoadingEnabled');
-    _addListProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
-    _addProperty(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
-    _addProperty(res, cluster, 'peerClassLoadingThreadPoolSize');
+    $generatorXml._addProperty(res, cluster, 'peerClassLoadingEnabled');
+    $generatorXml._addListProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
+    $generatorXml._addProperty(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
+    $generatorXml._addProperty(res, cluster, 'peerClassLoadingThreadPoolSize');
 
     res.needEmptyLine = true;
 
@@ -518,7 +518,7 @@ $generatorXml.clusterSwap = function (cluster, res) {
     var swapSpaceSpi = $generatorCommon.SWAP_SPACE_SPI;
 
     if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
-        _addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
+        $generatorXml._addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
             swapSpaceSpi.className, swapSpaceSpi.fields, true);
 
         res.needEmptyLine = true;
@@ -532,10 +532,10 @@ $generatorXml.clusterTime = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cluster, 'clockSyncSamples');
-    _addProperty(res, cluster, 'clockSyncFrequency');
-    _addProperty(res, cluster, 'timeServerPortBase');
-    _addProperty(res, cluster, 'timeServerPortRange');
+    $generatorXml._addProperty(res, cluster, 'clockSyncSamples');
+    $generatorXml._addProperty(res, cluster, 'clockSyncFrequency');
+    $generatorXml._addProperty(res, cluster, 'timeServerPortBase');
+    $generatorXml._addProperty(res, cluster, 'timeServerPortRange');
 
     res.needEmptyLine = true;
 
@@ -547,10 +547,10 @@ $generatorXml.clusterPools = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cluster, 'publicThreadPoolSize');
-    _addProperty(res, cluster, 'systemThreadPoolSize');
-    _addProperty(res, cluster, 'managementThreadPoolSize');
-    _addProperty(res, cluster, 'igfsThreadPoolSize');
+    $generatorXml._addProperty(res, cluster, 'publicThreadPoolSize');
+    $generatorXml._addProperty(res, cluster, 'systemThreadPoolSize');
+    $generatorXml._addProperty(res, cluster, 'managementThreadPoolSize');
+    $generatorXml._addProperty(res, cluster, 'igfsThreadPoolSize');
     res.needEmptyLine = true;
 
     return res;
@@ -563,7 +563,7 @@ $generatorXml.clusterTransactions = function (cluster, res) {
 
     var trnCfg = $generatorCommon.TRANSACTION_CONFIGURATION;
 
-    _addBeanWithProperties(res, cluster.transactionConfiguration, 'transactionConfiguration', trnCfg.className, trnCfg.fields);
+    $generatorXml._addBeanWithProperties(res, cluster.transactionConfiguration, 'transactionConfiguration', trnCfg.className, trnCfg.fields);
 
     res.needEmptyLine = true;
 
@@ -575,19 +575,19 @@ $generatorXml.cacheGeneral = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cache, 'name');
+    $generatorXml._addProperty(res, cache, 'name');
 
     res.needEmptyLine = true;
 
-    _addProperty(res, cache, 'cacheMode');
-    _addProperty(res, cache, 'atomicityMode');
+    $generatorXml._addProperty(res, cache, 'cacheMode');
+    $generatorXml._addProperty(res, cache, 'atomicityMode');
 
     if (cache.cacheMode == 'PARTITIONED')
-        _addProperty(res, cache, 'backups');
+        $generatorXml._addProperty(res, cache, 'backups');
 
-    _addProperty(res, cache, 'readFromBackup');
-    _addProperty(res, cache, 'copyOnRead');
-    _addProperty(res, cache, 'invalidate');
+    $generatorXml._addProperty(res, cache, 'readFromBackup');
+    $generatorXml._addProperty(res, cache, 'copyOnRead');
+    $generatorXml._addProperty(res, cache, 'invalidate');
 
     return res;
 };
@@ -597,17 +597,17 @@ $generatorXml.cacheMemory = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cache, 'memoryMode');
-    _addProperty(res, cache, 'offHeapMaxMemory');
+    $generatorXml._addProperty(res, cache, 'memoryMode');
+    $generatorXml._addProperty(res, cache, 'offHeapMaxMemory');
 
     res.needEmptyLine = true;
 
-    _createEvictionPolicy(res, cache.evictionPolicy, 'evictionPolicy');
+    $generatorXml._createEvictionPolicy(res, cache.evictionPolicy, 'evictionPolicy');
 
     res.needEmptyLine = true;
 
-    _addProperty(res, cache, 'swapEnabled');
-    _addProperty(res, cache, 'startSize');
+    $generatorXml._addProperty(res, cache, 'swapEnabled');
+    $generatorXml._addProperty(res, cache, 'startSize');
 
     res.needEmptyLine = true;
 
@@ -619,9 +619,9 @@ $generatorXml.cacheQuery = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cache, 'sqlOnheapRowCacheSize');
+    $generatorXml._addProperty(res, cache, 'sqlOnheapRowCacheSize');
 
-    _addProperty(res, cache, 'longQueryWarningTimeout');
+    $generatorXml._addProperty(res, cache, 'longQueryWarningTimeout');
 
     if (cache.indexedTypes && cache.indexedTypes.length > 0) {
         res.startBlock('<property name="indexedTypes">');
@@ -640,9 +640,9 @@ $generatorXml.cacheQuery = function(cache, res) {
         res.needEmptyLine = true;
     }
 
-    _addListProperty(res, cache, 'sqlFunctionClasses', 'array');
+    $generatorXml._addListProperty(res, cache, 'sqlFunctionClasses', 'array');
 
-    _addProperty(res, cache, 'sqlEscapeAll');
+    $generatorXml._addProperty(res, cache, 'sqlEscapeAll');
 
     res.needEmptyLine = true;
 
@@ -660,7 +660,7 @@ $generatorXml.cacheStore = function(cache, res) {
         if (storeFactory) {
             var storeFactoryDesc = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
 
-            _addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', storeFactoryDesc.className, storeFactoryDesc.fields, true);
+            $generatorXml._addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', storeFactoryDesc.className, storeFactoryDesc.fields, true);
 
             if (storeFactory.dialect) {
                 if (_.findIndex(res.datasources, function (ds) {
@@ -677,17 +677,17 @@ $generatorXml.cacheStore = function(cache, res) {
         }
     }
 
-    _addProperty(res, cache, 'loadPreviousValue');
-    _addProperty(res, cache, 'readThrough');
-    _addProperty(res, cache, 'writeThrough');
+    $generatorXml._addProperty(res, cache, 'loadPreviousValue');
+    $generatorXml._addProperty(res, cache, 'readThrough');
+    $generatorXml._addProperty(res, cache, 'writeThrough');
 
     res.needEmptyLine = true;
 
-    _addProperty(res, cache, 'writeBehindEnabled');
-    _addProperty(res, cache, 'writeBehindBatchSize');
-    _addProperty(res, cache, 'writeBehindFlushSize');
-    _addProperty(res, cache, 'writeBehindFlushFrequency');
-    _addProperty(res, cache, 'writeBehindFlushThreadCount');
+    $generatorXml._addProperty(res, cache, 'writeBehindEnabled');
+    $generatorXml._addProperty(res, cache, 'writeBehindBatchSize');
+    $generatorXml._addProperty(res, cache, 'writeBehindFlushSize');
+    $generatorXml._addProperty(res, cache, 'writeBehindFlushFrequency');
+    $generatorXml._addProperty(res, cache, 'writeBehindFlushThreadCount');
 
     res.needEmptyLine = true;
 
@@ -699,9 +699,9 @@ $generatorXml.cacheConcurrency = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cache, 'maxConcurrentAsyncOperations');
-    _addProperty(res, cache, 'defaultLockTimeout');
-    _addProperty(res, cache, 'atomicWriteOrderMode');
+    $generatorXml._addProperty(res, cache, 'maxConcurrentAsyncOperations');
+    $generatorXml._addProperty(res, cache, 'defaultLockTimeout');
+    $generatorXml._addProperty(res, cache, 'atomicWriteOrderMode');
 
     res.needEmptyLine = true;
 
@@ -714,13 +714,13 @@ $generatorXml.cacheRebalance = function(cache, res) {
         res = $generatorCommon.builder();
 
     if (cache.cacheMode != 'LOCAL') {
-        _addProperty(res, cache, 'rebalanceMode');
-        _addProperty(res, cache, 'rebalanceThreadPoolSize');
-        _addProperty(res, cache, 'rebalanceBatchSize');
-        _addProperty(res, cache, 'rebalanceOrder');
-        _addProperty(res, cache, 'rebalanceDelay');
-        _addProperty(res, cache, 'rebalanceTimeout');
-        _addProperty(res, cache, 'rebalanceThrottle');
+        $generatorXml._addProperty(res, cache, 'rebalanceMode');
+        $generatorXml._addProperty(res, cache, 'rebalanceThreadPoolSize');
+        $generatorXml._addProperty(res, cache, 'rebalanceBatchSize');
+        $generatorXml._addProperty(res, cache, 'rebalanceOrder');
+        $generatorXml._addProperty(res, cache, 'rebalanceDelay');
+        $generatorXml._addProperty(res, cache, 'rebalanceTimeout');
+        $generatorXml._addProperty(res, cache, 'rebalanceThrottle');
 
         res.needEmptyLine = true;
     }
@@ -740,10 +740,10 @@ $generatorXml.cacheServerNearCache = function(cache, res) {
         res.startBlock('<bean class="org.apache.ignite.configuration.NearCacheConfiguration">');
 
         if (cache.nearConfiguration && cache.nearConfiguration.nearStartSize)
-            _addProperty(res, cache.nearConfiguration, 'nearStartSize');
+            $generatorXml._addProperty(res, cache.nearConfiguration, 'nearStartSize');
 
         if (cache.nearConfiguration && cache.nearConfiguration.nearEvictionPolicy.kind)
-            _createEvictionPolicy(res, cache.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
+            $generatorXml._createEvictionPolicy(res, cache.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
 
         res.endBlock('</bean>');
         res.endBlock('</property>');
@@ -759,8 +759,8 @@ $generatorXml.cacheStatistics = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, cache, 'statisticsEnabled');
-    _addProperty(res, cache, 'managementEnabled');
+    $generatorXml._addProperty(res, cache, 'statisticsEnabled');
+    $generatorXml._addProperty(res, cache, 'managementEnabled');
 
     res.needEmptyLine = true;
 
@@ -772,8 +772,8 @@ $generatorXml.metadataGeneral = function(meta, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addClassNameProperty(res, meta, 'keyType');
-    _addProperty(res, meta, 'valueType');
+    $generatorXml._addClassNameProperty(res, meta, 'keyType');
+    $generatorXml._addProperty(res, meta, 'valueType');
 
     res.needEmptyLine = true;
 
@@ -785,13 +785,13 @@ $generatorXml.metadataQuery = function(meta, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
-    _addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
-    _addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
+    $generatorXml._addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+    $generatorXml._addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+    $generatorXml._addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
 
-    _addListProperty(res, meta, 'textFields');
+    $generatorXml._addListProperty(res, meta, 'textFields');
 
-    _addCacheTypeMetadataGroups(res, meta);
+    $generatorXml._addCacheTypeMetadataGroups(res, meta);
 
     res.needEmptyLine = true;
 
@@ -803,13 +803,13 @@ $generatorXml.metadataStore = function(meta, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    _addProperty(res, meta, 'databaseSchema');
-    _addProperty(res, meta, 'databaseTable');
+    $generatorXml._addProperty(res, meta, 'databaseSchema');
+    $generatorXml._addProperty(res, meta, 'databaseTable');
 
     if (!$dataStructures.isJavaBuildInClass(meta.keyType))
-        _addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+        $generatorXml._addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
 
-    _addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
+    $generatorXml._addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
 
     res.needEmptyLine = true;
 
@@ -941,10 +941,10 @@ $generatorXml.cluster = function (cluster, clientNearCfg) {
         res.startBlock('<bean id="nearCacheBean" class="org.apache.ignite.configuration.NearCacheConfiguration">');
 
         if (clientNearCfg.nearStartSize)
-            _addProperty(res, clientNearCfg, 'nearStartSize');
+            $generatorXml._addProperty(res, clientNearCfg, 'nearStartSize');
 
         if (clientNearCfg.nearEvictionPolicy && clientNearCfg.nearEvictionPolicy.kind)
-            _createEvictionPolicy(res, clientNearCfg.nearEvictionPolicy, 'nearEvictionPolicy');
+            $generatorXml._createEvictionPolicy(res, clientNearCfg.nearEvictionPolicy, 'nearEvictionPolicy');
 
         res.endBlock('</bean>');
 

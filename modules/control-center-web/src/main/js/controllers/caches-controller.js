@@ -270,14 +270,14 @@ controlCenterModule.controller('cachesController', [
                                 return memo;
                             }, []);
 
-                            $scope.preview.general = $generatorXml.cacheGeneral(val).join('');
-                            $scope.preview.memory = $generatorXml.cacheMemory(val).join('');
-                            $scope.preview.query = $generatorXml.cacheMetadatas(qryMeta, null, $generatorXml.cacheQuery(val)).join('');
-                            $scope.preview.store = $generatorXml.cacheMetadatas(null, storeMeta, $generatorXml.cacheStore(val)).join('');
-                            $scope.preview.concurrency = $generatorXml.cacheConcurrency(val).join('');
-                            $scope.preview.rebalance = $generatorXml.cacheRebalance(val).join('');
-                            $scope.preview.serverNearCache = $generatorXml.cacheServerNearCache(val).join('');
-                            $scope.preview.statistics = $generatorXml.cacheStatistics(val).join('');
+                            $scope.preview.generalXml = $generatorXml.cacheGeneral(val).join('');
+                            $scope.preview.memoryXml = $generatorXml.cacheMemory(val).join('');
+                            $scope.preview.queryXml = $generatorXml.cacheMetadatas(qryMeta, null, $generatorXml.cacheQuery(val)).join('');
+                            $scope.preview.storeXml = $generatorXml.cacheMetadatas(null, storeMeta, $generatorXml.cacheStore(val)).join('');
+                            $scope.preview.concurrencyXml = $generatorXml.cacheConcurrency(val).join('');
+                            $scope.preview.rebalanceXml = $generatorXml.cacheRebalance(val).join('');
+                            $scope.preview.serverNearCacheXml = $generatorXml.cacheServerNearCache(val).join('');
+                            $scope.preview.statisticsXml = $generatorXml.cacheStatistics(val).join('');
                         }
                     }, true);
 
