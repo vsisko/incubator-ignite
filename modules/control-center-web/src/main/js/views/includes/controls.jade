@@ -462,5 +462,14 @@ mixin advanced-options-bottom
         a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
 
 mixin preview(previewModel, id)
+    -var previewModelXml = previewModel + 'Xml'
+    -var previewModelJava = previewModel + 'Java'
+    -var previewModelState = previewModel + 'State'
+
     .panel-details(style='margin-left: 20px; padding: 0 3px')
-        .ace-preview(id='#{id}' ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{previewModel}]')
+        div(style='padding: 5px; position: absolute; z-index: 9999; right: 0')
+            button(ng-click='#{previewModelState} = !#{previewModelState}')
+                img(ng-if='#{previewModelState}' src="/images/xml.png" width="16px" height="16px")
+                img(ng-if='!#{previewModelState}' src="/images/java.png" width="16px" height="16px")
+        .ace-preview(ng-if='!#{previewModelState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{previewModel} + "Xml"]')
+        .ace-preview(ng-if='#{previewModelState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "java"}' ng-model='preview[#{previewModel} + "Java"]')

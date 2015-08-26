@@ -261,7 +261,7 @@ function _addCacheTypeMetadataGroups(res, meta) {
 $generatorXml = {};
 
 // Generate discovery.
-$generatorXml.clusterGeneral = function (cluster, caches, res) {
+$generatorXml.clusterGeneral = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 

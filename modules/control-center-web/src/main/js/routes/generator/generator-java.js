@@ -582,36 +582,10 @@ function _addBeanWithProperties(res, varName, bean, beanPropName, beanVarName, b
 
 $generatorJava = {};
 
-/**
- * Function to generate java code for cluster configuration.
- *
- * @param cluster Cluster to process.
- * @param javaClass If 'true' then generate factory class otherwise generate code snippet.
- * @param clientNearConfiguration Near cache configuration for client node.
- */
-$generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) {
-    var res = $generatorCommon.builder();
-
-    res.datasourceBeans = [];
-
-    if (javaClass) {
-        res.line('/**');
-        res.line(' * ' + $generatorCommon.mainComment());
-        res.line(' */');
-        res.startBlock('public class ConfigurationFactory {');
-        res.line('/**');
-        res.line(' * Configure grid.');
-        res.line(' */');
-        res.startBlock('public IgniteConfiguration createConfiguration() {');
-    }
-
-    _declareVariable(res, true, 'cfg', 'org.apache.ignite.configuration.IgniteConfiguration');
-    res.line();
-
-    if (clientNearConfiguration) {
-        res.line('cfg.setClientMode(true);');
-        res.line();
-    }
+// Generate cluster general group.
+$generatorJava.clusterGeneral = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
 
     if (cluster.discovery) {
         var d = cluster.discovery;
@@ -713,6 +687,73 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) 
         res.needEmptyLine = true;
     }
 
+    return res;
+};
+
+// Generate atomics group.
+$generatorJava.clusterAtomics = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    var atomicCfg = $generatorCommon.ATOMIC_CONFIGURATION;
+
+    _addBeanWithProperties(res, 'cfg', cluster.atomicConfiguration, 'atomicConfiguration', 'atomicCfg',
+        atomicCfg.className, atomicCfg.fields);
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+// Generate communication group.
+$generatorJava.clusterCommunication = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+// Generate cluster caches.
+$generatorJava.clusterCaches = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    return res;
+};
+
+/**
+ * Function to generate java code for cluster configuration.
+ *
+ * @param cluster Cluster to process.
+ * @param javaClass If 'true' then generate factory class otherwise generate code snippet.
+ * @param clientNearConfiguration Near cache configuration for client node.
+ */
+$generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) {
+    var res = $generatorCommon.builder();
+
+    res.datasourceBeans = [];
+
+    if (javaClass) {
+        res.line('/**');
+        res.line(' * ' + $generatorCommon.mainComment());
+        res.line(' */');
+        res.startBlock('public class ConfigurationFactory {');
+        res.line('/**');
+        res.line(' * Configure grid.');
+        res.line(' */');
+        res.startBlock('public IgniteConfiguration createConfiguration() {');
+    }
+
+    _declareVariable(res, true, 'cfg', 'org.apache.ignite.configuration.IgniteConfiguration');
+    res.line();
+
+    if (clientNearConfiguration) {
+        res.line('cfg.setClientMode(true);');
+        res.line();
+    }
+
+    $generatorJava.clusterGeneral(cluster, res);
+
     var caches = cluster.caches;
 
     if (caches && caches.length > 0) {
@@ -748,12 +789,7 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) 
         res.needEmptyLine = true;
     }
 
-    var atomicCfg = $generatorCommon.ATOMIC_CONFIGURATION;
-
-    _addBeanWithProperties(res, 'cfg', cluster.atomicConfiguration, 'atomicConfiguration', 'atomicCfg',
-        atomicCfg.className, atomicCfg.fields);
-
-    res.needEmptyLine = true;
+    $generatorJava.clusterAtomics(cluster, res);
 
     _addProperty(res, 'cfg', cluster, 'networkTimeout');
     _addProperty(res, 'cfg', cluster, 'networkSendRetryDelay');
