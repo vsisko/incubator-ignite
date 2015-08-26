@@ -278,6 +278,17 @@ controlCenterModule.controller('cachesController', [
                             $scope.preview.rebalanceXml = $generatorXml.cacheRebalance(val).join('');
                             $scope.preview.serverNearCacheXml = $generatorXml.cacheServerNearCache(val).join('');
                             $scope.preview.statisticsXml = $generatorXml.cacheStatistics(val).join('');
+
+                            var varName = 'cache';
+
+                            $scope.preview.generalJava = $generatorJava.cacheGeneral(val, varName).join('');
+                            $scope.preview.memoryJava = $generatorJava.cacheMemory(val, varName).join('');
+                            $scope.preview.queryJava = $generatorJava.cacheMetadatas(qryMeta, null, $generatorJava.cacheQuery(val, varName)).join('');
+                            $scope.preview.storeJava = $generatorJava.cacheMetadatas(null, storeMeta, $generatorJava.cacheStore(val, varName)).join('');
+                            $scope.preview.concurrencyJava = $generatorJava.cacheConcurrency(val, varName).join('');
+                            $scope.preview.rebalanceJava = $generatorJava.cacheRebalance(val, varName).join('');
+                            $scope.preview.serverNearCacheJava = $generatorJava.cacheServerNearCache(val, varName).join('');
+                            $scope.preview.statisticsJava = $generatorJava.cacheStatistics(val, varName).join('');
                         }
                     }, true);
 

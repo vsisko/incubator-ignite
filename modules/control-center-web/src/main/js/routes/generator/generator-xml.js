@@ -337,9 +337,6 @@ $generatorXml.clusterGeneral = function (cluster, res) {
                     $generatorXml._addProperty(res, d.GoogleStorage, 'serviceAccountId');
                 }
 
-                //if (d.GoogleStorage.addrReqAttempts) todo ????
-                //    res.line('<property name="serviceAccountP12FilePath" value="' + $generatorXml._escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
-
                 res.endBlock('</bean>');
 
                 break;
@@ -559,6 +556,7 @@ $generatorXml.clusterPools = function (cluster, res) {
     $generatorXml._addProperty(res, cluster, 'systemThreadPoolSize');
     $generatorXml._addProperty(res, cluster, 'managementThreadPoolSize');
     $generatorXml._addProperty(res, cluster, 'igfsThreadPoolSize');
+
     res.needEmptyLine = true;
 
     return res;
@@ -592,6 +590,8 @@ $generatorXml.cacheGeneral = function(cache, res) {
 
     if (cache.cacheMode == 'PARTITIONED')
         $generatorXml._addProperty(res, cache, 'backups');
+
+    res.needEmptyLine = true;
 
     $generatorXml._addProperty(res, cache, 'readFromBackup');
     $generatorXml._addProperty(res, cache, 'copyOnRead');
@@ -628,7 +628,6 @@ $generatorXml.cacheQuery = function(cache, res) {
         res = $generatorCommon.builder();
 
     $generatorXml._addProperty(res, cache, 'sqlOnheapRowCacheSize');
-
     $generatorXml._addProperty(res, cache, 'longQueryWarningTimeout');
 
     if (cache.indexedTypes && cache.indexedTypes.length > 0) {
@@ -885,7 +884,7 @@ $generatorXml.cacheMetadatas = function(qryMeta, storeMeta, res) {
     return res;
 };
 
-// Generate caches configs.
+// Generate cache configs.
 $generatorXml.cache = function(cache, res) {
     if (!res)
         res = $generatorCommon.builder();
