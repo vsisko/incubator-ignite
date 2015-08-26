@@ -316,7 +316,7 @@ controlCenterModule.controller('cachesController', [
                 $table.tableReset();
 
                 $timeout(function () {
-                    $common.ensureActivePanel($scope.panels, 'general-data');
+                    $common.ensureActivePanel($scope.panels, 'general-data', 'cacheName');
                 });
 
                 var newItem = {

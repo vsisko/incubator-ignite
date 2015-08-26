@@ -217,15 +217,15 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                         $scope.preview.generalJava = $generatorJava.clusterCaches(clusterCaches, $generatorJava.clusterGeneral(val)).join('');
                         $scope.preview.atomicsJava = $generatorJava.clusterAtomics(val).join('');
                         $scope.preview.communicationJava = $generatorJava.clusterCommunication(val).join('');
-                        //$scope.preview.deploymentJava = $generatorJava.clusterDeployment(val).join('');
-                        //$scope.preview.eventsJava = $generatorJava.clusterEvents(val).join('');
-                        //$scope.preview.marshallerJava = $generatorJava.clusterMarshaller(val).join('');
-                        //$scope.preview.metricsJava = $generatorJava.clusterMetrics(val).join('');
-                        //$scope.preview.p2pJava = $generatorJava.clusterP2p(val).join('');
-                        //$scope.preview.swapJava = $generatorJava.clusterSwap(val).join('');
-                        //$scope.preview.timeJava = $generatorJava.clusterTime(val).join('');
-                        //$scope.preview.poolsJava = $generatorJava.clusterPools(val).join('');
-                        //$scope.preview.transactionsJava = $generatorJava.clusterTransactions(val).join('');
+                        $scope.preview.deploymentJava = $generatorJava.clusterDeployment(val).join('');
+                        $scope.preview.eventsJava = $generatorJava.clusterEvents(val).join('');
+                        $scope.preview.marshallerJava = $generatorJava.clusterMarshaller(val).join('');
+                        $scope.preview.metricsJava = $generatorJava.clusterMetrics(val).join('');
+                        $scope.preview.p2pJava = $generatorJava.clusterP2p(val).join('');
+                        $scope.preview.swapJava = $generatorJava.clusterSwap(val).join('');
+                        $scope.preview.timeJava = $generatorJava.clusterTime(val).join('');
+                        $scope.preview.poolsJava = $generatorJava.clusterPools(val).join('');
+                        $scope.preview.transactionsJava = $generatorJava.clusterTransactions(val).join('');
                     }
                 }, true);
 
@@ -264,7 +264,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
             $table.tableReset();
 
             $timeout(function () {
-                $common.ensureActivePanel($scope.panels, "general-data");
+                $common.ensureActivePanel($scope.panels, "general-data", 'clusterName');
             });
 
             var newItem = angular.copy($scope.template);

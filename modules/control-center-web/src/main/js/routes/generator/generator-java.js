@@ -726,6 +726,96 @@ $generatorJava.clusterCommunication = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
+    $generatorJava._addProperty(res, 'cfg', cluster, 'networkTimeout');
+    $generatorJava._addProperty(res, 'cfg', cluster, 'networkSendRetryDelay');
+    $generatorJava._addProperty(res, 'cfg', cluster, 'networkSendRetryCount');
+    $generatorJava._addProperty(res, 'cfg', cluster, 'segmentCheckFrequency');
+    $generatorJava._addProperty(res, 'cfg', cluster, 'waitForSegmentOnStart');
+    $generatorJava._addProperty(res, 'cfg', cluster, 'discoveryStartupDelay');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterDeployment = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterEvents = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterMarshaller = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterMetrics = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterP2p = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterSwap = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterTime = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterPools = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterTransactions = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    res.needEmptyLine = true;
+
     return res;
 };
 
@@ -807,14 +897,7 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) 
 
     $generatorJava.clusterAtomics(cluster, res);
 
-    $generatorJava._addProperty(res, 'cfg', cluster, 'networkTimeout');
-    $generatorJava._addProperty(res, 'cfg', cluster, 'networkSendRetryDelay');
-    $generatorJava._addProperty(res, 'cfg', cluster, 'networkSendRetryCount');
-    $generatorJava._addProperty(res, 'cfg', cluster, 'segmentCheckFrequency');
-    $generatorJava._addProperty(res, 'cfg', cluster, 'waitForSegmentOnStart');
-    $generatorJava._addProperty(res, 'cfg', cluster, 'discoveryStartupDelay');
-
-    res.needEmptyLine = true;
+    $generatorJava.clusterCommunication(cluster, res);
 
     $generatorJava._addProperty(res, 'cfg', cluster, 'deploymentMode', 'DeploymentMode');
 

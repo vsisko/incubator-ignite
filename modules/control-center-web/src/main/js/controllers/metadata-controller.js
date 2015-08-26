@@ -545,7 +545,7 @@ controlCenterModule.controller('metadataController', [
                 $table.tableReset();
 
                 $timeout(function () {
-                    $common.ensureActivePanel($scope.panels, 'metadata-data');
+                    $common.ensureActivePanel($scope.panels, 'metadata-data', 'metadataName');
                 });
 
                 $scope.selectedItem = undefined;

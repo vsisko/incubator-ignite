@@ -29,7 +29,7 @@ block content
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Types metadata:', 'metadatas', 'metadataName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}')
         .padding-top-dflt
-            button.btn.btn-primary(ng-click='createItem()' on-click-focus='metadataName') Add metadata
+            button.btn.btn-primary(ng-click='createItem()') Add metadata
             button.btn.btn-primary(ng-click='showLoadMetadataModal()') Load from database
         hr
         form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)

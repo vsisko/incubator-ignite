@@ -908,7 +908,7 @@ $generatorXml.cache = function(cache, res) {
 
     $generatorXml.cacheStatistics(cache, res);
 
-    $generatorXml.cacheMetadatas(cache.queryMetadata, cache.storeMetadata);
+    $generatorXml.cacheMetadatas(cache.queryMetadata, cache.storeMetadata, res);
 
     res.endBlock('</bean>');
 
