@@ -890,7 +890,7 @@ $generatorJava.cacheStore = function (cache, varName, res) {
 };
 
 // Generate cache type metadata configs.
-$generatorJava.cacheMetadatas = function (qryMeta, storeMeta, res) {
+$generatorJava.cacheMetadatas = function (qryMeta, storeMeta, varName, res) {
     if (!res)
         res = $generatorCommon.builder();
 
@@ -1019,15 +1019,13 @@ $generatorJava.cache = function(cache, varName, res) {
 
     $generatorJava.cacheStatistics(cache, varName, res);
 
-    $generatorJava.cacheMetadatas(cache.queryMetadata, cache.storeMetadata, res);
+    $generatorJava.cacheMetadatas(cache.queryMetadata, cache.storeMetadata, varName, res);
 };
 
 // Generate cluster caches.
 $generatorJava.clusterCaches = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
-
-    $generatorJava._declareVariable(res, true, varName, 'org.apache.ignite.configuration.CacheConfiguration');
 
     var caches = cluster.caches;
 
@@ -1039,9 +1037,11 @@ $generatorJava.clusterCaches = function (cluster, res) {
         _.forEach(caches, function (cache) {
             res.emptyLineIfNeeded();
 
-            var varName = $generatorJava._toJavaName('cache', cache.name);
+            var cacheName = $generatorJava._toJavaName('cache', cache.name);
 
-            $generatorJava.cache(cache, varName, res);
+            $generatorJava._declareVariable(res, true, cacheName, 'org.apache.ignite.configuration.CacheConfiguration');
+
+            $generatorJava.cache(cache, cacheName, res);
 
             names.push(cacheName);
 

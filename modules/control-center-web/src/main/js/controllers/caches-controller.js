@@ -283,8 +283,8 @@ controlCenterModule.controller('cachesController', [
 
                             $scope.preview.generalJava = $generatorJava.cacheGeneral(val, varName).join('');
                             $scope.preview.memoryJava = $generatorJava.cacheMemory(val, varName).join('');
-                            $scope.preview.queryJava = $generatorJava.cacheMetadatas(qryMeta, null, $generatorJava.cacheQuery(val, varName)).join('');
-                            $scope.preview.storeJava = $generatorJava.cacheMetadatas(null, storeMeta, $generatorJava.cacheStore(val, varName)).join('');
+                            $scope.preview.queryJava = $generatorJava.cacheMetadatas(qryMeta, null, varName, $generatorJava.cacheQuery(val, varName)).join('');
+                            $scope.preview.storeJava = $generatorJava.cacheMetadatas(null, storeMeta, varName, $generatorJava.cacheStore(val, varName)).join('');
                             $scope.preview.concurrencyJava = $generatorJava.cacheConcurrency(val, varName).join('');
                             $scope.preview.rebalanceJava = $generatorJava.cacheRebalance(val, varName).join('');
                             $scope.preview.serverNearCacheJava = $generatorJava.cacheServerNearCache(val, varName).join('');
