@@ -276,35 +276,36 @@ $generatorXml.clusterGeneral = function (cluster, res) {
             case 'Multicast':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder">');
 
-                $generatorXml._addProperty(res, d.Multicast, 'multicastGroup');
-                $generatorXml._addProperty(res, d.Multicast, 'multicastPort');
-                $generatorXml._addProperty(res, d.Multicast, 'responseWaitTime');
-                $generatorXml._addProperty(res, d.Multicast, 'addressRequestAttempts');
-                $generatorXml._addProperty(res, d.Multicast, 'localAddress');
+                if (d.Multicast) {
+                    $generatorXml._addProperty(res, d.Multicast, 'multicastGroup');
+                    $generatorXml._addProperty(res, d.Multicast, 'multicastPort');
+                    $generatorXml._addProperty(res, d.Multicast, 'responseWaitTime');
+                    $generatorXml._addProperty(res, d.Multicast, 'addressRequestAttempts');
+                    $generatorXml._addProperty(res, d.Multicast, 'localAddress');
+                }
 
                 res.endBlock('</bean>');
 
                 break;
 
             case 'Vm':
-                if (d.Vm.addresses.length > 0) {
-                    res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">');
+                res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">');
 
+                if (d.Vm) {
                     $generatorXml._addListProperty(res, d.Vm, 'addresses');
+                }
 
-                    res.endBlock('</bean>');
-                }
-                else {
-                    res.line('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder"/>');
-                }
+                res.endBlock('</bean>');
 
                 break;
 
             case 'S3':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder">');
 
-                if (d.S3 && d.S3.bucketName)
-                    res.line('<property name="bucketName" value="' + $generatorXml._escapeAttr(d.S3.bucketName) + '" />');
+                if (d.S3) {
+                    if (d.S3.bucketName)
+                        res.line('<property name="bucketName" value="' + $generatorXml._escapeAttr(d.S3.bucketName) + '" />');
+                }
 
                 res.endBlock('</bean>');
 
@@ -313,12 +314,14 @@ $generatorXml.clusterGeneral = function (cluster, res) {
             case 'Cloud':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder">');
 
-                $generatorXml._addProperty(res, d.Cloud, 'credential');
-                $generatorXml._addProperty(res, d.Cloud, 'credentialPath');
-                $generatorXml._addProperty(res, d.Cloud, 'identity');
-                $generatorXml._addProperty(res, d.Cloud, 'provider');
-                $generatorXml._addListProperty(res, d.Cloud, 'regions');
-                $generatorXml._addListProperty(res, d.Cloud, 'zones');
+                if (d.Cloud) {
+                    $generatorXml._addProperty(res, d.Cloud, 'credential');
+                    $generatorXml._addProperty(res, d.Cloud, 'credentialPath');
+                    $generatorXml._addProperty(res, d.Cloud, 'identity');
+                    $generatorXml._addProperty(res, d.Cloud, 'provider');
+                    $generatorXml._addListProperty(res, d.Cloud, 'regions');
+                    $generatorXml._addListProperty(res, d.Cloud, 'zones');
+                }
 
                 res.endBlock('</bean>');
 
@@ -327,10 +330,12 @@ $generatorXml.clusterGeneral = function (cluster, res) {
             case 'GoogleStorage':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder">');
 
-                $generatorXml._addProperty(res, d.GoogleStorage, 'projectName');
-                $generatorXml._addProperty(res, d.GoogleStorage, 'bucketName');
-                $generatorXml._addProperty(res, d.GoogleStorage, 'serviceAccountP12FilePath');
-                $generatorXml._addProperty(res, d.GoogleStorage, 'serviceAccountId');
+                if (d.GoogleStorage) {
+                    $generatorXml._addProperty(res, d.GoogleStorage, 'projectName');
+                    $generatorXml._addProperty(res, d.GoogleStorage, 'bucketName');
+                    $generatorXml._addProperty(res, d.GoogleStorage, 'serviceAccountP12FilePath');
+                    $generatorXml._addProperty(res, d.GoogleStorage, 'serviceAccountId');
+                }
 
                 //if (d.GoogleStorage.addrReqAttempts) todo ????
                 //    res.line('<property name="serviceAccountP12FilePath" value="' + $generatorXml._escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
@@ -341,20 +346,23 @@ $generatorXml.clusterGeneral = function (cluster, res) {
 
             case 'Jdbc':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder">');
-                res.line('<property name="initSchema" value="' + ($commonUtils.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + '"/>');
+
+                if (d.Jdbc) {
+                    res.line('<property name="initSchema" value="' + ($commonUtils.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + '"/>');
+                }
+
                 res.endBlock('</bean>');
 
                 break;
 
             case 'SharedFs':
-                if (d.SharedFs.path) {
-                    res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder">');
+                res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder">');
+
+                if (d.SharedFs) {
                     $generatorXml._addProperty(res, d.SharedFs, 'path');
-                    res.endBlock('</bean>');
                 }
-                else {
-                    res.line('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder"/>');
-                }
+
+                res.endBlock('</bean>');
 
                 break;
 

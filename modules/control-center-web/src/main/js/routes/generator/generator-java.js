@@ -596,23 +596,29 @@ $generatorJava.clusterGeneral = function (cluster, res) {
             case 'Multicast':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.Multicast, 'ipFinder', 'ipFinder',
-                    'TcpDiscoveryMulticastIpFinder', {
-                        multicastGroup: null,
-                        multicastPort: null,
-                        responseWaitTime: null,
-                        addressRequestAttempts: null,
-                        localAddress: null
-                    }, true);
+                if (d.Multicast)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.Multicast, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryMulticastIpFinder', {
+                            multicastGroup: null,
+                            multicastPort: null,
+                            responseWaitTime: null,
+                            addressRequestAttempts: null,
+                            localAddress: null
+                        }, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryMulticastIpFinder());');
+
 
                 break;
 
             case 'Vm':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.Vm, 'ipFinder', 'ipFinder', 'TcpDiscoveryVmIpFinder', {
-                    addresses: {type: 'list'}
-                }, true);
+                if (d.Vm)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.Vm, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryVmIpFinder', {addresses: {type: 'list'}}, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryVmIpFinder());');
 
                 break;
 
@@ -620,8 +626,8 @@ $generatorJava.clusterGeneral = function (cluster, res) {
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder');
 
                 if (d.S3)
-                    $generatorJava._addBeanWithProperties(res, 'discovery', d.S3, 'ipFinder', 'ipFinder', 'TcpDiscoveryS3IpFinder',
-                        {bucketName: null}, true);
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.S3, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryS3IpFinder', {bucketName: null}, true);
                 else
                     res.line('discovery.setIpFinder(new TcpDiscoveryS3IpFinder());');
 
@@ -630,49 +636,59 @@ $generatorJava.clusterGeneral = function (cluster, res) {
             case 'Cloud':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.Cloud, 'ipFinder', 'ipFinder', 'TcpDiscoveryCloudIpFinder', {
-                    credential: null,
-                    credentialPath: null,
-                    identity: null,
-                    provider: null,
-                    regions: {type: 'list'},
-                    zones: {type: 'list'}
-                }, true);
+                if (d.Cloud)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.Cloud, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryCloudIpFinder', {
+                            credential: null,
+                            credentialPath: null,
+                            identity: null,
+                            provider: null,
+                            regions: {type: 'list'},
+                            zones: {type: 'list'}
+                        }, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryCloudIpFinder());');
 
                 break;
 
             case 'GoogleStorage':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.GoogleStorage, 'ipFinder', 'ipFinder',
-                    'TcpDiscoveryGoogleStorageIpFinder', {
-                        projectName: null,
-                        bucketName: null,
-                        serviceAccountP12FilePath: null,
-                        serviceAccountId: null
-                    }, true);
-
-                //if (d.GoogleStorage.addrReqAttempts) todo ????
-                //    res.line('<property name="serviceAccountP12FilePath" value="' + escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
+                if (d.GoogleStorage)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.GoogleStorage, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryGoogleStorageIpFinder', {
+                            projectName: null,
+                            bucketName: null,
+                            serviceAccountP12FilePath: null,
+                            serviceAccountId: null
+                        }, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryGoogleStorageIpFinder());');
 
                 break;
 
             case 'Jdbc':
                 res.line();
 
-                $generatorJava._declareVariable(res, true, 'ipFinder', 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
+                if (d.Jdbc) {
+                    $generatorJava._declareVariable(res, true, 'ipFinder', 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
 
-                res.line('ipFinder.setInitSchema(' + ($commonUtils.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + ');');
-                res.line('discovery.setIpFinder(ipFinder);');
-                res.needEmptyLine = true;
+                    res.line('ipFinder.setInitSchema(' + ($commonUtils.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + ');');
+                    res.line('discovery.setIpFinder(ipFinder);');
+                }
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryJdbcIpFinder());');
 
                 break;
 
             case 'SharedFs':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.SharedFs, 'ipFinder', 'ipFinder',
-                    'TcpDiscoverySharedFsIpFinder', {path: null}, true);
+                if (d.SharedFs)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.SharedFs, 'ipFinder', 'ipFinder',
+                        'TcpDiscoverySharedFsIpFinder', {path: null}, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoverySharedFsIpFinder());');
 
                 break;
 

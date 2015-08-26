@@ -543,7 +543,10 @@ controlCenterModule.controller('metadataController', [
             // Add new metadata.
             $scope.createItem = function () {
                 $table.tableReset();
-                $common.ensureActivePanel($scope.panels, 'metadata-data');
+
+                $timeout(function () {
+                    $common.ensureActivePanel($scope.panels, 'metadata-data');
+                });
 
                 $scope.selectedItem = undefined;
 

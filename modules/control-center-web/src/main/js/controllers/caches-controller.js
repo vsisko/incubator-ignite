@@ -314,7 +314,10 @@ controlCenterModule.controller('cachesController', [
             // Add new cache.
             $scope.createItem = function () {
                 $table.tableReset();
-                $common.ensureActivePanel($scope.panels, 'general-data');
+
+                $timeout(function () {
+                    $common.ensureActivePanel($scope.panels, 'general-data');
+                });
 
                 var newItem = {
                     space: $scope.spaces[0]._id,

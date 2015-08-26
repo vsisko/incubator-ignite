@@ -262,7 +262,10 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
         // Add new cluster.
         $scope.createItem = function () {
             $table.tableReset();
-            $common.ensureActivePanel($scope.panels, "general-data");
+
+            $timeout(function () {
+                $common.ensureActivePanel($scope.panels, "general-data");
+            });
 
             var newItem = angular.copy($scope.template);
             newItem.caches = [];
