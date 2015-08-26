@@ -1457,6 +1457,18 @@ a {
     .ace_cursor { opacity:0 }
 }
 
+.preview-legend {
+    top: 0;
+    right: 0;
+    margin-right: 3px;
+    overflow: visible;
+    position: absolute;
+
+    i {
+        cursor: pointer;
+    }
+}
+
 .loading-indicator {
     box-sizing: border-box;
     -webkit-box-sizing: border-box;

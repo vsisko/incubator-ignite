@@ -514,6 +514,10 @@ controlCenterModule.controller('metadataController', [
                             $scope.preview.storeXml = $generatorXml.metadataStore(val).join('');
                         }
                     }, true);
+
+                    $timeout(function () {
+                        $common.initPreview();
+                    });
                 })
                 .error(function (errMsg) {
                     $common.showError(errMsg);

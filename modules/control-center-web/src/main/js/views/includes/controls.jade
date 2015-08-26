@@ -467,9 +467,9 @@ mixin preview(previewModel, id)
     -var previewModelState = previewModel + 'State'
 
     .panel-details(style='margin-left: 20px; padding: 0 3px')
-        div(style='padding: 5px; position: absolute; z-index: 9999; right: 0')
-            button(ng-click='#{previewModelState} = !#{previewModelState}')
-                img(ng-if='#{previewModelState}' src="/images/xml.png" width="16px" height="16px")
-                img(ng-if='!#{previewModelState}' src="/images/java.png" width="16px" height="16px")
+        .preview-legend
+            i.group-legend-btn(ng-click='#{previewModelState} = !#{previewModelState}')
+                img(ng-if='#{previewModelState}' src='/images/xml.png' title='Show XML')
+                img(ng-if='!#{previewModelState}' src='/images/java.png' title='Show Java code')
         .ace-preview(ng-if='!#{previewModelState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{previewModel} + "Xml"]')
         .ace-preview(ng-if='#{previewModelState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "java"}' ng-model='preview[#{previewModel} + "Java"]')
