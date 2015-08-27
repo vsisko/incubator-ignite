@@ -29,7 +29,7 @@ block content
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Caches:', 'caches', 'cacheName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:"Cache mode not set"}}, {{row.atomicityMode | displayValue:atomicities:"Cache atomicity not set"}}')
         .padding-top-dflt
-            button.btn.btn-primary(on-click-focus='cacheName' ng-click='createItem()') Add cache
+            button.btn.btn-primary(ng-click='createItem()') Add cache
         hr
         form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true')

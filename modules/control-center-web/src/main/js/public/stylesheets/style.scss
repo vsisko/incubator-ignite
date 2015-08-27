@@ -1457,6 +1457,8 @@ a {
 
 .ace_hidden-cursors { opacity:0 }
 
+.ace_cursor { opacity:0 }
+
 .ace_editor, #ace_document {
     margin: 0.65em 0 0 0;
 
@@ -1474,8 +1476,30 @@ a {
     }
 }
 
-.ace-preview {
-    .ace_cursor { opacity:0 }
+.sql-editor {
+    .ace_cursor { opacity:1 }
+}
+
+.preview-panel {
+    margin-top: 10px;
+    margin-left: 20px;
+
+    border-radius: 5px;
+    border: thin dotted lightgrey;
+
+    padding: 0 3px;
+}
+
+.preview-legend {
+    top: 0;
+    right: 0;
+    margin-right: 3px;
+    overflow: visible;
+    position: absolute;
+
+    i {
+        cursor: pointer;
+    }
 }
 
 .loading-indicator {

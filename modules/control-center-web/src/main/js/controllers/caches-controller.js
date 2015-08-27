@@ -302,6 +302,17 @@ controlCenterModule.controller('cachesController', [
                             $scope.preview.serverNearCacheXml = $generatorXml.cacheServerNearCache(val).join('');
                             $scope.preview.statisticsXml = $generatorXml.cacheStatistics(val).join('');
 
+                            var varName = 'cache';
+
+                            $scope.preview.generalJava = $generatorJava.cacheGeneral(val, varName).join('');
+                            $scope.preview.memoryJava = $generatorJava.cacheMemory(val, varName).join('');
+                            $scope.preview.queryJava = $generatorJava.cacheMetadatas(qryMeta, null, varName, $generatorJava.cacheQuery(val, varName)).join('');
+                            $scope.preview.storeJava = $generatorJava.cacheMetadatas(null, storeMeta, varName, $generatorJava.cacheStore(val, varName)).join('');
+                            $scope.preview.concurrencyJava = $generatorJava.cacheConcurrency(val, varName).join('');
+                            $scope.preview.rebalanceJava = $generatorJava.cacheRebalance(val, varName).join('');
+                            $scope.preview.serverNearCacheJava = $generatorJava.cacheServerNearCache(val, varName).join('');
+                            $scope.preview.statisticsJava = $generatorJava.cacheStatistics(val, varName).join('');
+
                             markChanged();
                         }
                     }, true);
@@ -357,7 +368,10 @@ controlCenterModule.controller('cachesController', [
             // Add new cache.
             $scope.createItem = function () {
                 $table.tableReset();
-                $common.ensureActivePanel($scope.panels, 'general-data');
+
+                $timeout(function () {
+                    $common.ensureActivePanel($scope.panels, 'general-data', 'cacheName');
+                });
 
                 var newItem = {
                     space: $scope.spaces[0]._id,

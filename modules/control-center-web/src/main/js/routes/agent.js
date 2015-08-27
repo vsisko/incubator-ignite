@@ -116,6 +116,21 @@ router.post('/query/fetch', function (req, res) {
     }
 });
 
+/* Get metadata for cache. */
+router.post('/cache/metadata', function (req, res) {
+    var client = _client(req, res);
+
+    if (client) {
+        var cache = client.ignite().cache(req.body.cacheName);
+
+        cache.metadata().then(function (metadata) {
+            res.json(metadata);
+        }, function (err) {
+            res.status(500).send(err);
+        });
+    }
+});
+
 /* Get JDBC drivers list. */
 router.post('/drivers', function (req, res) {
     var client = _client(req, res);

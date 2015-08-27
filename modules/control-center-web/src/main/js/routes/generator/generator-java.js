@@ -157,232 +157,6 @@ $generatorJava._addCacheTypeMetadataGroups = function (res, meta) {
     }
 };
 
-$generatorJava._addCacheTypeMetadataConfiguration = function (res, meta) {
-    $generatorJava._declareVariable(res, $generatorJava._needNewVariable(res, 'typeMeta'), 'typeMeta', 'org.apache.ignite.cache.CacheTypeMetadata');
-
-    var kind = meta.kind;
-
-    var keyType = $generatorJava._addClassProperty(res, 'typeMeta', meta, 'keyType');
-    $generatorJava._addClassProperty(res, 'typeMeta', meta, 'valueType');
-
-    if (kind != 'query') {
-        $generatorJava._addProperty(res, 'typeMeta', meta, 'databaseSchema');
-        $generatorJava._addProperty(res, 'typeMeta', meta, 'databaseTable');
-
-        if (!$dataStructures.isJavaBuildInClass(keyType))
-            $generatorJava._addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
-
-        $generatorJava._addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
-    }
-
-    if (kind != 'store') {
-        $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
-        $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
-        $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
-
-        res.needEmptyLine = true;
-        $generatorJava._addListProperty(res, 'typeMeta', meta, 'textFields');
-
-        $generatorJava._addCacheTypeMetadataGroups(res, meta);
-    }
-
-    res.line();
-    res.line('types.add(typeMeta);');
-    res.line();
-};
-
-/**
- * Generate java code for cache configuration.
- *
- * @param cache Cache config.
- * @param varName Variable name.
- * @param res Result builder.
- * @returns {*} Append generated java code to builder and return it.
- */
-$generatorJava._addCacheConfiguration = function (res, cache, varName) {
-    res.emptyLineIfNeeded();
-
-    res.importClass('org.apache.ignite.cache.CacheAtomicityMode');
-    res.importClass('org.apache.ignite.cache.CacheMode');
-
-    $generatorJava._declareVariable(res, true, varName, 'org.apache.ignite.configuration.CacheConfiguration');
-
-    res.needEmptyLine = true;
-
-    $generatorJava._addProperty(res, varName, cache, 'name');
-
-    var cacheMode = $generatorJava._addProperty(res, varName, cache, 'mode', 'CacheMode', 'cacheMode');
-
-    $generatorJava._addProperty(res, varName, cache, 'atomicityMode', 'CacheAtomicityMode');
-
-    if (cacheMode == 'PARTITIONED')
-        $generatorJava._addProperty(res, varName, cache, 'backups');
-
-    $generatorJava._addProperty(res, varName, cache, 'readFromBackup');
-    $generatorJava._addProperty(res, varName, cache, 'startSize');
-
-    res.needEmptyLine = true;
-
-    $generatorJava._addProperty(res, varName, cache, 'memoryMode', 'CacheMemoryMode');
-    $generatorJava._addProperty(res, varName, cache, 'offHeapMaxMemory');
-    $generatorJava._addProperty(res, varName, cache, 'swapEnabled');
-    $generatorJava._addProperty(res, varName, cache, 'copyOnRead');
-
-    res.needEmptyLine = true;
-
-    $generatorJava._addEvictionPolicy(res, varName, cache.evictionPolicy, 'evictionPolicy');
-
-    if (cacheMode == 'PARTITIONED' && cache.nearCacheEnabled) {
-        res.needEmptyLine = true;
-
-        res.importClass('org.apache.ignite.configuration.NearCacheConfiguration');
-
-        $generatorJava._addBeanWithProperties(res, varName, cache.nearConfiguration, 'nearConfiguration', 'nearConfiguration',
-            'NearCacheConfiguration', {nearStartSize: null}, true);
-
-        if (cache.nearConfiguration && cache.nearConfiguration.nearEvictionPolicy && cache.nearConfiguration.nearEvictionPolicy.kind) {
-            $generatorJava._addEvictionPolicy(res, 'nearConfiguration', cache.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
-        }
-    }
-
-    res.needEmptyLine = true;
-
-    $generatorJava._addProperty(res, varName, cache, 'sqlEscapeAll');
-    $generatorJava._addProperty(res, varName, cache, 'sqlOnheapRowCacheSize');
-    $generatorJava._addProperty(res, varName, cache, 'longQueryWarningTimeout');
-
-    if (cache.indexedTypes && cache.indexedTypes.length > 0) {
-        res.emptyLineIfNeeded();
-
-        res.append(varName + '.setIndexedTypes(');
-
-        for (var i = 0; i < cache.indexedTypes.length; i++) {
-            if (i > 0)
-                res.append(', ');
-
-            var pair = cache.indexedTypes[i];
-
-            res.append($generatorJava._toJavaCode(res.importClass(pair.keyClass), 'class')).append(', ').append($generatorJava._toJavaCode(res.importClass(pair.valueClass), 'class'))
-        }
-
-        res.line(');');
-    }
-
-    $generatorJava._addMultiparamProperty(res, varName, cache, 'sqlFunctionClasses', 'class');
-
-    res.needEmptyLine = true;
-
-    if (cacheMode != 'LOCAL') {
-        $generatorJava._addProperty(res, varName, cache, 'rebalanceMode', 'CacheRebalanceMode');
-        $generatorJava._addProperty(res, varName, cache, 'rebalanceThreadPoolSize');
-        $generatorJava._addProperty(res, varName, cache, 'rebalanceBatchSize');
-        $generatorJava._addProperty(res, varName, cache, 'rebalanceOrder');
-        $generatorJava._addProperty(res, varName, cache, 'rebalanceDelay');
-        $generatorJava._addProperty(res, varName, cache, 'rebalanceTimeout');
-        $generatorJava._addProperty(res, varName, cache, 'rebalanceThrottle');
-
-        res.needEmptyLine = true;
-    }
-
-    if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
-        var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
-        var data = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
-
-        var sfVarName = $generatorJava._toJavaName('storeFactory', cache.name);
-        var dsVarName = 'none';
-
-        if (storeFactory.dialect) {
-            var dataSourceBean = storeFactory.dataSourceBean;
-
-            dsVarName = $generatorJava._toJavaName('dataSource', dataSourceBean);
-
-            if (!_.contains(res.datasourceBeans, dataSourceBean)) {
-                res.datasourceBeans.push(dataSourceBean);
-
-                var dataSource = $generatorCommon.DATA_SOURCES[storeFactory.dialect];
-
-                res.line();
-
-                $generatorJava._declareVariable(res, true, dsVarName, dataSource);
-
-                res.line(dsVarName + '.setURL(_URL_);');
-                res.line(dsVarName + '.setUsername(_User_Name_);');
-                res.line(dsVarName + '.setPassword(_Password_);');
-            }
-        }
-
-        $generatorJava._addBeanWithProperties(res, varName, storeFactory, 'cacheStoreFactory', sfVarName, data.className,
-            data.fields, true);
-
-        if (dsVarName != 'none')
-            res.line(sfVarName + '.setDataSource(' + dsVarName + ');');
-    }
-
-    res.needEmptyLine = true;
-
-    $generatorJava._addProperty(res, varName, cache, 'loadPreviousValue');
-    $generatorJava._addProperty(res, varName, cache, 'readThrough');
-    $generatorJava._addProperty(res, varName, cache, 'writeThrough');
-
-    res.needEmptyLine = true;
-
-    $generatorJava._addProperty(res, varName, cache, 'invalidate');
-    $generatorJava._addProperty(res, varName, cache, 'defaultLockTimeout');
-    $generatorJava._addProperty(res, varName, cache, 'transactionManagerLookupClassName');
-
-    res.needEmptyLine = true;
-
-    $generatorJava._addProperty(res, varName, cache, 'writeBehindEnabled');
-    $generatorJava._addProperty(res, varName, cache, 'writeBehindBatchSize');
-    $generatorJava._addProperty(res, varName, cache, 'writeBehindFlushSize');
-    $generatorJava._addProperty(res, varName, cache, 'writeBehindFlushFrequency');
-    $generatorJava._addProperty(res, varName, cache, 'writeBehindFlushThreadCount');
-
-    res.needEmptyLine = true;
-
-    $generatorJava._addProperty(res, varName, cache, 'statisticsEnabled');
-    $generatorJava._addProperty(res, varName, cache, 'managementEnabled');
-
-    res.needEmptyLine = true;
-
-    $generatorJava._addProperty(res, varName, cache, 'maxConcurrentAsyncOperations');
-
-    res.needEmptyLine = true;
-
-    // Generate cache type metadata configs.
-    if ((cache.queryMetadata && cache.queryMetadata.length > 0) ||
-        (cache.storeMetadata && cache.storeMetadata.length > 0)) {
-        res.emptyLineIfNeeded();
-
-        $generatorJava._declareVariable(res, $generatorJava._needNewVariable(res, 'types'), 'types', 'java.util.Collection', 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeMetadata');
-        res.line();
-
-        var metaNames = [];
-
-        if (cache.queryMetadata && cache.queryMetadata.length > 0) {
-            _.forEach(cache.queryMetadata, function (meta) {
-                if (!_.contains(metaNames, meta.name)) {
-                    metaNames.push(meta.name);
-
-                    $generatorJava._addCacheTypeMetadataConfiguration(res, meta);
-                }
-            });
-        }
-
-        if (cache.storeMetadata && cache.storeMetadata.length > 0) {
-            _.forEach(cache.storeMetadata, function (meta) {
-                if (!_.contains(metaNames, meta.name)) {
-                    metaNames.push(meta.name);
-
-                    $generatorJava._addCacheTypeMetadataConfiguration(res, meta);
-                }
-            });
-        }
-
-        res.line(varName + '.setTypeMetadata(types);');
-    }
-};
-
 $generatorJava._needNewVariable = function (res, varName) {
     var needNew = !res[varName];
 
@@ -596,23 +370,29 @@ $generatorJava.clusterGeneral = function (cluster, res) {
             case 'Multicast':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.Multicast, 'ipFinder', 'ipFinder',
-                    'TcpDiscoveryMulticastIpFinder', {
-                        multicastGroup: null,
-                        multicastPort: null,
-                        responseWaitTime: null,
-                        addressRequestAttempts: null,
-                        localAddress: null
-                    }, true);
+                if (d.Multicast)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.Multicast, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryMulticastIpFinder', {
+                            multicastGroup: null,
+                            multicastPort: null,
+                            responseWaitTime: null,
+                            addressRequestAttempts: null,
+                            localAddress: null
+                        }, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryMulticastIpFinder());');
+
 
                 break;
 
             case 'Vm':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.Vm, 'ipFinder', 'ipFinder', 'TcpDiscoveryVmIpFinder', {
-                    addresses: {type: 'list'}
-                }, true);
+                if (d.Vm)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.Vm, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryVmIpFinder', {addresses: {type: 'list'}}, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryVmIpFinder());');
 
                 break;
 
@@ -620,8 +400,8 @@ $generatorJava.clusterGeneral = function (cluster, res) {
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder');
 
                 if (d.S3)
-                    $generatorJava._addBeanWithProperties(res, 'discovery', d.S3, 'ipFinder', 'ipFinder', 'TcpDiscoveryS3IpFinder',
-                        {bucketName: null}, true);
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.S3, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryS3IpFinder', {bucketName: null}, true);
                 else
                     res.line('discovery.setIpFinder(new TcpDiscoveryS3IpFinder());');
 
@@ -630,49 +410,59 @@ $generatorJava.clusterGeneral = function (cluster, res) {
             case 'Cloud':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.Cloud, 'ipFinder', 'ipFinder', 'TcpDiscoveryCloudIpFinder', {
-                    credential: null,
-                    credentialPath: null,
-                    identity: null,
-                    provider: null,
-                    regions: {type: 'list'},
-                    zones: {type: 'list'}
-                }, true);
+                if (d.Cloud)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.Cloud, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryCloudIpFinder', {
+                            credential: null,
+                            credentialPath: null,
+                            identity: null,
+                            provider: null,
+                            regions: {type: 'list'},
+                            zones: {type: 'list'}
+                        }, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryCloudIpFinder());');
 
                 break;
 
             case 'GoogleStorage':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.GoogleStorage, 'ipFinder', 'ipFinder',
-                    'TcpDiscoveryGoogleStorageIpFinder', {
-                        projectName: null,
-                        bucketName: null,
-                        serviceAccountP12FilePath: null,
-                        serviceAccountId: null
-                    }, true);
-
-                //if (d.GoogleStorage.addrReqAttempts) todo ????
-                //    res.line('<property name="serviceAccountP12FilePath" value="' + escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
+                if (d.GoogleStorage)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.GoogleStorage, 'ipFinder', 'ipFinder',
+                        'TcpDiscoveryGoogleStorageIpFinder', {
+                            projectName: null,
+                            bucketName: null,
+                            serviceAccountP12FilePath: null,
+                            serviceAccountId: null
+                        }, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryGoogleStorageIpFinder());');
 
                 break;
 
             case 'Jdbc':
                 res.line();
 
-                $generatorJava._declareVariable(res, true, 'ipFinder', 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
+                if (d.Jdbc) {
+                    $generatorJava._declareVariable(res, true, 'ipFinder', 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
 
-                res.line('ipFinder.setInitSchema(' + ($commonUtils.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + ');');
-                res.line('discovery.setIpFinder(ipFinder);');
-                res.needEmptyLine = true;
+                    res.line('ipFinder.setInitSchema(' + ($commonUtils.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + ');');
+                    res.line('discovery.setIpFinder(ipFinder);');
+                }
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoveryJdbcIpFinder());');
 
                 break;
 
             case 'SharedFs':
                 res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder');
 
-                $generatorJava._addBeanWithProperties(res, 'discovery', d.SharedFs, 'ipFinder', 'ipFinder',
-                    'TcpDiscoverySharedFsIpFinder', {path: null}, true);
+                if (d.SharedFs)
+                    $generatorJava._addBeanWithProperties(res, 'discovery', d.SharedFs, 'ipFinder', 'ipFinder',
+                        'TcpDiscoverySharedFsIpFinder', {path: null}, true);
+                else
+                    res.line('discovery.setIpFinder(new TcpDiscoverySharedFsIpFinder());');
 
                 break;
 
@@ -710,87 +500,6 @@ $generatorJava.clusterCommunication = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    return res;
-};
-
-// Generate cluster caches.
-$generatorJava.clusterCaches = function (cluster, res) {
-    if (!res)
-        res = $generatorCommon.builder();
-
-    return res;
-};
-
-/**
- * Function to generate java code for cluster configuration.
- *
- * @param cluster Cluster to process.
- * @param javaClass If 'true' then generate factory class otherwise generate code snippet.
- * @param clientNearConfiguration Near cache configuration for client node.
- */
-$generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) {
-    var res = $generatorCommon.builder();
-
-    res.datasourceBeans = [];
-
-    if (javaClass) {
-        res.line('/**');
-        res.line(' * ' + $generatorCommon.mainComment());
-        res.line(' */');
-        res.startBlock('public class ConfigurationFactory {');
-        res.line('/**');
-        res.line(' * Configure grid.');
-        res.line(' */');
-        res.startBlock('public IgniteConfiguration createConfiguration() {');
-    }
-
-    $generatorJava._declareVariable(res, true, 'cfg', 'org.apache.ignite.configuration.IgniteConfiguration');
-    res.line();
-
-    if (clientNearConfiguration) {
-        res.line('cfg.setClientMode(true);');
-        res.line();
-    }
-
-    $generatorJava.clusterGeneral(cluster, res);
-
-    var caches = cluster.caches;
-
-    if (caches && caches.length > 0) {
-        res.emptyLineIfNeeded();
-
-        var names = [];
-
-        _.forEach(caches, function (cache) {
-            res.emptyLineIfNeeded();
-
-            var cacheName = $generatorJava._toJavaName('cache', cache.name);
-
-            names.push(cacheName);
-
-            $generatorJava._addCacheConfiguration(res, cache, cacheName);
-
-            res.needEmptyLine = true;
-        });
-
-        res.emptyLineIfNeeded();
-
-        res.append('cfg.setCacheConfiguration(');
-
-        for (var i = 0; i < names.length; i++) {
-            if (i > 0)
-                res.append(', ');
-
-            res.append(names[i]);
-        }
-
-        res.line(');');
-
-        res.needEmptyLine = true;
-    }
-
-    $generatorJava.clusterAtomics(cluster, res);
-
     $generatorJava._addProperty(res, 'cfg', cluster, 'networkTimeout');
     $generatorJava._addProperty(res, 'cfg', cluster, 'networkSendRetryDelay');
     $generatorJava._addProperty(res, 'cfg', cluster, 'networkSendRetryCount');
@@ -800,9 +509,23 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) 
 
     res.needEmptyLine = true;
 
+    return res;
+};
+
+$generatorJava.clusterDeployment = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
     $generatorJava._addProperty(res, 'cfg', cluster, 'deploymentMode', 'DeploymentMode');
 
     res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterEvents = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
 
     if (cluster.includeEventTypes && cluster.includeEventTypes.length > 0) {
         res.emptyLineIfNeeded();
@@ -843,6 +566,13 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) 
 
     res.needEmptyLine = true;
 
+    return res;
+};
+
+$generatorJava.clusterMarshaller = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
     var marshaller = cluster.marshaller;
 
     if (marshaller && marshaller.kind) {
@@ -860,17 +590,40 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) 
 
     res.needEmptyLine = true;
 
+    return res;
+};
+
+$generatorJava.clusterMetrics = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
     $generatorJava._addProperty(res, 'cfg', cluster, 'metricsExpireTime');
     $generatorJava._addProperty(res, 'cfg', cluster, 'metricsHistorySize');
     $generatorJava._addProperty(res, 'cfg', cluster, 'metricsLogFrequency');
     $generatorJava._addProperty(res, 'cfg', cluster, 'metricsUpdateFrequency');
+
     res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterP2p = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
 
     $generatorJava._addProperty(res, 'cfg', cluster, 'peerClassLoadingEnabled');
     $generatorJava._addMultiparamProperty(res, 'cfg', cluster, 'peerClassLoadingLocalClassPathExclude');
     $generatorJava._addProperty(res, 'cfg', cluster, 'peerClassLoadingMissedResourcesCacheSize');
     $generatorJava._addProperty(res, 'cfg', cluster, 'peerClassLoadingThreadPoolSize');
+
     res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterSwap = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
 
     if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
         $generatorJava._addBeanWithProperties(res, 'cfg', cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi', 'swapSpi',
@@ -879,12 +632,26 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) 
         res.needEmptyLine = true;
     }
 
+    return res;
+};
+
+$generatorJava.clusterTime = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
     $generatorJava._addProperty(res, 'cfg', cluster, 'clockSyncSamples');
     $generatorJava._addProperty(res, 'cfg', cluster, 'clockSyncFrequency');
     $generatorJava._addProperty(res, 'cfg', cluster, 'timeServerPortBase');
     $generatorJava._addProperty(res, 'cfg', cluster, 'timeServerPortRange');
 
     res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.clusterPools = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
 
     $generatorJava._addProperty(res, 'cfg', cluster, 'publicThreadPoolSize');
     $generatorJava._addProperty(res, 'cfg', cluster, 'systemThreadPoolSize');
@@ -893,15 +660,461 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) 
 
     res.needEmptyLine = true;
 
+    return res;
+};
+
+$generatorJava.clusterTransactions = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
     $generatorJava._addBeanWithProperties(res, 'cfg', cluster.transactionConfiguration, 'transactionConfiguration',
         'transactionConfiguration', $generatorCommon.TRANSACTION_CONFIGURATION.className,
         $generatorCommon.TRANSACTION_CONFIGURATION.fields);
 
     res.needEmptyLine = true;
 
-    $generatorJava._addProperty(res, 'cfg', cluster, 'cacheSanityCheckEnabled');
+    return res;
+};
+
+// Generate metadata general group.
+$generatorJava.metadataGeneral = function (meta, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    $generatorJava._addClassProperty(res, 'typeMeta', meta, 'keyType');
+    $generatorJava._addClassProperty(res, 'typeMeta', meta, 'valueType');
 
     res.needEmptyLine = true;
+
+    return res;
+};
+
+// Generate metadata for query group.
+$generatorJava.metadataQuery = function (meta, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+    $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+    $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
+
+    res.needEmptyLine = true;
+
+    $generatorJava._addListProperty(res, 'typeMeta', meta, 'textFields');
+
+    $generatorJava._addCacheTypeMetadataGroups(res, meta);
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+// Generate metadata for store group.
+$generatorJava.metadataStore = function (meta, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    $generatorJava._addProperty(res, 'typeMeta', meta, 'databaseSchema');
+    $generatorJava._addProperty(res, 'typeMeta', meta, 'databaseTable');
+
+    if (!$dataStructures.isJavaBuildInClass(meta.keyType))
+        $generatorJava._addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+
+    $generatorJava._addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+/**
+ * Generate java code for cache configuration.
+ *
+ * @param cache Cache config.
+ * @param varName Variable name.
+ * @param res Result builder.
+ * @returns {*} Append generated java code to builder and return it.
+ */
+$generatorJava.cacheGeneral = function (cache, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    $generatorJava._addProperty(res, varName, cache, 'name');
+
+    res.importClass('org.apache.ignite.cache.CacheAtomicityMode');
+    res.importClass('org.apache.ignite.cache.CacheMode');
+
+    $generatorJava._addProperty(res, varName, cache, 'cacheMode', 'CacheMode');
+    $generatorJava._addProperty(res, varName, cache, 'atomicityMode', 'CacheAtomicityMode');
+
+    if (cache.cacheMode == 'PARTITIONED')
+        $generatorJava._addProperty(res, varName, cache, 'backups');
+
+    res.needEmptyLine = true;
+
+    $generatorJava._addProperty(res, varName, cache, 'readFromBackup');
+    $generatorJava._addProperty(res, varName, cache, 'copyOnRead');
+    $generatorJava._addProperty(res, varName, cache, 'invalidate');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.cacheMemory = function (cache, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    $generatorJava._addProperty(res, varName, cache, 'memoryMode', 'CacheMemoryMode');
+    $generatorJava._addProperty(res, varName, cache, 'offHeapMaxMemory');
+
+    res.needEmptyLine = true;
+
+    $generatorJava._addEvictionPolicy(res, varName, cache.evictionPolicy, 'evictionPolicy');
+
+    $generatorJava._addProperty(res, varName, cache, 'swapEnabled');
+    $generatorJava._addProperty(res, varName, cache, 'startSize');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.cacheQuery = function (cache, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    $generatorJava._addProperty(res, varName, cache, 'sqlOnheapRowCacheSize');
+    $generatorJava._addProperty(res, varName, cache, 'longQueryWarningTimeout');
+
+    if (cache.indexedTypes && cache.indexedTypes.length > 0) {
+        res.emptyLineIfNeeded();
+
+        res.append(varName + '.setIndexedTypes(');
+
+        for (var i = 0; i < cache.indexedTypes.length; i++) {
+            if (i > 0)
+                res.append(', ');
+
+            var pair = cache.indexedTypes[i];
+
+            res.append($generatorJava._toJavaCode(res.importClass(pair.keyClass), 'class')).append(', ').append($generatorJava._toJavaCode(res.importClass(pair.valueClass), 'class'))
+        }
+
+        res.line(');');
+    }
+
+    $generatorJava._addMultiparamProperty(res, varName, cache, 'sqlFunctionClasses', 'class');
+
+    $generatorJava._addProperty(res, varName, cache, 'sqlEscapeAll');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.cacheStore = function (cache, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
+        var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
+        var data = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
+
+        var sfVarName = $generatorJava._toJavaName('storeFactory', cache.name);
+        var dsVarName = 'none';
+
+        if (storeFactory.dialect) {
+            var dataSourceBean = storeFactory.dataSourceBean;
+
+            dsVarName = $generatorJava._toJavaName('dataSource', dataSourceBean);
+
+            if (!_.contains(res.datasources, dataSourceBean)) {
+                res.datasources.push(dataSourceBean);
+
+                var dataSource = $generatorCommon.DATA_SOURCES[storeFactory.dialect];
+
+                res.line();
+
+                $generatorJava._declareVariable(res, true, dsVarName, dataSource);
+
+                res.line(dsVarName + '.setURL(_URL_);');
+                res.line(dsVarName + '.setUsername(_User_Name_);');
+                res.line(dsVarName + '.setPassword(_Password_);');
+            }
+        }
+
+        $generatorJava._addBeanWithProperties(res, varName, storeFactory, 'cacheStoreFactory', sfVarName, data.className,
+            data.fields, true);
+
+        if (dsVarName != 'none')
+            res.line(sfVarName + '.setDataSource(' + dsVarName + ');');
+
+        res.needEmptyLine = true;
+    }
+
+    $generatorJava._addProperty(res, varName, cache, 'loadPreviousValue');
+    $generatorJava._addProperty(res, varName, cache, 'readThrough');
+    $generatorJava._addProperty(res, varName, cache, 'writeThrough');
+
+    res.needEmptyLine = true;
+
+    $generatorJava._addProperty(res, varName, cache, 'writeBehindEnabled');
+    $generatorJava._addProperty(res, varName, cache, 'writeBehindBatchSize');
+    $generatorJava._addProperty(res, varName, cache, 'writeBehindFlushSize');
+    $generatorJava._addProperty(res, varName, cache, 'writeBehindFlushFrequency');
+    $generatorJava._addProperty(res, varName, cache, 'writeBehindFlushThreadCount');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+// Generate cache type metadata config.
+$generatorJava.cacheMetadata = function(meta, res) {
+    $generatorJava._declareVariable(res, $generatorJava._needNewVariable(res, 'typeMeta'), 'typeMeta', 'org.apache.ignite.cache.CacheTypeMetadata');
+
+    $generatorJava.metadataGeneral(meta, res);
+    $generatorJava.metadataQuery(meta, res);
+    $generatorJava.metadataStore(meta, res);
+
+    res.line();
+    res.line('types.add(typeMeta);');
+    res.line();
+
+};
+
+// Generate cache type metadata configs.
+$generatorJava.cacheMetadatas = function (qryMeta, storeMeta, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    // Generate cache type metadata configs.
+    if ((qryMeta && qryMeta.length > 0) || (storeMeta && storeMeta.length > 0)) {
+        res.emptyLineIfNeeded();
+
+        $generatorJava._declareVariable(res, $generatorJava._needNewVariable(res, 'types'), 'types', 'java.util.Collection', 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeMetadata');
+
+        res.line();
+
+        var metaNames = [];
+
+        if (qryMeta && qryMeta.length > 0) {
+            _.forEach(qryMeta, function (meta) {
+                if (!_.contains(metaNames, meta.name)) {
+                    metaNames.push(meta.name);
+
+                    $generatorJava.cacheMetadata(qryMeta, res);
+                }
+            });
+        }
+
+        if (storeMeta && storeMeta.length > 0) {
+            _.forEach(storeMeta, function (meta) {
+                if (!_.contains(metaNames, meta.name)) {
+                    metaNames.push(meta.name);
+
+                    $generatorJava.cacheMetadata(storeMeta, res);
+                }
+            });
+        }
+
+        res.line(varName + '.setTypeMetadata(types);');
+
+        res.needEmptyLine = true;
+    }
+
+    return res;
+};
+
+$generatorJava.cacheConcurrency = function (cache, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    $generatorJava._addProperty(res, varName, cache, 'maxConcurrentAsyncOperations');
+    $generatorJava._addProperty(res, varName, cache, 'defaultLockTimeout');
+    $generatorJava._addProperty(res, varName, cache, 'atomicWriteOrderMode');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+$generatorJava.cacheRebalance = function (cache, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    if (cache.cacheMode != 'LOCAL') {
+        $generatorJava._addProperty(res, varName, cache, 'rebalanceMode', 'CacheRebalanceMode');
+        $generatorJava._addProperty(res, varName, cache, 'rebalanceThreadPoolSize');
+        $generatorJava._addProperty(res, varName, cache, 'rebalanceBatchSize');
+        $generatorJava._addProperty(res, varName, cache, 'rebalanceOrder');
+        $generatorJava._addProperty(res, varName, cache, 'rebalanceDelay');
+        $generatorJava._addProperty(res, varName, cache, 'rebalanceTimeout');
+        $generatorJava._addProperty(res, varName, cache, 'rebalanceThrottle');
+
+        res.needEmptyLine = true;
+    }
+
+    return res;
+};
+
+$generatorJava.cacheServerNearCache = function (cache, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    if (cache.cacheMode == 'PARTITIONED' && cache.nearCacheEnabled) {
+        res.needEmptyLine = true;
+
+        res.importClass('org.apache.ignite.configuration.NearCacheConfiguration');
+
+        $generatorJava._addBeanWithProperties(res, varName, cache.nearConfiguration, 'nearConfiguration', 'nearConfiguration',
+            'NearCacheConfiguration', {nearStartSize: null}, true);
+
+        if (cache.nearConfiguration && cache.nearConfiguration.nearEvictionPolicy && cache.nearConfiguration.nearEvictionPolicy.kind) {
+            $generatorJava._addEvictionPolicy(res, 'nearConfiguration', cache.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
+        }
+
+        res.needEmptyLine = true;
+    }
+
+    return res;
+};
+
+$generatorJava.cacheStatistics = function (cache, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    $generatorJava._addProperty(res, varName, cache, 'statisticsEnabled');
+    $generatorJava._addProperty(res, varName, cache, 'managementEnabled');
+
+    res.needEmptyLine = true;
+
+    return res;
+};
+
+// Generate cache configs.
+$generatorJava.cache = function(cache, varName, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    $generatorJava.cacheGeneral(cache, varName, res);
+
+    $generatorJava.cacheMemory(cache, varName, res);
+
+    $generatorJava.cacheQuery(cache, varName, res);
+
+    $generatorJava.cacheStore(cache, varName, res);
+
+    $generatorJava.cacheConcurrency(cache, varName, res);
+
+    $generatorJava.cacheRebalance(cache, varName, res);
+
+    $generatorJava.cacheServerNearCache(cache, varName, res);
+
+    $generatorJava.cacheStatistics(cache, varName, res);
+
+    $generatorJava.cacheMetadatas(cache.queryMetadata, cache.storeMetadata, varName, res);
+};
+
+// Generate cluster caches.
+$generatorJava.clusterCaches = function (cluster, res) {
+    if (!res)
+        res = $generatorCommon.builder();
+
+    var caches = cluster.caches;
+
+    if (caches && caches.length > 0) {
+        res.emptyLineIfNeeded();
+
+        var names = [];
+
+        _.forEach(caches, function (cache) {
+            res.emptyLineIfNeeded();
+
+            var cacheName = $generatorJava._toJavaName('cache', cache.name);
+
+            $generatorJava._declareVariable(res, true, cacheName, 'org.apache.ignite.configuration.CacheConfiguration');
+
+            $generatorJava.cache(cache, cacheName, res);
+
+            names.push(cacheName);
+
+            res.needEmptyLine = true;
+        });
+
+        res.emptyLineIfNeeded();
+
+        res.append('cfg.setCacheConfiguration(');
+
+        for (var i = 0; i < names.length; i++) {
+            if (i > 0)
+                res.append(', ');
+
+            res.append(names[i]);
+        }
+
+        res.line(');');
+
+        res.needEmptyLine = true;
+    }
+
+    return res;
+};
+
+/**
+ * Function to generate java code for cluster configuration.
+ *
+ * @param cluster Cluster to process.
+ * @param javaClass If 'true' then generate factory class otherwise generate code snippet.
+ * @param clientNearConfiguration Near cache configuration for client node.
+ */
+$generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) {
+    var res = $generatorCommon.builder();
+
+    if (javaClass) {
+        res.line('/**');
+        res.line(' * ' + $generatorCommon.mainComment());
+        res.line(' */');
+        res.startBlock('public class ConfigurationFactory {');
+        res.line('/**');
+        res.line(' * Configure grid.');
+        res.line(' */');
+        res.startBlock('public IgniteConfiguration createConfiguration() {');
+    }
+
+    $generatorJava._declareVariable(res, true, 'cfg', 'org.apache.ignite.configuration.IgniteConfiguration');
+
+    res.line();
+
+    if (clientNearConfiguration) {
+        res.line('cfg.setClientMode(true);');
+        res.line();
+    }
+
+    $generatorJava.clusterGeneral(cluster, res);
+
+    $generatorJava.clusterAtomics(cluster, res);
+
+    $generatorJava.clusterCommunication(cluster, res);
+
+    $generatorJava.clusterDeployment(cluster, res);
+
+    $generatorJava.clusterEvents(cluster, res);
+
+    $generatorJava.clusterMarshaller(cluster, res);
+
+    $generatorJava.clusterMetrics(cluster, res);
+
+    $generatorJava.clusterP2p(cluster, res);
+
+    $generatorJava.clusterSwap(cluster, res);
+
+    $generatorJava.clusterTime(cluster, res);
+
+    $generatorJava.clusterPools(cluster, res);
+
+    $generatorJava.clusterTransactions(cluster, res);
 
     if (javaClass) {
         res.line();

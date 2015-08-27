@@ -41,7 +41,7 @@ router.post('/list', function (req, res) {
             });
 
             // Get all caches for spaces.
-            db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
+            db.Cache.find({space: {$in: space_ids}}).sort('name').deepPopulate('queryMetadata storeMetadata').exec(function (err, caches) {
                 if (db.processed(err, res)) {
                     // Get all clusters for spaces.
                     db.Cluster.find({space: {$in: space_ids}}).sort('name').exec(function (err, clusters) {

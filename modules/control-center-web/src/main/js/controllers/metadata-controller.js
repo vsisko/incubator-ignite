@@ -556,9 +556,17 @@ controlCenterModule.controller('metadataController', [
                             $scope.preview.queryXml = $generatorXml.metadataQuery(val).join('');
                             $scope.preview.storeXml = $generatorXml.metadataStore(val).join('');
 
+                            $scope.preview.generalJava = $generatorJava.metadataGeneral(val).join('');
+                            $scope.preview.queryJava = $generatorJava.metadataQuery(val).join('');
+                            $scope.preview.storeJava = $generatorJava.metadataStore(val).join('');
+
                             markChanged();
                         }
                     }, true);
+
+                    $timeout(function () {
+                        $common.initPreview();
+                    });
                 })
                 .error(function (errMsg) {
                     $common.showError(errMsg);
@@ -588,7 +596,10 @@ controlCenterModule.controller('metadataController', [
             // Add new metadata.
             $scope.createItem = function () {
                 $table.tableReset();
-                $common.ensureActivePanel($scope.panels, 'metadata-data');
+
+                $timeout(function () {
+                    $common.ensureActivePanel($scope.panels, 'metadata-data', 'metadataName');
+                });
 
                 var backupItem = {space: $scope.spaces[0]._id};
 

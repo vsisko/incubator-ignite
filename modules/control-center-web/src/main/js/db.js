@@ -171,7 +171,6 @@ var CacheSchema = new Schema({
 
     invalidate: Boolean,
     defaultLockTimeout: Number,
-    transactionManagerLookupClassName: String,
 
     sqlEscapeAll: Boolean,
     sqlOnheapRowCacheSize: Number,
@@ -208,6 +207,14 @@ var CacheSchema = new Schema({
             }
         }
     }
+});
+
+// Install deep populate plugin.
+CacheSchema.plugin(deepPopulate, {
+    whitelist: [
+        'queryMetadata',
+        'storeMetadata'
+    ]
 });
 
 // Define Cache model.
@@ -260,7 +267,6 @@ var ClusterSchema = new Schema({
         atomicSequenceReserveSize: Number
     },
     caches: [{type: ObjectId, ref: 'Cache'}],
-    cacheSanityCheckEnabled: Boolean,
     clockSyncSamples: Number,
     clockSyncFrequency: Number,
     deploymentMode: {type: String, enum: ['PRIVATE', 'ISOLATED', 'SHARED', 'CONTINUOUS']},

@@ -1869,7 +1869,7 @@ public abstract class GridCacheQueryManager<K, V> extends GridCacheManagerAdapte
 
             for (Collection<CacheSqlMetadata> col : res) {
                 for (CacheSqlMetadata meta : col) {
-                    String name = meta.getCacheName();
+                    String name = meta.cacheName();
 
                     Collection<CacheSqlMetadata> cacheMetas = map.get(name);
 
@@ -2123,12 +2123,12 @@ public abstract class GridCacheQueryManager<K, V> extends GridCacheManagerAdapte
         }
 
         /** {@inheritDoc} */
-        @Override public String getCacheName() {
+        @Override public String cacheName() {
             return cacheName;
         }
 
         /** {@inheritDoc} */
-        @Override public Collection<String> getTypes() {
+        @Override public Collection<String> types() {
             return types;
         }
 
@@ -2148,22 +2148,22 @@ public abstract class GridCacheQueryManager<K, V> extends GridCacheManagerAdapte
         }
 
         /** {@inheritDoc} */
-        @Override public Map<String, String> getKeyClasses() {
+        @Override public Map<String, String> keyClasses() {
             return keyClasses;
         }
 
         /** {@inheritDoc} */
-        @Override public Map<String, String> getValClasses() {
+        @Override public Map<String, String> valClasses() {
             return valClasses;
         }
 
         /** {@inheritDoc} */
-        @Override public Map<String, Map<String, String>> getFields() {
+        @Override public Map<String, Map<String, String>> fields() {
             return fields;
         }
 
         /** {@inheritDoc} */
-        @Override public Map<String, Collection<GridCacheSqlIndexMetadata>> getIndexes() {
+        @Override public Map<String, Collection<GridCacheSqlIndexMetadata>> indexes() {
             return indexes;
         }
 
@@ -2243,12 +2243,12 @@ public abstract class GridCacheQueryManager<K, V> extends GridCacheManagerAdapte
         }
 
         /** {@inheritDoc} */
-        @Override public String getName() {
+        @Override public String name() {
             return name;
         }
 
         /** {@inheritDoc} */
-        @Override public Collection<String> getFields() {
+        @Override public Collection<String> fields() {
             return fields;
         }
 
@@ -2258,12 +2258,12 @@ public abstract class GridCacheQueryManager<K, V> extends GridCacheManagerAdapte
         }
 
         /** {@inheritDoc} */
-        @Override public Collection<String> getDescendings() {
+        @Override public Collection<String> descendings() {
             return descendings;
         }
 
         /** {@inheritDoc} */
-        @Override public boolean isUnique() {
+        @Override public boolean unique() {
             return unique;
         }
 
