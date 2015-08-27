@@ -648,7 +648,7 @@
           "label": "Local class path exclude",
           "type": "text",
           "model": "peerClassLoadingLocalClassPathExclude",
-          "placeholder": "[]",
+          "disabled": "!backupItem.peerClassLoadingEnabled",
           "tip": [
             "List of packages separated by comma from the system classpath that need to be peer-to-peer loaded from task originating node.",
             "'*' is supported at the end of the package name which means that all sub-packages and their classes are included like in Java package import clause."
@@ -658,6 +658,7 @@
           "label": "Missed resources cache size",
           "type": "number",
           "model": "peerClassLoadingMissedResourcesCacheSize",
+          "disabled": "!backupItem.peerClassLoadingEnabled",
           "placeholder": 100,
           "tip": [
             "If size greater than 0, missed resources will be cached and next resource request ignored.",
@@ -668,6 +669,7 @@
           "label": "Pool size",
           "type": "number",
           "model": "peerClassLoadingThreadPoolSize",
+          "disabled": "!backupItem.peerClassLoadingEnabled",
           "placeholder": "availableProcessors",
           "tip": [
             "Thread pool size to use for peer class loading."

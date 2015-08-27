@@ -296,7 +296,7 @@ var ClusterSchema = new Schema({
     networkSendRetryDelay: Number,
     networkSendRetryCount: Number,
     peerClassLoadingEnabled: Boolean,
-    peerClassLoadingLocalClassPathExclude: [String],
+    peerClassLoadingLocalClassPathExclude: String,
     peerClassLoadingMissedResourcesCacheSize: Number,
     peerClassLoadingThreadPoolSize: Number,
     publicThreadPoolSize: Number,

@@ -505,12 +505,26 @@ $generatorXml.clusterP2p = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    $generatorXml._addProperty(res, cluster, 'peerClassLoadingEnabled');
-    $generatorXml._addListProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
-    $generatorXml._addProperty(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
-    $generatorXml._addProperty(res, cluster, 'peerClassLoadingThreadPoolSize');
+    var p2pEnabled = cluster.peerClassLoadingEnabled;
 
-    res.needEmptyLine = true;
+    if ($commonUtils.isDefined(p2pEnabled)) {
+        $generatorXml._addProperty(res, cluster, 'peerClassLoadingEnabled');
+
+        if (p2pEnabled) {
+            var clsPathExclude = cluster.peerClassLoadingLocalClassPathExclude;
+
+            if (clsPathExclude && clsPathExclude.length > 0) {
+                var clsPathExcludeWrapper = {peerClassLoadingLocalClassPathExclude: clsPathExclude.split(',')};
+
+                $generatorXml._addListProperty(res, clsPathExcludeWrapper, 'peerClassLoadingLocalClassPathExclude');
+            }
+
+            $generatorXml._addProperty(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
+            $generatorXml._addProperty(res, cluster, 'peerClassLoadingThreadPoolSize');
+        }
+
+        res.needEmptyLine = true;
+    }
 
     return res;
 };

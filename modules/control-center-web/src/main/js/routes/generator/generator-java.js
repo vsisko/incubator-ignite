@@ -615,12 +615,26 @@ $generatorJava.clusterP2p = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    $generatorJava._addProperty(res, 'cfg', cluster, 'peerClassLoadingEnabled');
-    $generatorJava._addMultiparamProperty(res, 'cfg', cluster, 'peerClassLoadingLocalClassPathExclude');
-    $generatorJava._addProperty(res, 'cfg', cluster, 'peerClassLoadingMissedResourcesCacheSize');
-    $generatorJava._addProperty(res, 'cfg', cluster, 'peerClassLoadingThreadPoolSize');
+    var p2pEnabled = cluster.peerClassLoadingEnabled;
 
-    res.needEmptyLine = true;
+    if ($commonUtils.isDefined(p2pEnabled)) {
+        $generatorJava._addProperty(res, 'cfg', cluster, 'peerClassLoadingEnabled');
+
+        if (p2pEnabled) {
+            var clsPathExclude = cluster.peerClassLoadingLocalClassPathExclude;
+
+            if (clsPathExclude && clsPathExclude.length > 0) {
+                var clsPathExcludeWrapper = {peerClassLoadingLocalClassPathExclude: clsPathExclude.split(',')};
+
+                $generatorJava._addMultiparamProperty(res, 'cfg', clsPathExcludeWrapper, 'peerClassLoadingLocalClassPathExclude');
+            }
+
+            $generatorJava._addProperty(res, 'cfg', cluster, 'peerClassLoadingMissedResourcesCacheSize');
+            $generatorJava._addProperty(res, 'cfg', cluster, 'peerClassLoadingThreadPoolSize');
+        }
+
+        res.needEmptyLine = true;
+    }
 
     return res;
 };

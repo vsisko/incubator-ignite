@@ -268,7 +268,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(id='{{::field.id}}' type='text' placeholder='{{::field.placeholder}}' ng-focus='tableReset()')&attributes(fieldCommon)
+                    input.form-control(id='{{::field.id}}' type='text' ng-disabled=fieldDisabled placeholder='{{::field.placeholder}}' ng-focus='tableReset()')&attributes(fieldCommon)
         div(ng-switch-when='withJavaBuildInTypes' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
