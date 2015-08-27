@@ -323,7 +323,8 @@ var ClusterSchema = new Schema({
         defaultTxTimeout: Number,
         pessimisticTxLogLinger: Number,
         pessimisticTxLogSize: Number,
-        txSerializableEnabled: Boolean
+        txSerializableEnabled: Boolean,
+        txManagerLookupClassName: String
     },
     waitForSegmentOnStart: Boolean
 });

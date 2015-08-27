@@ -265,7 +265,8 @@ $generatorCommon.TRANSACTION_CONFIGURATION = {
         defaultTxTimeout: null,
         pessimisticTxLogLinger: null,
         pessimisticTxLogSize: null,
-        txSerializableEnabled: null
+        txSerializableEnabled: null,
+        txManagerLookupClassName: null
     }
 };
 

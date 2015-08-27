@@ -918,6 +918,7 @@
         {
           "label": "Manager lookup",
           "type": "text",
+          "path": "transactionConfiguration",
           "model": "txManagerLookupClassName",
           "tip": [
             "Class name of transaction manager finder for integration for JEE app servers."
