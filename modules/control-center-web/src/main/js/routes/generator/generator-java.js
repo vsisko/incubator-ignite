@@ -1114,6 +1114,8 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) 
 
     $generatorJava.clusterTransactions(cluster, res);
 
+    $generatorJava.clusterCaches(cluster.caches, res);
+
     if (javaClass) {
         res.line();
         res.line('return cfg;');
