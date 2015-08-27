@@ -157,40 +157,6 @@ $generatorJava._addCacheTypeMetadataGroups = function (res, meta) {
     }
 };
 
-$generatorJava._addCacheTypeMetadataConfiguration = function (res, meta) {
-    $generatorJava._declareVariable(res, $generatorJava._needNewVariable(res, 'typeMeta'), 'typeMeta', 'org.apache.ignite.cache.CacheTypeMetadata');
-
-    var kind = meta.kind;
-
-    var keyType = $generatorJava._addClassProperty(res, 'typeMeta', meta, 'keyType');
-    $generatorJava._addClassProperty(res, 'typeMeta', meta, 'valueType');
-
-    if (kind != 'query') {
-        $generatorJava._addProperty(res, 'typeMeta', meta, 'databaseSchema');
-        $generatorJava._addProperty(res, 'typeMeta', meta, 'databaseTable');
-
-        if (!$dataStructures.isJavaBuildInClass(keyType))
-            $generatorJava._addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
-
-        $generatorJava._addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
-    }
-
-    if (kind != 'store') {
-        $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
-        $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
-        $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
-
-        res.needEmptyLine = true;
-        $generatorJava._addListProperty(res, 'typeMeta', meta, 'textFields');
-
-        $generatorJava._addCacheTypeMetadataGroups(res, meta);
-    }
-
-    res.line();
-    res.line('types.add(typeMeta);');
-    res.line();
-};
-
 $generatorJava._needNewVariable = function (res, varName) {
     var needNew = !res[varName];
 
@@ -711,11 +677,12 @@ $generatorJava.clusterTransactions = function (cluster, res) {
 };
 
 // Generate metadata general group.
-$generatorJava.metadataGeneral = function (cluster, res) {
+$generatorJava.metadataGeneral = function (meta, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    res.line('TODO');
+    $generatorJava._addClassProperty(res, 'typeMeta', meta, 'keyType');
+    $generatorJava._addClassProperty(res, 'typeMeta', meta, 'valueType');
 
     res.needEmptyLine = true;
 
@@ -723,11 +690,19 @@ $generatorJava.metadataGeneral = function (cluster, res) {
 };
 
 // Generate metadata for query group.
-$generatorJava.metadataQuery = function (cluster, res) {
+$generatorJava.metadataQuery = function (meta, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    res.line('TODO');
+    $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+    $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+    $generatorJava._addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
+
+    res.needEmptyLine = true;
+
+    $generatorJava._addListProperty(res, 'typeMeta', meta, 'textFields');
+
+    $generatorJava._addCacheTypeMetadataGroups(res, meta);
 
     res.needEmptyLine = true;
 
@@ -735,11 +710,17 @@ $generatorJava.metadataQuery = function (cluster, res) {
 };
 
 // Generate metadata for store group.
-$generatorJava.metadataStore = function (cluster, res) {
+$generatorJava.metadataStore = function (meta, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    res.line('TODO');
+    $generatorJava._addProperty(res, 'typeMeta', meta, 'databaseSchema');
+    $generatorJava._addProperty(res, 'typeMeta', meta, 'databaseTable');
+
+    if (!$dataStructures.isJavaBuildInClass(meta.keyType))
+        $generatorJava._addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+
+    $generatorJava._addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
 
     res.needEmptyLine = true;
 
@@ -889,6 +870,20 @@ $generatorJava.cacheStore = function (cache, varName, res) {
     return res;
 };
 
+// Generate cache type metadata config.
+$generatorJava.cacheMetadata = function(meta, res) {
+    $generatorJava._declareVariable(res, $generatorJava._needNewVariable(res, 'typeMeta'), 'typeMeta', 'org.apache.ignite.cache.CacheTypeMetadata');
+
+    $generatorJava.metadataGeneral(meta, res);
+    $generatorJava.metadataQuery(meta, res);
+    $generatorJava.metadataStore(meta, res);
+
+    res.line();
+    res.line('types.add(typeMeta);');
+    res.line();
+
+};
+
 // Generate cache type metadata configs.
 $generatorJava.cacheMetadatas = function (qryMeta, storeMeta, varName, res) {
     if (!res)
@@ -909,7 +904,7 @@ $generatorJava.cacheMetadatas = function (qryMeta, storeMeta, varName, res) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    $generatorJava._addCacheTypeMetadataConfiguration(res, meta);
+                    $generatorJava.cacheMetadata(qryMeta, res);
                 }
             });
         }
@@ -919,7 +914,7 @@ $generatorJava.cacheMetadatas = function (qryMeta, storeMeta, varName, res) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    $generatorJava._addCacheTypeMetadataConfiguration(res, meta);
+                    $generatorJava.cacheMetadata(storeMeta, res);
                 }
             });
         }
