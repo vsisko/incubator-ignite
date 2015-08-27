@@ -240,7 +240,7 @@ controlCenterModule.controller('metadataController', [
                     setSelectedAndBackupItem();
 
                 $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
-                    'Metadata "' + $scope.backupItem.name + '" editing' : 'New metadata';
+                    'Selected metadata: ' + $scope.backupItem.name : 'New metadata';
             }
 
             $scope.selectAllSchemas = function () {

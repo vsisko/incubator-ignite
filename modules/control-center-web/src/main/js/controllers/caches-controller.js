@@ -368,7 +368,7 @@ controlCenterModule.controller('cachesController', [
                     selectItem();
 
                 $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
-                    'Cache "' + $scope.backupItem.name + '" editing' : 'New cache';
+                    'Selected cache: ' + $scope.backupItem.name : 'New cache';
             };
 
             // Add new cache.
