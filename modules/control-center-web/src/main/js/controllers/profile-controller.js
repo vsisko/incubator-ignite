@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// Controller for Profile screen.
 controlCenterModule.controller('profileController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
     $scope.profileUser = angular.copy($scope.user);
 

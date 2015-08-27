@@ -38,6 +38,7 @@ router.post('/list', function (req, res) {
     });
 });
 
+// Remove user.
 router.post('/remove', function (req, res) {
     var userId = req.body.userId;
 
@@ -87,6 +88,7 @@ router.post('/remove', function (req, res) {
     });
 });
 
+// Save user.
 router.post('/save', function (req, res) {
     var userId = req.body.userId;
     var adminFlag = req.body.adminFlag;
@@ -99,6 +101,7 @@ router.post('/save', function (req, res) {
     });
 });
 
+// Become user.
 router.get('/become', function (req, res) {
     var viewedUserId = req.query.viewedUserId;
 

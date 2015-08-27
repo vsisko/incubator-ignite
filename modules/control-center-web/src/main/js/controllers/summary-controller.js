@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// Controller for Summary screen.
 controlCenterModule.controller('summaryController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
     $scope.joinTip = $common.joinTip;
     $scope.getModel = $common.getModel;

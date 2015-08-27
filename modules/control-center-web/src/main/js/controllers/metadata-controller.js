@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// Controller for Metadata screen.
 controlCenterModule.controller('metadataController', [
         '$scope', '$controller', '$http', '$modal', '$common', '$timeout', '$focus', '$confirm', '$copy', '$table', '$preview',
         function ($scope, $controller, $http, $modal, $common, $timeout, $focus, $confirm, $copy, $table, $preview) {
@@ -164,19 +165,6 @@ controlCenterModule.controller('metadataController', [
                 })
             });
             $scope.metadatas = [];
-
-            function markChanged() {
-                sessionStorage.metadataBackupItemChanged = true;
-
-                $scope.ui.inputForm.$setDirty();
-            }
-
-            function markPristine() {
-                if ($common.isDefined($scope.ui.inputForm))
-                    $scope.ui.inputForm.$setPristine();
-
-                sessionStorage.removeItem('metadataBackupItemChanged');
-            }
 
             $scope.isJavaBuildInClass = function () {
                 var item = $scope.backupItem;

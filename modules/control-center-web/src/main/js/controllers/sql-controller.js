@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// Controller for SQL notebook screen.
 controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http', '$common',
     function ($scope, $controller, $http, $common) {
     // Initialize the super class and extend it.

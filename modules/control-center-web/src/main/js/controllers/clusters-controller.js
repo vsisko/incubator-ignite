@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// Controller for Clusters screen.
 controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
     function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview) {
         $scope.joinTip = $common.joinTip;
@@ -42,6 +43,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
         $scope.formChanged = $common.formChanged;
 
         $scope.hidePopover = $common.hidePopover;
+
         var showPopoverMessage = $common.showPopoverMessage;
 
         $scope.template = {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}};
@@ -90,19 +92,6 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
 
             $common.hidePopover();
         };
-
-        function markChanged() {
-            sessionStorage.clusterBackupItemChanged = true;
-
-            $scope.ui.inputForm.$setDirty();
-        }
-
-        function markPristine() {
-            if ($common.isDefined($scope.ui.inputForm))
-                $scope.ui.inputForm.$setPristine();
-
-            sessionStorage.removeItem('clusterBackupItemChanged');
-        }
 
         $scope.panels = {activePanels: [0]};
 

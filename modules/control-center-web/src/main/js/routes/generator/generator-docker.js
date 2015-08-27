@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
+// Docker file generation entry point.
 $generatorDocker = {};
 
+// Generate Docker file for cluster.
 $generatorDocker.clusterDocker = function (cluster, os) {
     if (!os)
         os = 'debian:8';
@@ -58,6 +60,7 @@ $generatorDocker.clusterDocker = function (cluster, os) {
         'RUN mv /tmp/*.xml /home/$(ls)/config';
 };
 
+// For server side we should export Java code generation entry point.
 if (typeof window === 'undefined') {
     module.exports = $generatorDocker;
 }

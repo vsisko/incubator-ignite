@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// Controller for Caches screen.
 controlCenterModule.controller('cachesController', [
         '$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
         function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview) {
@@ -92,19 +93,6 @@ controlCenterModule.controller('cachesController', [
 
                 $common.hidePopover();
             };
-
-            function markChanged() {
-                sessionStorage.cacheBackupItemChanged = true;
-
-                $scope.ui.inputForm.$setDirty();
-            }
-
-            function markPristine() {
-                if ($common.isDefined($scope.ui.inputForm))
-                    $scope.ui.inputForm.$setPristine();
-
-                sessionStorage.removeItem('cacheBackupItemChanged');
-            }
 
             $scope.panels = {activePanels: [0]};
 

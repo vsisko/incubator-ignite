@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// For server side we should load required libraries.
 if (typeof window === 'undefined') {
     _ = require('lodash');
 
@@ -23,6 +24,7 @@ if (typeof window === 'undefined') {
     $generatorCommon = require('./generator-common');
 }
 
+// XML generation entry point.
 $generatorXml = {};
 
 // Do XML escape.
@@ -958,6 +960,7 @@ $generatorXml.clusterCaches = function(caches, res) {
     return res;
 };
 
+// Generate cluster config.
 $generatorXml.cluster = function (cluster, clientNearCfg) {
     var res = $generatorCommon.builder();
 
@@ -1054,6 +1057,7 @@ $generatorXml.cluster = function (cluster, clientNearCfg) {
     return xml;
 };
 
+// For server side we should export XML generation entry point.
 if (typeof window === 'undefined') {
     module.exports = $generatorXml;
 }

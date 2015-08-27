@@ -15,12 +15,22 @@
  * limitations under the License.
  */
 
+// Entry point for common utils.
 $commonUtils = {};
 
+/**
+ * @param v Value to check.
+ * @returns {boolean} 'true' if value defined.
+ */
 $commonUtils.isDefined = function isDefined(v) {
     return !(v === undefined || v === null);
 };
 
+/**
+ * @param obj Object to check.
+ * @param props Properties names.
+ * @returns {boolean} 'true' if object contains at least one from specified properties.
+ */
 $commonUtils.hasProperty = function (obj, props) {
     for (var propName in props) {
         if (props.hasOwnProperty(propName)) {
@@ -32,7 +42,9 @@ $commonUtils.hasProperty = function (obj, props) {
     return false;
 };
 
+// For server side we should export Java code generation entry point.
 if (typeof window === 'undefined') {
+    // Generate random HEX string. Server side only.
     $commonUtils.randomValueHex = function randomValueHex(len) {
         return require('crypto').randomBytes(Math.ceil(len / 2))
             .toString('hex') // convert to hexadecimal format
