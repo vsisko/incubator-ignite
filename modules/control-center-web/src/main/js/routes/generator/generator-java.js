@@ -904,7 +904,7 @@ $generatorJava.cacheMetadatas = function (qryMeta, storeMeta, varName, res) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    $generatorJava.cacheMetadata(qryMeta, res);
+                    $generatorJava.cacheMetadata(meta, res);
                 }
             });
         }
@@ -914,7 +914,7 @@ $generatorJava.cacheMetadatas = function (qryMeta, storeMeta, varName, res) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    $generatorJava.cacheMetadata(storeMeta, res);
+                    $generatorJava.cacheMetadata(meta, res);
                 }
             });
         }
