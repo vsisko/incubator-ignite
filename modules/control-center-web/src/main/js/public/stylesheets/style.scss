@@ -954,19 +954,9 @@ button .caret, .btn .caret {
     margin: 0;
 }
 
-div.panel-sticky {
+div.affix.padding-top-dflt {
     z-index: 10000;
-    position: fixed;
-    top: 0;
-    background-color: #ffffff;
-
-    border-left: 1px solid #e2e2e2;
-    border-bottom: 1px solid #e2e2e2;
-    border-right: 1px solid #e2e2e2;
-
-    margin-left: -30px;
-    margin-top: 0;
-    padding: 10px 30px 10px 29px;
+    background-color: white;
 }
 
 .panel-title a {

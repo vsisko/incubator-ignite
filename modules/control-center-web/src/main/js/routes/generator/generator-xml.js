@@ -111,10 +111,10 @@ $generatorXml._addBeanWithProperties = function (res, bean, beanPropName, beanCl
                     if (descr.type == 'list') {
                         $generatorXml._addListProperty(res, bean, propName, descr.setterName);
                     }
-                    else if (descr.type == 'className') {
+                    else if (descr.type == 'jdbcDialect') {
                         if (bean[propName]) {
                             res.startBlock('<property name="' + propName + '">');
-                            res.line('<bean class="' + $generatorCommon.KNOWN_CLASSES[bean[propName]].className + '"/>');
+                            res.line('<bean class="' + $generatorCommon.jdbcDialectClassName(bean[propName]) + '"/>');
                             res.endBlock('</property>');
                         }
                     }

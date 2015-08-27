@@ -38,10 +38,7 @@ controlCenterModule.controller('metadataController', [
             $scope.tableRemove = function (item, field, index) {
                 $table.tableRemove(item, field, index);
 
-                markChanged();
-
-                // Dirty state do not change automatically.
-                $scope.ui.inputForm.$dirty = true;
+                $common.markChanged($scope.ui.inputForm, 'metadataBackupItemChanged');
             };
 
             $scope.tableSimpleSave = $table.tableSimpleSave;
@@ -55,6 +52,8 @@ controlCenterModule.controller('metadataController', [
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
             $scope.previewInit = $preview.previewInit;
+
+            $scope.formChanged = $common.formChanged;
 
             $scope.hidePopover = $common.hidePopover;
 
@@ -179,10 +178,6 @@ controlCenterModule.controller('metadataController', [
                 sessionStorage.removeItem('metadataBackupItemChanged');
             }
 
-            function metadataChanged() {
-                return $common.isDefined($scope.ui.inputForm) && $scope.ui.inputForm.$dirty;
-            }
-
             $scope.isJavaBuildInClass = function () {
                 var item = $scope.backupItem;
 
@@ -218,19 +213,17 @@ controlCenterModule.controller('metadataController', [
 
                     $timeout(function () {
                         $common.previewHeightUpdate();
-
-                        $common.configureStickyElement();
                     });
 
                     $timeout(function () {
                         if (changed)
-                            markChanged();
+                            $common.markChanged($scope.ui.inputForm, 'metadataBackupItemChanged');
                         else
-                            markPristine();
+                            $common.markPristine($scope.ui.inputForm, 'metadataBackupItemChanged');
                     }, 50);
                 }
 
-                if (metadataChanged())
+                if ($common.formChanged($scope.ui.inputForm))
                     $confirm.show('<span>Current metadata is modified.<br/><br/>Discard unsaved changes?</span>').then(
                         function () {
                             setSelectedAndBackupItem();
@@ -566,7 +559,7 @@ controlCenterModule.controller('metadataController', [
                             $scope.preview.queryJava = $generatorJava.metadataQuery(val).join('');
                             $scope.preview.storeJava = $generatorJava.metadataStore(val).join('');
 
-                            markChanged();
+                            $common.markChanged($scope.ui.inputForm, 'metadataBackupItemChanged');
                         }
                     }, true);
 
@@ -696,7 +689,7 @@ controlCenterModule.controller('metadataController', [
 
                 $http.post('metadata/save', item)
                     .success(function (_id) {
-                        markPristine();
+                        $common.markPristine($scope.ui.inputForm, 'metadataBackupItemChanged');
 
                         $common.showInfo('Metadata "' + item.name + '" saved.');
 
@@ -757,7 +750,7 @@ controlCenterModule.controller('metadataController', [
 
                         $http.post('metadata/remove', {_id: _id})
                             .success(function () {
-                                markPristine();
+                                $common.markPristine($scope.ui.inputForm, 'metadataBackupItemChanged');
 
                                 $common.showInfo('Cache type metadata has been removed: ' + selectedItem.name);
 
@@ -1066,7 +1059,7 @@ controlCenterModule.controller('metadataController', [
 
                 group.fields.splice(index, 1);
 
-                markChanged();
+                $common.markChanged($scope.ui.inputForm, 'metadataBackupItemChanged');
 
                 // Dirty state do not change automatically.
                 $scope.ui.inputForm.$dirty = true;

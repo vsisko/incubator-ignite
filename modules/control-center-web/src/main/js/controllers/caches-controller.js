@@ -31,10 +31,7 @@ controlCenterModule.controller('cachesController', [
             $scope.tableRemove = function (item, field, index) {
                 $table.tableRemove(item, field, index);
 
-                markChanged();
-
-                // Dirty state do not change automatically.
-                $scope.ui.inputForm.$dirty = true;
+                $common.markChanged($scope.ui.inputForm, 'cacheBackupItemChanged');
             };
 
             $scope.tableSimpleSave = $table.tableSimpleSave;
@@ -47,6 +44,8 @@ controlCenterModule.controller('cachesController', [
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
             $scope.previewInit = $preview.previewInit;
+
+            $scope.formChanged = $common.formChanged;
 
             $scope.hidePopover = $common.hidePopover;
 
@@ -105,10 +104,6 @@ controlCenterModule.controller('cachesController', [
                     $scope.ui.inputForm.$setPristine();
 
                 sessionStorage.removeItem('cacheBackupItemChanged');
-            }
-
-            function cacheChanged() {
-                return $common.isDefined($scope.ui.inputForm) && $scope.ui.inputForm.$dirty;
             }
 
             $scope.panels = {activePanels: [0]};
@@ -314,7 +309,7 @@ controlCenterModule.controller('cachesController', [
                             $scope.preview.serverNearCacheJava = $generatorJava.cacheServerNearCache(val, varName).join('');
                             $scope.preview.statisticsJava = $generatorJava.cacheStatistics(val, varName).join('');
 
-                            markChanged();
+                            $common.markChanged($scope.ui.inputForm, 'cacheBackupItemChanged');
                         }
                     }, true);
 
@@ -346,19 +341,17 @@ controlCenterModule.controller('cachesController', [
 
                     $timeout(function () {
                         $common.previewHeightUpdate();
-
-                        $common.configureStickyElement();
                     });
 
                     $timeout(function () {
                         if (changed)
-                            markChanged();
+                            $common.markChanged($scope.ui.inputForm, 'cacheBackupItemChanged');
                         else
-                            markPristine();
+                            $common.markPristine($scope.ui.inputForm, 'cacheBackupItemChanged');
                     }, 50);
                 }
 
-                if (cacheChanged())
+                if ($common.formChanged($scope.ui.inputForm))
                     $confirm.show('<span>Current cache is modified.<br/><br/>Discard unsaved changes?</span>').then(
                         function () {
                             selectItem();
@@ -446,7 +439,7 @@ controlCenterModule.controller('cachesController', [
             function save(item) {
                 $http.post('caches/save', item)
                     .success(function (_id) {
-                        markPristine();
+                        $common.markPristine($scope.ui.inputForm, 'cacheBackupItemChanged');
 
                         var idx = _.findIndex($scope.caches, function (cache) {
                             return cache._id == _id;
@@ -502,7 +495,7 @@ controlCenterModule.controller('cachesController', [
 
                 $confirm.show('Are you sure you want to remove cache: "' + selectedItem.name + '"?').then(
                     function () {
-                        markPristine();
+                        $common.markPristine($scope.ui.inputForm, 'cacheBackupItemChanged');
 
                         var _id = selectedItem._id;
 

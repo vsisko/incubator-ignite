@@ -328,9 +328,11 @@ $generatorJava._addBeanWithProperties = function (res, varName, bean, beanPropNa
                             }
                             break;
 
-                        case 'className':
+                        case 'jdbcDialect':
                             if (bean[propName]) {
-                                res.line(beanVarName + '.' + $generatorJava._setterName(propName) + '(new ' + $generatorCommon.KNOWN_CLASSES[bean[propName]].className + '());');
+                                var jdbcDialectClsName = res.importClass($generatorCommon.jdbcDialectClassName(bean[propName]));
+
+                                res.line(beanVarName + '.' + $generatorJava._setterName(propName) + '(new ' + jdbcDialectClsName + '());');
                             }
 
                             break;
@@ -819,38 +821,41 @@ $generatorJava.cacheStore = function (cache, varName, res) {
 
     if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
         var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
-        var data = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
 
-        var sfVarName = $generatorJava._toJavaName('storeFactory', cache.name);
-        var dsVarName = 'none';
+        if (storeFactory) {
+            var storeFactoryDesc = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
 
-        if (storeFactory.dialect) {
-            var dataSourceBean = storeFactory.dataSourceBean;
+            var sfVarName = $generatorJava._toJavaName('storeFactory', cache.name);
+            var dsVarName = 'none';
 
-            dsVarName = $generatorJava._toJavaName('dataSource', dataSourceBean);
+            if (storeFactory.dialect) {
+                var dataSourceBean = storeFactory.dataSourceBean;
 
-            if (!_.contains(res.datasources, dataSourceBean)) {
-                res.datasources.push(dataSourceBean);
+                dsVarName = $generatorJava._toJavaName('dataSource', dataSourceBean);
 
-                var dataSource = $generatorCommon.DATA_SOURCES[storeFactory.dialect];
+                if (!_.contains(res.datasources, dataSourceBean)) {
+                    res.datasources.push(dataSourceBean);
 
-                res.line();
+                    var dataSource = $generatorCommon.DATA_SOURCES[storeFactory.dialect];
 
-                $generatorJava._declareVariable(res, true, dsVarName, dataSource);
+                    res.line();
 
-                res.line(dsVarName + '.setURL(_URL_);');
-                res.line(dsVarName + '.setUsername(_User_Name_);');
-                res.line(dsVarName + '.setPassword(_Password_);');
+                    $generatorJava._declareVariable(res, true, dsVarName, dataSource);
+
+                    res.line(dsVarName + '.setURL(_URL_);');
+                    res.line(dsVarName + '.setUsername(_User_Name_);');
+                    res.line(dsVarName + '.setPassword(_Password_);');
+                }
             }
+
+            $generatorJava._addBeanWithProperties(res, varName, storeFactory, 'cacheStoreFactory', sfVarName,
+                storeFactoryDesc.className, storeFactoryDesc.fields, true);
+
+            if (dsVarName != 'none')
+                res.line(sfVarName + '.setDataSource(' + dsVarName + ');');
+
+            res.needEmptyLine = true;
         }
-
-        $generatorJava._addBeanWithProperties(res, varName, storeFactory, 'cacheStoreFactory', sfVarName, data.className,
-            data.fields, true);
-
-        if (dsVarName != 'none')
-            res.line(sfVarName + '.setDataSource(' + dsVarName + ');');
-
-        res.needEmptyLine = true;
     }
 
     $generatorJava._addProperty(res, varName, cache, 'loadPreviousValue');
