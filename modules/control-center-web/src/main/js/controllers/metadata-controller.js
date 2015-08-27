@@ -173,7 +173,8 @@ controlCenterModule.controller('metadataController', [
             }
 
             function markPristine() {
-                $scope.ui.inputForm.$setPristine();
+                if ($common.isDefined($scope.ui.inputForm))
+                    $scope.ui.inputForm.$setPristine();
 
                 sessionStorage.removeItem('metadataBackupItemChanged');
             }
@@ -217,6 +218,8 @@ controlCenterModule.controller('metadataController', [
     
                     $timeout(function () {
                         $common.previewHeightUpdate();
+
+                        $common.configureStickyElement();
                     })
 
                     $timeout(function () {
@@ -235,6 +238,9 @@ controlCenterModule.controller('metadataController', [
                     );
                 else
                     setSelectedAndBackupItem();
+
+                $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
+                    'Metadata "' + $scope.backupItem.name + '" editing' : 'New metadata';
             }
 
             $scope.selectAllSchemas = function () {

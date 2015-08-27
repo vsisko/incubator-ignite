@@ -104,7 +104,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
         }
 
         function markPristine() {
-            $scope.ui.inputForm.$setPristine();
+            if ($common.isDefined($scope.ui.inputForm))
+                $scope.ui.inputForm.$setPristine();
 
             sessionStorage.removeItem('clusterBackupItemChanged');
         }
@@ -282,6 +283,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
 
                 $timeout(function () {
                     $common.previewHeightUpdate();
+
+                    $common.configureStickyElement();
                 });
 
                 $timeout(function () {
@@ -301,7 +304,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
             else
                 selectItem();
 
-            $scope.ui.formTitle = $scope.backupItem._id ? 'Cluster "' + $scope.backupItem.name + '" editing' : 'New cluster';
+            $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
+                'Cluster "' + $scope.backupItem.name + '" editing' : 'New cluster';
         };
 
         // Add new cluster.

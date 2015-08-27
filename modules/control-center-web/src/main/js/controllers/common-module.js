@@ -503,42 +503,33 @@ controlCenterModule.service('$common', [
 
         var win = $(window);
 
-        var elem = undefined;
-        var offsetTop = undefined;
-        var cont = undefined;
-        var scrollspyWidth = 0;
+        var stickyOffsetTop = undefined;
 
-        win.scroll(function() {
-            if (!isDefined(offsetTop)) {
-                elem = $('#scrolled')
+        function configureStickyElement() {
+            var elem = $('#scrolled')
 
-                if (elem.length > 0) {
-                    cont = $('.docs-content');
+            if (elem.length > 0) {
+                if (!stickyOffsetTop)
+                    stickyOffsetTop = elem.offset().top
 
-                    offsetTop = elem.offset().top;
+                var cont = $('.docs-content');
 
-                    scrollspyWidth = Math.round(cont[0].getBoundingClientRect().width);
+                scrollspyWidth = Math.round(cont[0].getBoundingClientRect().width);
 
-                    console.log(scrollspyWidth);
-                }
-            }
-            else {
-                elem.toggleClass('panel-sticky', win.scrollTop() > offsetTop);
+                elem.toggleClass('panel-sticky', win.scrollTop() > stickyOffsetTop);
 
                 elem.width(scrollspyWidth);
 
-                elem.find('label').width(scrollspyWidth - elem.find('#buttonsPnl').outerWidth());
-
-                console.log(scrollspyWidth + " " + Math.round(cont[0].getBoundingClientRect().width) + " " + cont[0].getBoundingClientRect().width + ' ' + elem.width());
+                elem.find('label').width(scrollspyWidth - elem.find('#buttonsPnl').outerWidth() - 1);
             }
+        }
+
+        win.scroll(function() {
+            configureStickyElement();
         });
 
         win.resize(function () {
-            if (isDefined(offsetTop)) {
-                scrollspyWidth = Math.round(cont[0].getBoundingClientRect().width);
-
-                elem.width(scrollspyWidth);
-            }
+            configureStickyElement();
         });
 
         return {
@@ -708,6 +699,9 @@ controlCenterModule.service('$common', [
                         subtree: true
                     });
                 });
+            },
+            configureStickyElement: function () {
+                configureStickyElement();
             }
         }
     }]);
@@ -1169,9 +1163,12 @@ controlCenterModule.factory('$focus', function ($timeout) {
 
                 var winOffset = window.pageYOffset;
 
-                if(elemOffset - 20 - $('.section-top').outerHeight() < winOffset || elemOffset + elem.outerHeight(true) + 20 > winOffset + window.innerHeight)
+                var topHeight = $('.section-top').outerHeight();
+
+                if(elemOffset - 20 - topHeight < winOffset
+                    || elemOffset + elem.outerHeight(true) + 20 > winOffset + window.innerHeight)
                     $('html, body').animate({
-                        scrollTop: elemOffset - 20 - $('.section-top').outerHeight()
+                        scrollTop: elemOffset - 20 - topHeight
                     }, 10);
 
                 elem[0].focus();

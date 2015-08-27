@@ -956,13 +956,14 @@ button .caret, .btn .caret {
 
 div.panel-sticky {
     z-index: 10000;
-    width: 100%;
+    position: fixed;
+    top: 0;
     background-color: #ffffff;
+
     border-left: 1px solid #e2e2e2;
     border-bottom: 1px solid #e2e2e2;
     border-right: 1px solid #e2e2e2;
-    position: fixed;
-    top: 0;
+
     margin-left: -30px;
     margin-top: 0px;
     padding-left: 29px;

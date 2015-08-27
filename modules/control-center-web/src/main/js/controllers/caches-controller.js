@@ -101,7 +101,8 @@ controlCenterModule.controller('cachesController', [
             }
 
             function markPristine() {
-                $scope.ui.inputForm.$setPristine();
+                if ($common.isDefined($scope.ui.inputForm))
+                    $scope.ui.inputForm.$setPristine();
 
                 sessionStorage.removeItem('cacheBackupItemChanged');
             }
@@ -345,6 +346,8 @@ controlCenterModule.controller('cachesController', [
 
                     $timeout(function () {
                         $common.previewHeightUpdate();
+
+                        $common.configureStickyElement();
                     })
 
                     $timeout(function () {
@@ -363,6 +366,9 @@ controlCenterModule.controller('cachesController', [
                     );
                 else
                     selectItem();
+
+                $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
+                    'Cache "' + $scope.backupItem.name + '" editing' : 'New cache';
             };
 
             // Add new cache.
