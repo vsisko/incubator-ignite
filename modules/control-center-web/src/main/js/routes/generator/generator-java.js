@@ -1018,11 +1018,9 @@ $generatorJava.cache = function(cache, varName, res) {
 };
 
 // Generate cluster caches.
-$generatorJava.clusterCaches = function (cluster, res) {
+$generatorJava.clusterCaches = function (caches, res) {
     if (!res)
         res = $generatorCommon.builder();
-
-    var caches = cluster.caches;
 
     if (caches && caches.length > 0) {
         res.emptyLineIfNeeded();

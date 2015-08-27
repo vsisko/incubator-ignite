@@ -20,6 +20,8 @@ controlCenterModule.controller('metadataController', [
         function ($scope, $controller, $http, $modal, $common, $timeout, $focus, $confirm, $copy, $table, $preview) {
             // Initialize the super class and extend it.
             angular.extend(this, $controller('agent-download', {$scope: $scope}));
+            $scope.ui = {};
+
             $scope.agentGoal = 'load metadata from database schema';
             $scope.agentTestDriveOption = '--test-metadata';
 
@@ -33,7 +35,14 @@ controlCenterModule.controller('metadataController', [
             $scope.tableNewItemActive = $table.tableNewItemActive;
             $scope.tableEditing = $table.tableEditing;
             $scope.tableStartEdit = $table.tableStartEdit;
-            $scope.tableRemove = $table.tableRemove;
+            $scope.tableRemove = function (item, field, index) {
+                $table.tableRemove(item, field, index);
+
+                markChanged();
+
+                // Dirty state do not change automatically.
+                $scope.ui.inputForm.$dirty = true;
+            };
 
             $scope.tableSimpleSave = $table.tableSimpleSave;
             $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
@@ -157,6 +166,23 @@ controlCenterModule.controller('metadataController', [
             });
             $scope.metadatas = [];
 
+            function markChanged() {
+                sessionStorage.metadataBackupItemChanged = true;
+
+                $scope.ui.inputForm.$setDirty();
+            }
+
+            function markPristine() {
+                if ($common.isDefined($scope.ui.inputForm))
+                    $scope.ui.inputForm.$setPristine();
+
+                sessionStorage.removeItem('metadataBackupItemChanged');
+            }
+
+            function metadataChanged() {
+                return $common.isDefined($scope.ui.inputForm) && $scope.ui.inputForm.$dirty;
+            }
+
             $scope.isJavaBuildInClass = function () {
                 var item = $scope.backupItem;
 
@@ -183,15 +209,38 @@ controlCenterModule.controller('metadataController', [
                     $scope.selectItem($scope.metadatas[0]);
             }
 
-            function setSelectedAndBackupItem(sel, bak) {
-                $table.tableReset();
+            function setSelectedAndBackupItem(sel, bak, changed) {
+                function setSelectedAndBackupItem() {
+                    $table.tableReset();
 
-                $scope.selectedItem = sel;
-                $scope.backupItem = bak;
+                    $scope.backupItem = bak;
+                    $scope.selectedItem = sel;
 
-                $timeout(function () {
-                    $common.previewHeightUpdate();
-                })
+                    $timeout(function () {
+                        $common.previewHeightUpdate();
+
+                        $common.configureStickyElement();
+                    });
+
+                    $timeout(function () {
+                        if (changed)
+                            markChanged();
+                        else
+                            markPristine();
+                    }, 50);
+                }
+
+                if (metadataChanged())
+                    $confirm.show('<span>Current metadata is modified.<br/><br/>Discard unsaved changes?</span>').then(
+                        function () {
+                            setSelectedAndBackupItem();
+                        }
+                    );
+                else
+                    setSelectedAndBackupItem();
+
+                $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
+                    'Metadata "' + $scope.backupItem.name + '" editing' : 'New metadata';
             }
 
             $scope.selectAllSchemas = function () {
@@ -487,7 +536,7 @@ controlCenterModule.controller('metadataController', [
                                         }) >= 0;
                                 });
 
-                                setSelectedAndBackupItem($scope.metadatas[idx], restoredItem);
+                                setSelectedAndBackupItem($scope.metadatas[idx], restoredItem, sessionStorage.metadataBackupItemChanged);
                             }
                             else {
                                 sessionStorage.removeItem('metadataBackupItem');
@@ -496,7 +545,7 @@ controlCenterModule.controller('metadataController', [
                             }
                         }
                         else
-                            setSelectedAndBackupItem(undefined, restoredItem);
+                            setSelectedAndBackupItem(undefined, restoredItem, sessionStorage.metadataBackupItemChanged);
                     }
                     else
                         selectFirstItem();
@@ -516,6 +565,8 @@ controlCenterModule.controller('metadataController', [
                             $scope.preview.generalJava = $generatorJava.metadataGeneral(val).join('');
                             $scope.preview.queryJava = $generatorJava.metadataQuery(val).join('');
                             $scope.preview.storeJava = $generatorJava.metadataStore(val).join('');
+
+                            markChanged();
                         }
                     }, true);
 
@@ -556,9 +607,7 @@ controlCenterModule.controller('metadataController', [
                     $common.ensureActivePanel($scope.panels, 'metadata-data', 'metadataName');
                 });
 
-                $scope.selectedItem = undefined;
-
-                $scope.backupItem = {space: $scope.spaces[0]._id};
+                setSelectedAndBackupItem(undefined, {space: $scope.spaces[0]._id});
             };
 
             function queryConfigured(item) {
@@ -647,6 +696,8 @@ controlCenterModule.controller('metadataController', [
 
                 $http.post('metadata/save', item)
                     .success(function (_id) {
+                        markPristine();
+
                         $common.showInfo('Metadata "' + item.name + '" saved.');
 
                         var idx = _.findIndex($scope.metadatas, function (metadata) {
@@ -706,6 +757,8 @@ controlCenterModule.controller('metadataController', [
 
                         $http.post('metadata/remove', {_id: _id})
                             .success(function () {
+                                markPristine();
+
                                 $common.showInfo('Cache type metadata has been removed: ' + selectedItem.name);
 
                                 var metadatas = $scope.metadatas;
@@ -1012,6 +1065,11 @@ controlCenterModule.controller('metadataController', [
                 $table.tableReset();
 
                 group.fields.splice(index, 1);
+
+                markChanged();
+
+                // Dirty state do not change automatically.
+                $scope.ui.inputForm.$dirty = true;
             };
         }]
 );

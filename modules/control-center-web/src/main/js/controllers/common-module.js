@@ -501,6 +501,37 @@ controlCenterModule.service('$common', [
             }
         }
 
+        var win = $(window);
+
+        var stickyOffsetTop = undefined;
+
+        function configureStickyElement() {
+            var elem = $('#scrolled');
+
+            if (elem.length > 0) {
+                if (!stickyOffsetTop)
+                    stickyOffsetTop = elem.offset().top;
+
+                var cont = $('.docs-content');
+
+                var scrollSpyWidth = Math.round(cont[0].getBoundingClientRect().width);
+
+                elem.toggleClass('panel-sticky', win.scrollTop() > stickyOffsetTop);
+
+                elem.width(scrollSpyWidth);
+
+                elem.find('label').width(scrollSpyWidth - elem.find('#buttonsPnl').outerWidth() - 1);
+            }
+        }
+
+        win.scroll(function() {
+            configureStickyElement();
+        });
+
+        win.resize(function () {
+            configureStickyElement();
+        });
+
         return {
             getModel: function (obj, field) {
                 var path = field.path;
@@ -668,6 +699,9 @@ controlCenterModule.service('$common', [
                         subtree: true
                     });
                 });
+            },
+            configureStickyElement: function () {
+                configureStickyElement();
             }
         }
     }]);
@@ -1129,9 +1163,12 @@ controlCenterModule.factory('$focus', function ($timeout) {
 
                 var winOffset = window.pageYOffset;
 
-                if(elemOffset - 20 < winOffset || elemOffset + elem.outerHeight(true) + 20 > winOffset + window.innerHeight)
+                var topHeight = $('.section-top').outerHeight();
+
+                if(elemOffset - 20 - topHeight < winOffset
+                    || elemOffset + elem.outerHeight(true) + 20 > winOffset + window.innerHeight)
                     $('html, body').animate({
-                        scrollTop: elemOffset - 20
+                        scrollTop: elemOffset - 20 - topHeight
                     }, 10);
 
                 elem[0].focus();

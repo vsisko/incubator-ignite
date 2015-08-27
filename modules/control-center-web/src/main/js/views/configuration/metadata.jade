@@ -33,9 +33,11 @@ block content
             button.btn.btn-primary(ng-click='showLoadMetadataModal()') Load from database
         hr
         form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
+            .section-top(id='scrolled')
+                label {{ui.formTitle}}
+                span(id='buttonsPnl')
+                    button.btn.btn-primary(ng-click='saveItem()') Save
+                    button.btn.btn-primary(ng-show='backupItem._id' ng-click='saveItemAs()') Copy
+                    button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true')
                 +groups('metadata', 'backupItem')
-            .section
-                button.btn.btn-primary(ng-click='saveItem()') Save
-                button.btn.btn-primary(ng-show='backupItem._id' ng-click='saveItemAs()') Copy
-                button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
