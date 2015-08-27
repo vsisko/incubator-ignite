@@ -286,7 +286,9 @@ $generatorJava._addBeanWithProperties = function (res, varName, bean, beanPropNa
             res.line();
         }
 
-        res.line(beanClass + ' ' + beanVarName + ' = new ' + beanClass + '();');
+        var clsName = res.importClass(beanClass);
+
+        res.line(clsName + ' ' + beanVarName + ' = new ' + clsName + '();');
 
         for (var propName in props) {
             if (props.hasOwnProperty(propName)) {
@@ -299,7 +301,7 @@ $generatorJava._addBeanWithProperties = function (res, varName, bean, beanPropNa
                             break;
 
                         case 'enum':
-                            $generatorJava._addProperty(res, beanVarName, bean, propName, descr.enumClass, descr.setterName);
+                            $generatorJava._addProperty(res, beanVarName, bean, propName, res.importClass(descr.enumClass), descr.setterName);
                             break;
 
                         case 'float':
@@ -354,7 +356,7 @@ $generatorJava._addBeanWithProperties = function (res, varName, bean, beanPropNa
     else if (createBeanAlthoughNoProps) {
         res.emptyLineIfNeeded();
 
-        res.line(varName + '.' + $generatorJava._setterName(beanPropName) + '(new ' + beanClass + '());');
+        res.line(varName + '.' + $generatorJava._setterName(beanPropName) + '(new ' + res.importClass(beanClass) + '());');
     }
 };
 
@@ -836,11 +838,11 @@ $generatorJava.cacheStore = function (cache, varName, res) {
                 if (!_.contains(res.datasources, dataSourceBean)) {
                     res.datasources.push(dataSourceBean);
 
-                    var dataSource = $generatorCommon.DATA_SOURCES[storeFactory.dialect];
+                    var dsClsName = $generatorCommon.dataSourceClassName(storeFactory.dialect);
 
                     res.line();
 
-                    $generatorJava._declareVariable(res, true, dsVarName, dataSource);
+                    $generatorJava._declareVariable(res, true, dsVarName, dsClsName);
 
                     res.line(dsVarName + '.setURL(_URL_);');
                     res.line(dsVarName + '.setUsername(_User_Name_);');

@@ -189,10 +189,10 @@ $generatorCommon.JDBC_DIALECTS = {
     H2: 'org.apache.ignite.cache.store.jdbc.dialect.H2Dialect'
 };
 
-$generatorCommon.jdbcDialectClassName = function(dialect) {
-    var dialectClsName = $generatorCommon.JDBC_DIALECTS[dialect];
+$generatorCommon.jdbcDialectClassName = function(db) {
+    var dialectClsName = $generatorCommon.JDBC_DIALECTS[db];
 
-    return dialectClsName ? dialectClsName : 'Unknown JDBC dialect: ' + dialect;
+    return dialectClsName ? dialectClsName : 'Unknown database: ' + db;
 };
 
 $generatorCommon.DATA_SOURCES = {
@@ -202,6 +202,12 @@ $generatorCommon.DATA_SOURCES = {
     MySQL: 'com.mysql.jdbc.jdbc2.optional.MysqlDataSource',
     PostgreSQL: 'org.postgresql.ds.PGPoolingDataSource',
     H2: 'org.h2.jdbcx.JdbcDataSource'
+};
+
+$generatorCommon.dataSourceClassName = function(db) {
+    var dsClsName = $generatorCommon.DATA_SOURCES[db];
+
+    return dsClsName ? dsClsName : 'Unknown database: ' + db;
 };
 
 $generatorCommon.STORE_FACTORIES = {
