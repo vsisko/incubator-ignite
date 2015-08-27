@@ -517,7 +517,7 @@ controlCenterModule.service('$common', [
 
                     offsetTop = elem.offset().top;
 
-                    scrollspyWidth = cont[0].getBoundingClientRect().width | 0;
+                    scrollspyWidth = Math.round(cont[0].getBoundingClientRect().width);
 
                     console.log(scrollspyWidth);
                 }
@@ -527,13 +527,15 @@ controlCenterModule.service('$common', [
 
                 elem.width(scrollspyWidth);
 
-                console.log(scrollspyWidth + " " + cont[0].getBoundingClientRect().width);
+                elem.find('label').width(scrollspyWidth - elem.find('#buttonsPnl').outerWidth());
+
+                console.log(scrollspyWidth + " " + Math.round(cont[0].getBoundingClientRect().width) + " " + cont[0].getBoundingClientRect().width + ' ' + elem.width());
             }
         });
 
         win.resize(function () {
             if (isDefined(offsetTop)) {
-                scrollspyWidth = cont[0].getBoundingClientRect().width | 0;
+                scrollspyWidth = Math.round(cont[0].getBoundingClientRect().width);
 
                 elem.width(scrollspyWidth);
             }
@@ -1167,9 +1169,9 @@ controlCenterModule.factory('$focus', function ($timeout) {
 
                 var winOffset = window.pageYOffset;
 
-                if(elemOffset - 20 < winOffset || elemOffset + elem.outerHeight(true) + 20 > winOffset + window.innerHeight)
+                if(elemOffset - 20 - $('.section-top').outerHeight() < winOffset || elemOffset + elem.outerHeight(true) + 20 > winOffset + window.innerHeight)
                     $('html, body').animate({
-                        scrollTop: elemOffset - 20
+                        scrollTop: elemOffset - 20 - $('.section-top').outerHeight()
                     }, 10);
 
                 elem[0].focus();
