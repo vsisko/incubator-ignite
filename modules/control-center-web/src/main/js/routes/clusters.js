@@ -117,4 +117,16 @@ router.post('/remove', function (req, res) {
     })
 });
 
+/**
+ * Remove all clusters.
+ */
+router.post('/remove/all', function (req, res) {
+    db.Cluster.remove(req.body, function (err) {
+        if (err)
+            return res.status(500).send(err.message);
+
+        res.sendStatus(200);
+    })
+});
+
 module.exports = router;

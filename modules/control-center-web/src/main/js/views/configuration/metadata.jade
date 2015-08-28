@@ -37,3 +37,5 @@ block content
         form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true')
                 +groups('metadata', 'backupItem')
+            .section
+                +save-remove-buttons

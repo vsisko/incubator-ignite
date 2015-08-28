@@ -215,7 +215,7 @@ controlCenterModule.controller('metadataController', [
                 }
 
                 if ($common.formChanged($scope.ui.inputForm))
-                    $confirm.show('<span>Current metadata is modified.<br/><br/>Discard unsaved changes?</span>').then(
+                    $confirm.show('<span>You have unsaved changes.<br/><br/>Are you sure you want to discard them?</span>').then(
                         function () {
                             setSelectedAndBackupItem();
                         }
