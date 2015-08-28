@@ -343,7 +343,7 @@ controlCenterModule.controller('cachesController', [
                 }
 
                 if ($common.formChanged($scope.ui.inputForm))
-                    $confirm.show('<span>Current cache is modified.<br/><br/>Discard unsaved changes?</span>').then(
+                    $confirm.show('<span>You have unsaved changes.<br/><br/>Are you sure you want to discard them?</span>').then(
                         function () {
                             selectItem();
                         }
@@ -508,6 +508,29 @@ controlCenterModule.controller('cachesController', [
                                     else
                                         $scope.selectItem(undefined, undefined);
                                 }
+                            })
+                            .error(function (errMsg) {
+                                $common.showError(errMsg);
+                            });
+                    }
+                );
+            };
+
+            // Remove all caches from db.
+            $scope.removeAllItems = function () {
+                $table.tableReset();
+
+                $confirm.show('Are you sure you want to remove all caches?').then(
+                    function () {
+                        $common.markPristine($scope.ui.inputForm, 'cacheBackupItemChanged');
+
+                        $http.post('caches/remove/all')
+                            .success(function () {
+                                $common.showInfo('All caches have been removed');
+
+                                $scope.caches = [];
+
+                                $scope.selectItem(undefined, undefined);
                             })
                             .error(function (errMsg) {
                                 $common.showError(errMsg);

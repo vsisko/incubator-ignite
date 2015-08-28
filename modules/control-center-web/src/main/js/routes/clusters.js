@@ -75,9 +75,9 @@ router.post('/save', function (req, res) {
     if (params._id)
         db.Cluster.update({_id: params._id}, params, {upsert: true}, function (err) {
             if (db.processed(err, res))
-                db.Cache.update({_id: {$in: caches}}, {$addToSet: {clusters: clusterId}}, {upsert: true, multi: true}, function(err) {
+                db.Cache.update({_id: {$in: caches}}, {$addToSet: {clusters: clusterId}}, {multi: true}, function(err) {
                     if (db.processed(err, res)) {
-                        db.Cache.update({_id: {$nin: caches}}, {$pull: {clusters: clusterId}}, {upsert: true, multi: true}, function(err) {
+                        db.Cache.update({_id: {$nin: caches}}, {$pull: {clusters: clusterId}}, {multi: true}, function(err) {
                             if (db.processed(err, res))
                                 res.send(params._id);
                         });
@@ -94,7 +94,7 @@ router.post('/save', function (req, res) {
                     if (db.processed(err, res)) {
                         clusterId = cluster._id;
 
-                        db.Cache.update({_id: {$in: caches}}, {$addToSet: {clusters: clusterId}}, {upsert: true, multi: true}, function (err) {
+                        db.Cache.update({_id: {$in: caches}}, {$addToSet: {clusters: clusterId}}, {multi: true}, function (err) {
                             if (db.processed(err, res))
                                 res.send(clusterId);
                         });
@@ -115,6 +115,29 @@ router.post('/remove', function (req, res) {
 
         res.sendStatus(200);
     })
+});
+
+/**
+ * Remove all clusters.
+ */
+router.post('/remove/all', function (req, res) {
+    var user_id = req.currentUserId();
+
+    // Get owned space and all accessed space.
+    db.Space.find({$or: [{owner: user_id}, {usedBy: {$elemMatch: {account: user_id}}}]}, function (err, spaces) {
+        if (db.processed(err, res)) {
+            var space_ids = spaces.map(function (value) {
+                return value._id;
+            });
+
+            db.Cluster.remove({space: {$in: space_ids}}, function (err) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                res.sendStatus(200);
+            })
+        }
+    });
 });
 
 module.exports = router;

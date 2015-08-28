@@ -1143,7 +1143,7 @@ controlCenterModule.factory('$focus', function ($timeout) {
 
                 var winOffset = window.pageYOffset;
 
-                var topHeight = $('.section-top').outerHeight();
+                var topHeight = $('.padding-top-dflt.affix').outerHeight();
 
                 if(elemOffset - 20 - topHeight < winOffset
                     || elemOffset + elem.outerHeight(true) + 20 > winOffset + window.innerHeight)
@@ -1323,5 +1323,5 @@ controlCenterModule.controller('notebooks', ['$scope', '$http', '$common', funct
 // Navigation bar controller.
 controlCenterModule.controller('save-remove', ['$scope', function ($scope) {
     $scope.saveDropdown = [{ 'text': 'Copy', 'click': 'copyItem()'}];
-    $scope.removeDropdown = [{ 'text': 'Remove All', 'click': 'removeAllItems'}];
+    $scope.removeDropdown = [{ 'text': 'Remove All', 'click': 'removeAllItems()'}];
 }]);

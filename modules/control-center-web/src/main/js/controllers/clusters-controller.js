@@ -276,7 +276,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
             }
 
             if ($common.formChanged($scope.ui.inputForm))
-                $confirm.show('<span>Current cluster is modified.<br/><br/>Discard unsaved changes?</span>').then(
+                $confirm.show('<span>You have unsaved changes.<br/><br/>Are you sure you want to discard them?</span>').then(
                     function () {
                         selectItem();
                     }
@@ -445,6 +445,29 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
                                 else
                                     $scope.selectItem(undefined, undefined);
                             }
+                        })
+                        .error(function (errMsg) {
+                            $common.showError(errMsg);
+                        });
+                }
+            );
+        };
+
+        // Remove all clusters from db.
+        $scope.removeAllItems = function () {
+            $table.tableReset();
+
+            $confirm.show('Are you sure you want to remove all clusters?').then(
+                function () {
+                    $common.markPristine($scope.ui.inputForm, 'clusterBackupItemChanged');
+
+                    $http.post('clusters/remove/all')
+                        .success(function () {
+                            $common.showInfo('All clusters have been removed');
+
+                            $scope.clusters = [];
+
+                            $scope.selectItem(undefined, undefined);
                         })
                         .error(function (errMsg) {
                             $common.showError(errMsg);
