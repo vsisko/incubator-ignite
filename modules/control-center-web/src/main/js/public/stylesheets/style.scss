@@ -614,10 +614,8 @@ table tr:hover {
         margin: 0;
     }
 
-    i {
-        line-height: 44px;
-        height: 44px;
-        font-size: 14px;
+    .btn-group {
+        margin: -5px 0 0 10px;
     }
 
     input {
@@ -1454,4 +1452,8 @@ a {
         -moz-transform: rotate(180deg);
         transform: rotate(180deg);
     }
+}
+
+.theme-line .dropdown-menu {
+    min-width: 75px;
 }
