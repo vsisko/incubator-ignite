@@ -730,6 +730,7 @@ controlCenterModule.controller('metadataController', [
                     });
             };
 
+            // Remove metadata from db.
             $scope.removeItem = function () {
                 $table.tableReset();
 
@@ -766,6 +767,29 @@ controlCenterModule.controller('metadataController', [
                                 $common.showError(errMsg);
                             });
                     });
+            };
+
+            // Remove all metadata from db.
+            $scope.removeAllItems = function () {
+                $table.tableReset();
+
+                $confirm.show('Are you sure you want to remove all metadata?').then(
+                    function () {
+                        $common.markPristine($scope.ui.inputForm, 'metadataBackupItemChanged');
+
+                        $http.post('metadata/remove/all')
+                            .success(function () {
+                                $common.showInfo('All metadata have been removed');
+
+                                $scope.metadata = [];
+
+                                $scope.selectItem(undefined, undefined);
+                            })
+                            .error(function (errMsg) {
+                                $common.showError(errMsg);
+                            });
+                    }
+                );
             };
 
             $scope.tableSimpleValid = function (item, field, name, index) {

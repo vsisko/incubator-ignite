@@ -452,5 +452,28 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
                 }
             );
         };
+
+        // Remove all clusters from db.
+        $scope.removeAllItems = function () {
+            $table.tableReset();
+
+            $confirm.show('Are you sure you want to remove all clusters?').then(
+                function () {
+                    $common.markPristine($scope.ui.inputForm, 'clusterBackupItemChanged');
+
+                    $http.post('clusters/remove/all')
+                        .success(function () {
+                            $common.showInfo('All clusters have been removed');
+
+                            $scope.clusters = [];
+
+                            $scope.selectItem(undefined, undefined);
+                        })
+                        .error(function (errMsg) {
+                            $common.showError(errMsg);
+                        });
+                }
+            );
+        };
     }]
 );

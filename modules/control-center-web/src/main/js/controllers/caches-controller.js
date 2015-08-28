@@ -515,5 +515,28 @@ controlCenterModule.controller('cachesController', [
                     }
                 );
             };
+
+            // Remove all caches from db.
+            $scope.removeAllItems = function () {
+                $table.tableReset();
+
+                $confirm.show('Are you sure you want to remove all caches?').then(
+                    function () {
+                        $common.markPristine($scope.ui.inputForm, 'cacheBackupItemChanged');
+
+                        $http.post('caches/remove/all')
+                            .success(function () {
+                                $common.showInfo('All caches have been removed');
+
+                                $scope.caches = [];
+
+                                $scope.selectItem(undefined, undefined);
+                            })
+                            .error(function (errMsg) {
+                                $common.showError(errMsg);
+                            });
+                    }
+                );
+            };
         }]
 );

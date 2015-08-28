@@ -1323,5 +1323,5 @@ controlCenterModule.controller('notebooks', ['$scope', '$http', '$common', funct
 // Navigation bar controller.
 controlCenterModule.controller('save-remove', ['$scope', function ($scope) {
     $scope.saveDropdown = [{ 'text': 'Copy', 'click': 'copyItem()'}];
-    $scope.removeDropdown = [{ 'text': 'Remove All', 'click': 'removeAllItems'}];
+    $scope.removeDropdown = [{ 'text': 'Remove All', 'click': 'removeAllItems()'}];
 }]);
