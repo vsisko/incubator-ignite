@@ -101,9 +101,9 @@ router.post('/save', function (req, res) {
     if (params._id){
         db.Cache.update({_id: cacheId}, params, {upsert: true}, function (err) {
             if (db.processed(err, res))
-                db.Cluster.update({_id: {$in: clusters}}, {$addToSet: {caches: cacheId}}, {upsert: true, multi: true}, function(err) {
+                db.Cluster.update({_id: {$in: clusters}}, {$addToSet: {caches: cacheId}}, {multi: true}, function(err) {
                     if (db.processed(err, res))
-                        db.Cluster.update({_id: {$nin: clusters}}, {$pull: {caches: cacheId}}, {upsert: true, multi: true}, function(err) {
+                        db.Cluster.update({_id: {$nin: clusters}}, {$pull: {caches: cacheId}}, {multi: true}, function(err) {
                             if (db.processed(err, res))
                                 res.send(params._id);
                         });
@@ -120,12 +120,11 @@ router.post('/save', function (req, res) {
                     if (db.processed(err, res)) {
                         cacheId = cache._id;
 
-                        db.Cluster.update({_id: {$in: clusters}}, {$addToSet: {caches: cacheId}}, {upsert: true, multi: true}, function(err) {
+                        db.Cluster.update({_id: {$in: clusters}}, {$addToSet: {caches: cacheId}}, {multi: true}, function(err) {
                             if (db.processed(err, res))
                                 res.send(cacheId);
                         });
                     }
-
                 });
             }
         });
@@ -139,6 +138,29 @@ router.post('/remove', function (req, res) {
         if (db.processed(err, res))
             res.sendStatus(200);
     })
+});
+
+/**
+ * Remove all caches.
+ */
+router.post('/remove/all', function (req, res) {
+    var user_id = req.currentUserId();
+
+    // Get owned space and all accessed space.
+    db.Space.find({$or: [{owner: user_id}, {usedBy: {$elemMatch: {account: user_id}}}]}, function (err, spaces) {
+        if (db.processed(err, res)) {
+            var space_ids = spaces.map(function (value) {
+                return value._id;
+            });
+
+            db.Cache.remove({space: {$in: space_ids}}, function (err) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                res.sendStatus(200);
+            })
+        }
+    });
 });
 
 module.exports = router;

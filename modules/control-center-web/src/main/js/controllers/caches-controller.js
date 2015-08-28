@@ -342,14 +342,7 @@ controlCenterModule.controller('cachesController', [
                     }, 50);
                 }
 
-                if ($common.formChanged($scope.ui.inputForm))
-                    $confirm.show('<span>You have unsaved changes.<br/><br/>Are you sure you want to discard them?</span>').then(
-                        function () {
-                            selectItem();
-                        }
-                    );
-                else
-                    selectItem();
+                $common.confirmUnsavedChanges($confirm, $scope.ui.inputForm, selectItem);
 
                 $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
                     'Selected cache: ' + $scope.backupItem.name : 'New cache';
@@ -508,6 +501,29 @@ controlCenterModule.controller('cachesController', [
                                     else
                                         $scope.selectItem(undefined, undefined);
                                 }
+                            })
+                            .error(function (errMsg) {
+                                $common.showError(errMsg);
+                            });
+                    }
+                );
+            };
+
+            // Remove all caches from db.
+            $scope.removeAllItems = function () {
+                $table.tableReset();
+
+                $confirm.show('Are you sure you want to remove all caches?').then(
+                    function () {
+                        $common.markPristine($scope.ui.inputForm, 'cacheBackupItemChanged');
+
+                        $http.post('caches/remove/all')
+                            .success(function () {
+                                $common.showInfo('All caches have been removed');
+
+                                $scope.caches = [];
+
+                                $scope.selectItem(undefined, undefined);
                             })
                             .error(function (errMsg) {
                                 $common.showError(errMsg);

@@ -23,5 +23,5 @@
             .modal-body(ng-show='content')
                 p(ng-bind-html='content' style='text-align: center;')
             .modal-footer
-                button.btn.btn-default(type='button' ng-click='$hide()') Cancel
-                button.btn.btn-primary(type='button' ng-click='ok()') Confirm
+                button.btn.btn-default(id='confirm-btn-cancel' type='button' ng-click='$hide()') Cancel
+                button.btn.btn-primary(id='confirm-btn-confirm' type='button' ng-click='ok()') Confirm

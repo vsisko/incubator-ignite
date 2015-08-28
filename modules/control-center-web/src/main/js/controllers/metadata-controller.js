@@ -214,14 +214,7 @@ controlCenterModule.controller('metadataController', [
                     }, 50);
                 }
 
-                if ($common.formChanged($scope.ui.inputForm))
-                    $confirm.show('<span>You have unsaved changes.<br/><br/>Are you sure you want to discard them?</span>').then(
-                        function () {
-                            setSelectedAndBackupItem();
-                        }
-                    );
-                else
-                    setSelectedAndBackupItem();
+                $common.confirmUnsavedChanges($confirm, $scope.ui.inputForm, setSelectedAndBackupItem);
 
                 $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
                     'Selected metadata: ' + $scope.backupItem.name : 'New metadata';
@@ -730,6 +723,7 @@ controlCenterModule.controller('metadataController', [
                     });
             };
 
+            // Remove metadata from db.
             $scope.removeItem = function () {
                 $table.tableReset();
 
@@ -766,6 +760,29 @@ controlCenterModule.controller('metadataController', [
                                 $common.showError(errMsg);
                             });
                     });
+            };
+
+            // Remove all metadata from db.
+            $scope.removeAllItems = function () {
+                $table.tableReset();
+
+                $confirm.show('Are you sure you want to remove all metadata?').then(
+                    function () {
+                        $common.markPristine($scope.ui.inputForm, 'metadataBackupItemChanged');
+
+                        $http.post('metadata/remove/all')
+                            .success(function () {
+                                $common.showInfo('All metadata have been removed');
+
+                                $scope.metadatas = [];
+
+                                $scope.selectItem(undefined, undefined);
+                            })
+                            .error(function (errMsg) {
+                                $common.showError(errMsg);
+                            });
+                    }
+                );
             };
 
             $scope.tableSimpleValid = function (item, field, name, index) {

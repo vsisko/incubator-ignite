@@ -89,4 +89,27 @@ router.post('/remove', function (req, res) {
     })
 });
 
+/**
+ * Remove all metadata.
+ */
+router.post('/remove/all', function (req, res) {
+    var user_id = req.currentUserId();
+
+    // Get owned space and all accessed space.
+    db.Space.find({$or: [{owner: user_id}, {usedBy: {$elemMatch: {account: user_id}}}]}, function (err, spaces) {
+        if (db.processed(err, res)) {
+            var space_ids = spaces.map(function (value) {
+                return value._id;
+            });
+
+            db.CacheTypeMetadata.remove({space: {$in: space_ids}}, function (err) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                res.sendStatus(200);
+            })
+        }
+    });
+});
+
 module.exports = router;
