@@ -64,8 +64,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
         editor.setTheme('ace/theme/chrome');
     };
 
-    $scope.generateJavaServer = function() {
-        $scope.javaServer = $generatorJava.cluster($scope.selectedItem, $scope.configServer.javaClassServer === 2)
+    $scope.generateJavaServer = function () {
+        $scope.javaServer = $generatorJava.cluster($scope.selectedItem, $scope.configServer.javaClassServer === 2);
     };
 
     $scope.$watch('configServer.javaClassServer', $scope.generateJavaServer, true);
@@ -73,7 +73,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
     $scope.generateDockerServer = function() {
         var os = $scope.configServer.os ? $scope.configServer.os : $scope.oss[0];
 
-        $scope.dockerServer =  $generatorDocker.clusterDocker($scope.selectedItem, os);
+        $scope.dockerServer = $generatorDocker.clusterDocker($scope.selectedItem, os);
     };
 
     $scope.$watch('configServer.os', $scope.generateDockerServer, true);

@@ -495,10 +495,14 @@ controlCenterModule.service('$common', [
 
                 parent.outerHeight(parentHeight);
 
-                right.height(parentHeight - scrollHeight / 2);
+                right.height(parentHeight - scrollHeight * 3 / 4);
 
                 right.resize();
             }
+        }
+
+        function formChanged (form) {
+            return isDefined(form) && form.$dirty;
         }
 
         return {
@@ -682,6 +686,17 @@ controlCenterModule.service('$common', [
             },
             formChanged: function (form) {
                 return isDefined(form) && form.$dirty;
+            },
+            confirmUnsavedChanges: function(confirm, form, selectFunc) {
+                if (formChanged(form))
+                    confirm.show('<span>You have unsaved changes.<br/><br/>Are you sure you want to discard them?</span>').then(
+                        function () {
+                            selectFunc();
+                        }
+                    );
+                else
+                    selectFunc();
+
             }
         }
     }]);
