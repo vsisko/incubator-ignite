@@ -20,6 +20,9 @@ controlCenterModule.controller('metadataController', [
         '$scope', '$controller', '$http', '$modal', '$common', '$timeout', '$focus', '$confirm', '$copy', '$table', '$preview',
         function ($scope, $controller, $http, $modal, $common, $timeout, $focus, $confirm, $copy, $table, $preview) {
             // Initialize the super class and extend it.
+            angular.extend(this, $controller('save-remove', {$scope: $scope}));
+
+            // Initialize the super class and extend it.
             angular.extend(this, $controller('agent-download', {$scope: $scope}));
             $scope.ui = {};
 
@@ -713,7 +716,7 @@ controlCenterModule.controller('metadataController', [
             };
 
             // Save cache type metadata with new name.
-            $scope.saveItemAs = function () {
+            $scope.copyItem = function () {
                 $table.tableReset();
 
                 if (validate($scope.backupItem))

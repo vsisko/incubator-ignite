@@ -22,11 +22,11 @@ header#header.header
         strong {{user.username}}
         | ",&nbsp;&nbsp;
         a(href='/admin/become') revert to your identity.
-    .container
+    .container(ng-controller='auth')
         h1.navbar-brand
             a(href='/') Apache Ignite Web Configurator
-        .navbar-collapse.collapse(ng-controller='auth')
-            ul.nav.navbar-nav(ng-controller='activeLink' ng-show='user')
+        .navbar-collapse.collapse(ng-controller='activeLink')
+            ul.nav.navbar-nav(ng-show='user')
                 +header-item('/configuration', '/configuration/clusters', 'Configuration')
                 //+header-item('/monitoring', '/monitoring', 'Monitoring')
                 li(ng-controller='notebooks')
@@ -36,7 +36,7 @@ header#header.header
                 //+header-item('/deploy', '/deploy', 'Deploy')
             ul.nav.navbar-nav.pull-right
                 li(ng-if='user')
-                    a.dropdown-toggle(data-toggle='dropdown' bs-dropdown='userDropdown' data-placement='bottom-right') {{user.username}}
+                    a.dropdown-toggle(data-toggle='dropdown' ng-class='{active: isActive("/profile") || isActive("/admin")}' bs-dropdown='userDropdown' data-placement='bottom-right') {{user.username}}
                         span.caret
                 li.nav-login(ng-if='!user')
                     a(ng-click='login()') Log In

@@ -52,7 +52,7 @@ controlCenterModule.config(function ($selectProvider) {
         noneText: 'Clear All',
         templateUrl: '/select',
         iconCheckmark: 'fa fa-check',
-        caretHtml: '<span class="caret"></span>'
+        caretHtml: '<span class="caret" style="float: right; margin-left: 5px; margin-top: 7px;"></span>'
     });
 });
 
@@ -1318,4 +1318,10 @@ controlCenterModule.controller('notebooks', ['$scope', '$http', '$common', funct
     };
 
     $scope.$root.reloadNotebooks();
+}]);
+
+// Navigation bar controller.
+controlCenterModule.controller('save-remove', ['$scope', function ($scope) {
+    $scope.saveDropdown = [{ 'text': 'Copy', 'click': 'copyItem()'}];
+    $scope.removeDropdown = [{ 'text': 'Remove All', 'click': 'removeAllItems'}];
 }]);

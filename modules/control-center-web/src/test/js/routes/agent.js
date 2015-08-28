@@ -47,7 +47,7 @@ describe('request from agent', function() {
 
         agent
             .post('/login')
-            .send({email: 'anovikov@gridgain.com', password: 'extHB2aXgb'})
+            .send({email: 'test@test.com', password: 'test'})
             .expect(302)
             .end(function (err) {
                 if (err)
