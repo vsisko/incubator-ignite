@@ -27,8 +27,7 @@
   "metadata": [
     {
       "label": "Metadata common",
-      "id": "metadata-data",
-      "preview": "general",
+      "group": "general",
       "tip": [
         "Metadata properties common to Query and Store."
       ],
@@ -67,8 +66,7 @@
     },
     {
       "label": "Metadata for SQL query",
-      "id": "metadataQuery-data",
-      "preview": "query",
+      "group": "query",
       "tip": [],
       "fields": [
         {
@@ -149,8 +147,7 @@
     },
     {
       "label": "Metadata for cache store",
-      "id": "metadataCache-data",
-      "preview": "store",
+      "group": "store",
       "tip": [],
       "fields": [
         {
@@ -208,6 +205,7 @@
   "metadataDb": [
     {
       "label": "Driver JAR",
+      "id": "jdbcDriverJar",
       "type": "dropdown",
       "model": "jdbcDriverJar",
       "items": "jdbcDriverJars",
@@ -217,6 +215,7 @@
     },
     {
       "label": "JDBC Driver",
+      "id": "jdbcDriverClass",
       "type": "text",
       "model": "jdbcDriverClass",
       "placeholder": "Full class name of JDBC driver",
@@ -237,6 +236,7 @@
     },
     {
       "label": "User",
+      "id": "user",
       "type": "text",
       "model": "user",
       "tip": [
@@ -245,6 +245,7 @@
     },
     {
       "label": "Password",
+      "id": "password",
       "type": "password",
       "model": "password",
       "tip": [
@@ -254,6 +255,7 @@
     },
     {
       "label": "Tables only",
+      "id": "tablesOnly",
       "type": "check",
       "model": "tablesOnly",
       "tip": [

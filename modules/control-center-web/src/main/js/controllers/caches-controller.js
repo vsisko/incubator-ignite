@@ -122,7 +122,16 @@ controlCenterModule.controller('cachesController', [
             $scope.queryMetadata = [];
             $scope.storeMetadata = [];
 
-            $scope.preview = {};
+            $scope.preview = {
+                general: {xml: '', java: '', allDefaults: true},
+                memory: {xml: '', java: '', allDefaults: true},
+                query: {xml: '', java: '', allDefaults: true},
+                store: {xml: '', java: '', allDefaults: true},
+                concurrency: {xml: '', java: '', allDefaults: true},
+                rebalance: {xml: '', java: '', allDefaults: true},
+                serverNearCache: {xml: '', java: '', allDefaults: true},
+                statistics: {xml: '', java: '', allDefaults: true}
+            };
 
             $scope.required = function (field) {
                 var model = $common.isDefined(field.path) ? field.path + '.' + field.model : field.model;
@@ -280,25 +289,39 @@ controlCenterModule.controller('cachesController', [
                                 return memo;
                             }, []);
 
-                            $scope.preview.generalXml = $generatorXml.cacheGeneral(val).join('');
-                            $scope.preview.memoryXml = $generatorXml.cacheMemory(val).join('');
-                            $scope.preview.queryXml = $generatorXml.cacheMetadatas(qryMeta, null, $generatorXml.cacheQuery(val)).join('');
-                            $scope.preview.storeXml = $generatorXml.cacheMetadatas(null, storeMeta, $generatorXml.cacheStore(val)).join('');
-                            $scope.preview.concurrencyXml = $generatorXml.cacheConcurrency(val).join('');
-                            $scope.preview.rebalanceXml = $generatorXml.cacheRebalance(val).join('');
-                            $scope.preview.serverNearCacheXml = $generatorXml.cacheServerNearCache(val).join('');
-                            $scope.preview.statisticsXml = $generatorXml.cacheStatistics(val).join('');
-
                             var varName = 'cache';
 
-                            $scope.preview.generalJava = $generatorJava.cacheGeneral(val, varName).join('');
-                            $scope.preview.memoryJava = $generatorJava.cacheMemory(val, varName).join('');
-                            $scope.preview.queryJava = $generatorJava.cacheMetadatas(qryMeta, null, varName, $generatorJava.cacheQuery(val, varName)).join('');
-                            $scope.preview.storeJava = $generatorJava.cacheMetadatas(null, storeMeta, varName, $generatorJava.cacheStore(val, varName)).join('');
-                            $scope.preview.concurrencyJava = $generatorJava.cacheConcurrency(val, varName).join('');
-                            $scope.preview.rebalanceJava = $generatorJava.cacheRebalance(val, varName).join('');
-                            $scope.preview.serverNearCacheJava = $generatorJava.cacheServerNearCache(val, varName).join('');
-                            $scope.preview.statisticsJava = $generatorJava.cacheStatistics(val, varName).join('');
+                            $scope.preview.general.xml = $generatorXml.cacheGeneral(val).join('');
+                            $scope.preview.general.java = $generatorJava.cacheGeneral(val, varName).join('');
+                            $scope.preview.general.allDefaults = $common.isEmptyString($scope.preview.general.xml);
+
+                            $scope.preview.memory.xml = $generatorXml.cacheMemory(val).join('');
+                            $scope.preview.memory.java = $generatorJava.cacheMemory(val, varName).join('');
+                            $scope.preview.memory.allDefaults = $common.isEmptyString($scope.preview.memory.xml);
+
+                            $scope.preview.query.xml = $generatorXml.cacheMetadatas(qryMeta, null, $generatorXml.cacheQuery(val)).join('');
+                            $scope.preview.query.java = $generatorJava.cacheMetadatas(qryMeta, null, varName, $generatorJava.cacheQuery(val, varName)).join('');
+                            $scope.preview.query.allDefaults = $common.isEmptyString($scope.preview.query.xml);
+
+                            $scope.preview.store.xml = $generatorXml.cacheMetadatas(null, storeMeta, $generatorXml.cacheStore(val)).join('');
+                            $scope.preview.store.java = $generatorJava.cacheMetadatas(null, storeMeta, varName, $generatorJava.cacheStore(val, varName)).join('');
+                            $scope.preview.store.allDefaults = $common.isEmptyString($scope.preview.store.xml);
+
+                            $scope.preview.concurrency.xml = $generatorXml.cacheConcurrency(val).join('');
+                            $scope.preview.concurrency.java = $generatorJava.cacheConcurrency(val, varName).join('');
+                            $scope.preview.concurrency.allDefaults = $common.isEmptyString($scope.preview.concurrency.xml);
+
+                            $scope.preview.rebalance.xml = $generatorXml.cacheRebalance(val).join('');
+                            $scope.preview.rebalance.java = $generatorJava.cacheRebalance(val, varName).join('');
+                            $scope.preview.rebalance.allDefaults = $common.isEmptyString($scope.preview.rebalance.xml);
+
+                            $scope.preview.serverNearCache.xml = $generatorXml.cacheServerNearCache(val).join('');
+                            $scope.preview.serverNearCache.java = $generatorJava.cacheServerNearCache(val, varName).join('');
+                            $scope.preview.serverNearCache.allDefaults = $common.isEmptyString($scope.preview.serverNearCache.xml);
+
+                            $scope.preview.statistics.xml = $generatorXml.cacheStatistics(val).join('');
+                            $scope.preview.statistics.java = $generatorJava.cacheStatistics(val, varName).join('');
+                            $scope.preview.statistics.allDefaults = $common.isEmptyString($scope.preview.statistics.xml);
 
                             $common.markChanged($scope.ui.inputForm, 'cacheBackupItemChanged');
                         }
@@ -353,7 +376,7 @@ controlCenterModule.controller('cachesController', [
                 $table.tableReset();
 
                 $timeout(function () {
-                    $common.ensureActivePanel($scope.panels, 'general-data', 'cacheName');
+                    $common.ensureActivePanel($scope.panels, 'general', 'cacheName');
                 });
 
                 var newItem = {
@@ -373,11 +396,11 @@ controlCenterModule.controller('cachesController', [
             // Check cache logical consistency.
             function validate(item) {
                 if ($common.isEmptyString(item.name))
-                    return showPopoverMessage($scope.panels, 'general-data', 'cacheName', 'Name should not be empty');
+                    return showPopoverMessage($scope.panels, 'general', 'cacheName', 'Name should not be empty');
                         sessionStorage.removeItem('cacheSelectedItem');
 
                 if (item.memoryMode == 'OFFHEAP_TIERED' && item.offHeapMaxMemory == null)
-                    return showPopoverMessage($scope.panels, 'memory-data', 'offHeapMaxMemory',
+                    return showPopoverMessage($scope.panels, 'memory', 'offHeapMaxMemory',
                         'Off-heap max memory should be specified');
 
                 var cacheStoreFactorySelected = item.cacheStoreFactory && item.cacheStoreFactory.kind;
@@ -385,35 +408,35 @@ controlCenterModule.controller('cachesController', [
                 if (cacheStoreFactorySelected) {
                     if (item.cacheStoreFactory.kind == 'CacheJdbcPojoStoreFactory') {
                         if ($common.isEmptyString(item.cacheStoreFactory.CacheJdbcPojoStoreFactory.dataSourceBean))
-                            return showPopoverMessage($scope.panels, 'store-data', 'dataSourceBean',
+                            return showPopoverMessage($scope.panels, 'store', 'dataSourceBean',
                                 'Data source bean should not be empty');
 
                         if (!item.cacheStoreFactory.CacheJdbcPojoStoreFactory.dialect)
-                            return showPopoverMessage($scope.panels, 'store-data', 'dialect',
+                            return showPopoverMessage($scope.panels, 'store', 'dialect',
                                 'Dialect should not be empty');
                     }
 
                     if (item.cacheStoreFactory.kind == 'CacheJdbcBlobStoreFactory') {
                         if ($common.isEmptyString(item.cacheStoreFactory.CacheJdbcBlobStoreFactory.user))
-                            return showPopoverMessage($scope.panels, 'store-data', 'user',
+                            return showPopoverMessage($scope.panels, 'store', 'user',
                                 'User should not be empty');
 
                         if ($common.isEmptyString(item.cacheStoreFactory.CacheJdbcBlobStoreFactory.dataSourceBean))
-                            return showPopoverMessage($scope.panels, 'store-data', 'dataSourceBean',
+                            return showPopoverMessage($scope.panels, 'store', 'dataSourceBean',
                                 'Data source bean should not be empty');
                     }
                 }
 
                 if ((item.readThrough || item.writeThrough) && !cacheStoreFactorySelected)
-                    return showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
+                    return showPopoverMessage($scope.panels, 'store', 'cacheStoreFactory',
                         (item.readThrough ? 'Read' : 'Write') + ' through are enabled but store is not configured!');
 
                 if (item.writeBehindEnabled && !cacheStoreFactorySelected)
-                    return showPopoverMessage($scope.panels, 'store-data', 'cacheStoreFactory',
+                    return showPopoverMessage($scope.panels, 'store', 'cacheStoreFactory',
                         'Write behind enabled but store is not configured!');
 
                 if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough))
-                    return showPopoverMessage($scope.panels, 'store-data', 'readThrough',
+                    return showPopoverMessage($scope.panels, 'store', 'readThrough',
                         'Store is configured but read/write through are not enabled!');
 
                 return true;

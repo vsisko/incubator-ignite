@@ -487,11 +487,15 @@ controlCenterModule.service('$common', [
             if (left.height() > 0) {
                 var right = $('#' + el.id + '-right');
 
-                var scrollHeight = right.find('.ace_scrollbar-h').height();
-
                 var parent = right.parent();
 
-                var parentHeight = Math.max(75, left.height() - 2 * parent.css('marginTop').replace("px", ""));
+                var hScroll = right.find('.ace_scrollbar-h');
+
+                var scrollHeight = hScroll.length > 0 ? hScroll.height() : 0;
+
+                var marginTop = parent.css('marginTop');
+
+                var parentHeight = Math.max(75, left.height() - 2 * (isDefined(marginTop) ? marginTop.replace("px", "") : 0));
 
                 parent.outerHeight(parentHeight);
 
@@ -669,7 +673,8 @@ controlCenterModule.service('$common', [
 
                     observer.observe(el, {
                         childList: true,
-                        subtree: true
+                        subtree: true,
+                        attributeFilter: ['class']
                     });
                 });
             },
