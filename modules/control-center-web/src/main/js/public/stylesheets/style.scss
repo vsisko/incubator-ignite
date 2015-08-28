@@ -31,13 +31,7 @@ hr {
     margin: 20px 0;
 }
 
-.main-header .logo {
-    height: auto;
-}
 
-.main-sidebar {
-    padding-top: 60px;
-}
 
 .navbar-default .navbar-brand, .navbar-default .navbar-brand:hover {
     position: absolute;
@@ -1362,7 +1356,7 @@ a {
 .ace_cursor { opacity:0 }
 
 .ace_editor, #ace_document {
-    margin: 0.65em 0 0 0;
+    margin: 0.85em 0 0 0;
 
     height: 400px;
 
@@ -1398,6 +1392,12 @@ a {
     margin-right: 3px;
     overflow: visible;
     position: absolute;
+    z-index: 9999;
+
+    label {
+        padding: 0 5px 0 5px;
+        background: white;
+    }
 
     i {
         cursor: pointer;

@@ -38,6 +38,7 @@
         },
         {
           "label": "Caches",
+          "id": "caches",
           "type": "dropdown-multiple",
           "model": "caches",
           "placeholder": "Choose caches",
@@ -52,6 +53,7 @@
         },
         {
           "label": "Discovery",
+          "id": "discovery",
           "type": "dropdown-details",
           "settings": false,
           "path": "discovery",
@@ -339,6 +341,7 @@
       "fields": [
         {
           "label": "Cache mode",
+          "id": "cacheMode",
           "type": "dropdown",
           "path": "atomicConfiguration",
           "model": "cacheMode",
@@ -355,6 +358,7 @@
         },
         {
           "label": "Sequence reserve",
+          "id": "atomicSequenceReserveSize",
           "type": "number",
           "path": "atomicConfiguration",
           "model": "atomicSequenceReserveSize",
@@ -366,6 +370,7 @@
         },
         {
           "label": "Backups",
+          "id": "backups",
           "type": "number",
           "path": "atomicConfiguration",
           "model": "backups",
@@ -387,6 +392,7 @@
       "fields": [
         {
           "label": "Timeout",
+          "id": "networkTimeout",
           "type": "number",
           "model": "networkTimeout",
           "placeholder": 5000,
@@ -396,6 +402,7 @@
         },
         {
           "label": "Send retry delay",
+          "id": "networkSendRetryDelay",
           "type": "number",
           "model": "networkSendRetryDelay",
           "placeholder": 1000,
@@ -405,6 +412,7 @@
         },
         {
           "label": "Send retry count",
+          "id": "networkSendRetryCount",
           "type": "number",
           "model": "networkSendRetryCount",
           "placeholder": 3,
@@ -414,6 +422,7 @@
         },
         {
           "label": "Segment check frequency",
+          "id": "segmentCheckFrequency",
           "type": "number",
           "model": "segmentCheckFrequency",
           "placeholder": 10000,
@@ -424,6 +433,7 @@
         },
         {
           "label": "Wait for segment on start",
+          "id": "waitForSegmentOnStart",
           "type": "check",
           "model": "waitForSegmentOnStart",
           "tip": [
@@ -437,6 +447,7 @@
         },
         {
           "label": "Discovery startup delay",
+          "id": "discoveryStartupDelay",
           "type": "number",
           "model": "discoveryStartupDelay",
           "placeholder": 600000,
@@ -456,6 +467,7 @@
       "fields": [
         {
           "label": "Mode",
+          "id": "deploymentMode",
           "type": "dropdown",
           "model": "deploymentMode",
           "placeholder": "SHARED",

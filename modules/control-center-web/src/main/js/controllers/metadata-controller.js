@@ -214,14 +214,7 @@ controlCenterModule.controller('metadataController', [
                     }, 50);
                 }
 
-                if ($common.formChanged($scope.ui.inputForm))
-                    $confirm.show('<span>You have unsaved changes.<br/><br/>Are you sure you want to discard them?</span>').then(
-                        function () {
-                            setSelectedAndBackupItem();
-                        }
-                    );
-                else
-                    setSelectedAndBackupItem();
+                $common.confirmUnsavedChanges($confirm, $scope.ui.inputForm, setSelectedAndBackupItem);
 
                 $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
                     'Selected metadata: ' + $scope.backupItem.name : 'New metadata';

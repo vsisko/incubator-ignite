@@ -275,14 +275,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
                 }, 50);
             }
 
-            if ($common.formChanged($scope.ui.inputForm))
-                $confirm.show('<span>You have unsaved changes.<br/><br/>Are you sure you want to discard them?</span>').then(
-                    function () {
-                        selectItem();
-                    }
-                );
-            else
-                selectItem();
+            $common.confirmUnsavedChanges($confirm, $scope.ui.inputForm, selectItem);
 
             $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
                 'Selected cluster: ' + $scope.backupItem.name : 'New cluster';

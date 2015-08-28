@@ -964,6 +964,8 @@ $generatorXml.clusterCaches = function(caches, res) {
 $generatorXml.cluster = function (cluster, clientNearCfg) {
     var res = $generatorCommon.builder();
 
+    res.deep = 1;
+
     if (clientNearCfg) {
         res.startBlock('<bean id="nearCacheBean" class="org.apache.ignite.configuration.NearCacheConfiguration">');
 
