@@ -1143,7 +1143,7 @@ controlCenterModule.factory('$focus', function ($timeout) {
 
                 var winOffset = window.pageYOffset;
 
-                var topHeight = $('.section-top').outerHeight();
+                var topHeight = $('.padding-top-dflt.affix').outerHeight();
 
                 if(elemOffset - 20 - topHeight < winOffset
                     || elemOffset + elem.outerHeight(true) + 20 > winOffset + window.innerHeight)
