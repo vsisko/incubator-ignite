@@ -26,6 +26,7 @@ $ignite-block-callout-left-background: #f4f8fa;
 $ignite-block-callout-right: #50af51;
 $ignite-block-callout-right-background: #f3f8f3;
 $ignite-block-callout-gradient-to: #ffffff;
+$ignite-placeholder-color: #999999;
 
 hr {
     margin: 20px 0;
@@ -921,7 +922,7 @@ div.affix.padding-top-dflt {
 }
 
 .group-content-empty {
-    color: #999999;
+    color: $ignite-placeholder-color;
 
     padding-top: 5px;
     position: relative;
@@ -1397,7 +1398,7 @@ a {
     overflow: visible;
     position: absolute;
     width: 92%;
-    z-index: 9999;
+    z-index: 999;
 
     label {
         padding: 0 5px 0 5px;
@@ -1410,7 +1411,7 @@ a {
 }
 
 .preview-content-empty {
-    color: #999999;
+    color: $ignite-placeholder-color;
     display: table;
     width: 100%;
 
