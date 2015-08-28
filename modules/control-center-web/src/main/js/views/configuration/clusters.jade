@@ -36,12 +36,6 @@ block content
             //label {{ui.formTitle}}
             hr
         form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
-            div.section-top(id='scrolled')
-                label {{ui.formTitle}}
-                span(id='buttonsPnl')
-                    button.btn.btn-primary(ng-click='saveItem()') Save
-                    button.btn.btn-primary(ng-show='backupItem._id' ng-click='saveItemAs()') Copy
-                    button.btn.btn-primary(ng-show='backupItem._id' ng-click='removeItem()') Remove
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true' ng-click='triggerDigest = true')
                 +groups('general', 'backupItem')
                 div(ng-show='ui.expanded')
