@@ -29,7 +29,7 @@ block content
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Types metadata:', 'metadatas', 'metadataName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}')
         .padding-top-dflt(bs-affix)
-            button.btn.btn-primary(ng-click='createItem()') New
+            button.btn.btn-primary(id='new-item' ng-click='createItem()') New
             button.btn.btn-primary(ng-click='showLoadMetadataModal()') Load from database
             +save-remove-buttons
             //label {{ui.formTitle}}
