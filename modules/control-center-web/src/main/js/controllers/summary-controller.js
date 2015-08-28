@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// Controller for Summary screen.
 controlCenterModule.controller('summaryController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
     $scope.joinTip = $common.joinTip;
     $scope.getModel = $common.getModel;
@@ -35,6 +36,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
     $scope.oss = ['debian:8', 'ubuntu:14.10'];
 
     $scope.configServer = {javaClassServer: 1, os: undefined};
+
     $scope.backupItem = {javaClassClient: 1};
 
     $http.get('/models/summary.json')

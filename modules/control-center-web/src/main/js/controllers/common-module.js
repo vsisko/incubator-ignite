@@ -501,37 +501,6 @@ controlCenterModule.service('$common', [
             }
         }
 
-        var win = $(window);
-
-        var stickyOffsetTop = undefined;
-
-        function configureStickyElement() {
-            var elem = $('#scrolled')
-
-            if (elem.length > 0) {
-                if (!stickyOffsetTop)
-                    stickyOffsetTop = elem.offset().top
-
-                var cont = $('.docs-content');
-
-                scrollspyWidth = Math.round(cont[0].getBoundingClientRect().width);
-
-                elem.toggleClass('panel-sticky', win.scrollTop() > stickyOffsetTop);
-
-                elem.width(scrollspyWidth);
-
-                elem.find('label').width(scrollspyWidth - elem.find('#buttonsPnl').outerWidth() - 1);
-            }
-        }
-
-        win.scroll(function() {
-            configureStickyElement();
-        });
-
-        win.resize(function () {
-            configureStickyElement();
-        });
-
         return {
             getModel: function (obj, field) {
                 var path = field.path;
@@ -700,8 +669,19 @@ controlCenterModule.service('$common', [
                     });
                 });
             },
-            configureStickyElement: function () {
-                configureStickyElement();
+            markChanged: function (form, item) {
+                sessionStorage.setItem(item, 'true');
+
+                form.$setDirty();
+            },
+            markPristine: function (form, item) {
+                if (isDefined(form))
+                    form.$setPristine();
+
+                sessionStorage.removeItem(item);
+            },
+            formChanged: function (form) {
+                return isDefined(form) && form.$dirty;
             }
         }
     }]);

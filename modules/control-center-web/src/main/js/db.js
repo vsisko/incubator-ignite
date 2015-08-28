@@ -296,7 +296,7 @@ var ClusterSchema = new Schema({
     networkSendRetryDelay: Number,
     networkSendRetryCount: Number,
     peerClassLoadingEnabled: Boolean,
-    peerClassLoadingLocalClassPathExclude: [String],
+    peerClassLoadingLocalClassPathExclude: String,
     peerClassLoadingMissedResourcesCacheSize: Number,
     peerClassLoadingThreadPoolSize: Number,
     publicThreadPoolSize: Number,
@@ -323,7 +323,8 @@ var ClusterSchema = new Schema({
         defaultTxTimeout: Number,
         pessimisticTxLogLinger: Number,
         pessimisticTxLogSize: Number,
-        txSerializableEnabled: Boolean
+        txSerializableEnabled: Boolean,
+        txManagerLookupClassName: String
     },
     waitForSegmentOnStart: Boolean
 });

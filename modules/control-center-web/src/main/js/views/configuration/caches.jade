@@ -28,9 +28,13 @@ block content
     .docs-body(ng-controller='cachesController')
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Caches:', 'caches', 'cacheName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:"Cache mode not set"}}, {{row.atomicityMode | displayValue:atomicities:"Cache atomicity not set"}}')
-        .padding-top-dflt
-            button.btn.btn-primary(ng-click='createItem()') Add cache
-        hr
+        .padding-top-dflt(bs-affix)
+            button.btn.btn-primary(ng-click='createItem()') New
+            button.btn.btn-primary(ng-disabled='!formChanged(ui.inputForm)' ng-click='saveItem()') Save
+            button.btn.btn-primary(ng-show='backupItem._id' ng-click='saveItemAs()') Copy
+            button.btn.btn-primary(ng-show='backupItem._id' ng-click='removeItem()') Remove
+            //label {{ui.formTitle}}
+            hr
         form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
             div.section-top(id='scrolled')
                 label {{ui.formTitle}}

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// Controller for Admin screen.
 controlCenterModule.controller('adminController', ['$scope', '$window', '$http', '$common', '$confirm',
     function ($scope, $window, $http, $common, $confirm) {
     $scope.users = null;

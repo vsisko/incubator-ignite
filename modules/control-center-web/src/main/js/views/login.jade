@@ -50,13 +50,13 @@ mixin lbl(txt)
             .modal-footer(ng-show='action == "register"')
                 a.labelField(ng-click='action = "password/forgot"' on-click-focus='user_email') Forgot password?
                 a.labelLogin(ng-click='action = "login"' on-click-focus='user_email') Log In
-                button.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Sign Up
+                button#signup.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Sign Up
 
             .modal-footer(ng-show='action == "password/forgot"')
                 a.labelField(ng-click='action = "login"' on-click-focus='user_email') Log In
-                button.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Send it to me
+                button#forgot.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Send it to me
 
             .modal-footer(ng-show='action == "login"')
                 a.labelField(ng-click='action = "password/forgot"' on-click-focus='user_email') Forgot password?
                 a.labelLogin(ng-click='action = "register"' on-click-focus='user_name') Sign Up
-                button.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Log In
+                button#login.btn.btn-primary(ng-click='auth(action, user_info)' ng-disabled='loginForm.$invalid') Log In

@@ -15,12 +15,15 @@
  * limitations under the License.
  */
 
+// For server side we should load required libraries.
 if (typeof window === 'undefined') {
     $commonUtils = require('./common-utils');
 }
 
+// Entry point for common data structures.
 $dataStructures = {};
 
+// Ignite events groups.
 $dataStructures.EVENT_GROUPS = {
     EVTS_CHECKPOINT: ['EVT_CHECKPOINT_SAVED', 'EVT_CHECKPOINT_LOADED', 'EVT_CHECKPOINT_REMOVED'],
     EVTS_DEPLOYMENT: ['EVT_CLASS_DEPLOYED', 'EVT_CLASS_UNDEPLOYED', 'EVT_CLASS_DEPLOY_FAILED', 'EVT_TASK_DEPLOYED',
@@ -50,6 +53,7 @@ $dataStructures.EVENT_GROUPS = {
         'EVT_IGFS_META_UPDATED', 'EVT_IGFS_DIR_CREATED', 'EVT_IGFS_DIR_RENAMED', 'EVT_IGFS_DIR_DELETED']
 };
 
+// Pairs of Java build-in classes.
 $dataStructures.JAVA_BUILD_IN_CLASSES = [
     {short: 'BigDecimal', full: 'java.math.BigDecimal'},
     {short: 'Boolean', full: 'java.lang.Boolean'},
@@ -100,6 +104,7 @@ $dataStructures.fullClassName = function (clsName) {
     return clsName;
 };
 
+// For server side we should export properties generation entry point.
 if (typeof window === 'undefined') {
     module.exports = $dataStructures;
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// Controller for Clusters screen.
 controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
     function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview) {
         $scope.joinTip = $common.joinTip;
@@ -28,11 +29,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
         $scope.tableRemove = function (item, field, index) {
             $table.tableRemove(item, field, index);
 
-            markChanged();
-
-            // Dirty state do not change automatically.
-            $scope.ui.inputForm.$dirty = true;
-        }
+            $common.markChanged($scope.ui.inputForm, 'clusterBackupItemChanged');
+        };
 
         $scope.tableSimpleSave = $table.tableSimpleSave;
         $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
@@ -42,15 +40,13 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
 
         $scope.previewInit = $preview.previewInit;
 
+        $scope.formChanged = $common.formChanged;
+
         $scope.hidePopover = $common.hidePopover;
+
         var showPopoverMessage = $common.showPopoverMessage;
 
-        $scope.templates = [
-            {value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}},label: 'multicast'},
-            {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'}
-        ];
-
-        $scope.template = $scope.templates[0].value;
+        $scope.template = {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}};
 
         $scope.discoveries = [
             {value: 'Vm', label: 'static IPs'},
@@ -96,23 +92,6 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
 
             $common.hidePopover();
         };
-
-        function markChanged() {
-            sessionStorage.clusterBackupItemChanged = true;
-
-            $scope.ui.inputForm.$setDirty;
-        }
-
-        function markPristine() {
-            if ($common.isDefined($scope.ui.inputForm))
-                $scope.ui.inputForm.$setPristine();
-
-            sessionStorage.removeItem('clusterBackupItemChanged');
-        }
-
-        function clusterChanged() {
-            return $common.isDefined($scope.ui.inputForm) && $scope.ui.inputForm.$dirty;
-        }
 
         $scope.panels = {activePanels: [0]};
 
@@ -251,7 +230,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                         $scope.preview.poolsJava = $generatorJava.clusterPools(val).join('');
                         $scope.preview.transactionsJava = $generatorJava.clusterTransactions(val).join('');
 
-                        markChanged();
+                        $common.markChanged($scope.ui.inputForm, 'clusterBackupItemChanged');
                     }
                 }, true);
 
@@ -283,19 +262,17 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
 
                 $timeout(function () {
                     $common.previewHeightUpdate();
-
-                    $common.configureStickyElement();
                 });
 
                 $timeout(function () {
                     if (changed)
-                        markChanged();
+                        $common.markChanged($scope.ui.inputForm, 'clusterBackupItemChanged');
                     else
-                        markPristine();
+                        $common.markPristine($scope.ui.inputForm, 'clusterBackupItemChanged');
                 }, 50);
             }
 
-            if (clusterChanged())
+            if ($common.formChanged($scope.ui.inputForm))
                 $confirm.show('<span>Current cluster is modified.<br/><br/>Discard unsaved changes?</span>').then(
                     function () {
                         selectItem();
@@ -305,7 +282,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                 selectItem();
 
             $scope.ui.formTitle = $common.isDefined($scope.backupItem) && $scope.backupItem._id ?
-                'Cluster "' + $scope.backupItem.name + '" editing' : 'New cluster';
+                'Selected cluster: ' + $scope.backupItem.name : 'New cluster';
         };
 
         // Add new cluster.
@@ -387,7 +364,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
         function save(item) {
             $http.post('clusters/save', item)
                 .success(function (_id) {
-                    markPristine();
+                    $common.markPristine($scope.ui.inputForm, 'clusterBackupItemChanged');
 
                     var idx = _.findIndex($scope.clusters, function (cluster) {
                         return cluster._id == _id;
@@ -443,7 +420,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
 
             $confirm.show('Are you sure you want to remove cluster: "' + selectedItem.name + '"?').then(
                 function () {
-                    markPristine();
+                    $common.markPristine($scope.ui.inputForm, 'clusterBackupItemChanged');
 
                     var _id = selectedItem._id;
 
