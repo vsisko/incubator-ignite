@@ -29,32 +29,6 @@ router.get('/', function (req, res) {
     res.render('configuration/summary');
 });
 
-router.post('/generator', function (req, res) {
-    // Get cluster.
-    db.Cluster.findById(req.body._id).deepPopulate('caches caches.queryMetadata caches.storeMetadata').exec(function (err, cluster) {
-        if (err)
-            return res.status(500).send(err.message);
-
-        if (!cluster)
-            return res.sendStatus(404);
-
-        var clientCache = req.body.clientNearConfiguration;
-
-        if (clientCache)
-            return res.send({
-                xmlClient: $generatorXml.cluster(cluster, clientCache),
-                javaClient: $generatorJava.cluster(cluster, req.body.javaClass, clientCache)
-            });
-
-        return res.send({
-            xmlServer: $generatorXml.cluster(cluster),
-            javaSnippetServer: $generatorJava.cluster(cluster, false),
-            javaClassServer: $generatorJava.cluster(cluster, true),
-            docker: $generatorDocker.clusterDocker(cluster, '%OS%')
-        });
-    });
-});
-
 router.post('/download', function (req, res) {
     // Get cluster with all inner objects (caches, metadata).
     db.Cluster.findById(req.body._id).deepPopulate('caches caches.queryMetadata caches.storeMetadata').exec(function (err, cluster) {
