@@ -259,7 +259,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
         div(ng-switch-when='label')
             label {{::field.label}}
         div.checkbox(ng-switch-when='check' ng-hide=fieldHide)
-            label(id = '{{::field.id}}')
+            label(id='{{::field.id}}')
                 input(type='checkbox' ng-disabled=fieldDisabled)&attributes(fieldCommon)
                 | {{::field.label}}
                 +tipLabel('field.tip')
@@ -280,7 +280,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(type='password' placeholder='{{::field.placeholder}}')&attributes(fieldCommon)
+                    input.form-control(id='{{::field.id}}' type='password' placeholder='{{::field.placeholder}}')&attributes(fieldCommon)
         div(ng-switch-when='number' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
@@ -303,15 +303,15 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='-1')&attributes(fieldCommon)
+                    button.form-control(id='{{::field.id}}' bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='-1')&attributes(fieldCommon)
         div(ng-switch-when='dropdown-details' ng-hide=fieldHide)
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
-            div(class=fieldClasses id='{{::field.id}}')
+            div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-disabled=fieldDisabled data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
+                    button.form-control(id='{{::field.id}}' bs-select ng-disabled=fieldDisabled data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' tabindex='0')&attributes(fieldCommon)
             a.customize(ng-if='#{fieldMdl} && field.settings && field.details[#{fieldMdl}].fields.length > 0' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? 'Hide settings' : 'Show settings'}}
             .col-sm-12.panel-details(ng-show='(#{expanded} || !field.settings) && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
