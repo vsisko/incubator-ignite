@@ -74,7 +74,20 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
             }
         }
 
-        $scope.preview = {};
+        $scope.preview = {
+            general: {xml: '', java: '', allDefaults: true},
+            atomics: {xml: '', java: '', allDefaults: true},
+            communication: {xml: '', java: '', allDefaults: true},
+            deployment: {xml: '', java: '', allDefaults: true},
+            events: {xml: '', java: '', allDefaults: true},
+            marshaller: {xml: '', java: '', allDefaults: true},
+            metrics: {xml: '', java: '', allDefaults: true},
+            p2p: {xml: '', java: '', allDefaults: true},
+            swap: {xml: '', java: '', allDefaults: true},
+            time: {xml: '', java: '', allDefaults: true},
+            pools: {xml: '', java: '', allDefaults: true},
+            transactions: {xml: '', java: '', allDefaults: true}
+        };
 
         $scope.cacheModes = $common.mkOptions(['LOCAL', 'REPLICATED', 'PARTITIONED']);
 
@@ -207,31 +220,53 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
                             return memo;
                         }, []);
 
-                        $scope.preview.generalXml = $generatorXml.clusterCaches(clusterCaches, $generatorXml.clusterGeneral(val)).join('');
-                        $scope.preview.atomicsXml = $generatorXml.clusterAtomics(val).join('');
-                        $scope.preview.communicationXml = $generatorXml.clusterCommunication(val).join('');
-                        $scope.preview.deploymentXml = $generatorXml.clusterDeployment(val).join('');
-                        $scope.preview.eventsXml = $generatorXml.clusterEvents(val).join('');
-                        $scope.preview.marshallerXml = $generatorXml.clusterMarshaller(val).join('');
-                        $scope.preview.metricsXml = $generatorXml.clusterMetrics(val).join('');
-                        $scope.preview.p2pXml = $generatorXml.clusterP2p(val).join('');
-                        $scope.preview.swapXml = $generatorXml.clusterSwap(val).join('');
-                        $scope.preview.timeXml = $generatorXml.clusterTime(val).join('');
-                        $scope.preview.poolsXml = $generatorXml.clusterPools(val).join('');
-                        $scope.preview.transactionsXml = $generatorXml.clusterTransactions(val).join('');
+                        $scope.preview.general.xml = $generatorXml.clusterCaches(clusterCaches, $generatorXml.clusterGeneral(val)).join('');
+                        $scope.preview.general.java = $generatorJava.clusterCaches(clusterCaches, $generatorJava.clusterGeneral(val)).join('');
+                        $scope.preview.general.allDefaults = $common.isEmptyString($scope.preview.general.xml);
 
-                        $scope.preview.generalJava = $generatorJava.clusterCaches(clusterCaches, $generatorJava.clusterGeneral(val)).join('');
-                        $scope.preview.atomicsJava = $generatorJava.clusterAtomics(val).join('');
-                        $scope.preview.communicationJava = $generatorJava.clusterCommunication(val).join('');
-                        $scope.preview.deploymentJava = $generatorJava.clusterDeployment(val).join('');
-                        $scope.preview.eventsJava = $generatorJava.clusterEvents(val).join('');
-                        $scope.preview.marshallerJava = $generatorJava.clusterMarshaller(val).join('');
-                        $scope.preview.metricsJava = $generatorJava.clusterMetrics(val).join('');
-                        $scope.preview.p2pJava = $generatorJava.clusterP2p(val).join('');
-                        $scope.preview.swapJava = $generatorJava.clusterSwap(val).join('');
-                        $scope.preview.timeJava = $generatorJava.clusterTime(val).join('');
-                        $scope.preview.poolsJava = $generatorJava.clusterPools(val).join('');
-                        $scope.preview.transactionsJava = $generatorJava.clusterTransactions(val).join('');
+                        $scope.preview.atomics.xml = $generatorXml.clusterAtomics(val).join('');
+                        $scope.preview.atomics.java = $generatorJava.clusterAtomics(val).join('');
+                        $scope.preview.atomics.allDefaults = $common.isEmptyString($scope.preview.atomics.xml);
+
+                        $scope.preview.communication.xml = $generatorXml.clusterCommunication(val).join('');
+                        $scope.preview.communication.java = $generatorJava.clusterCommunication(val).join('');
+                        $scope.preview.communication.allDefaults = $common.isEmptyString($scope.preview.communication.xml);
+
+                        $scope.preview.deployment.xml = $generatorXml.clusterDeployment(val).join('');
+                        $scope.preview.deployment.java = $generatorJava.clusterDeployment(val).join('');
+                        $scope.preview.deployment.allDefaults = $common.isEmptyString($scope.preview.deployment.xml);
+
+                        $scope.preview.events.xml = $generatorXml.clusterEvents(val).join('');
+                        $scope.preview.events.java = $generatorJava.clusterEvents(val).join('');
+                        $scope.preview.events.java = !$common.isEmptyString($scope.preview.eventsJava);
+
+                        $scope.preview.marshaller.xml = $generatorXml.clusterMarshaller(val).join('');
+                        $scope.preview.marshaller.java = $generatorJava.clusterMarshaller(val).join('');
+                        $scope.preview.marshaller.allDefaults = $common.isEmptyString($scope.preview.marshaller.xml);
+
+                        $scope.preview.metrics.xml = $generatorXml.clusterMetrics(val).join('');
+                        $scope.preview.metrics.java = $generatorJava.clusterMetrics(val).join('');
+                        $scope.preview.metrics.allDefaults = $common.isEmptyString($scope.preview.metrics.xml);
+
+                        $scope.preview.p2p.xml = $generatorXml.clusterP2p(val).join('');
+                        $scope.preview.p2p.java = $generatorJava.clusterP2p(val).join('');
+                        $scope.preview.p2p.allDefaults = $common.isEmptyString($scope.preview.p2p.xml);
+
+                        $scope.preview.swap.xml = $generatorXml.clusterSwap(val).join('');
+                        $scope.preview.swap.java = $generatorJava.clusterSwap(val).join('');
+                        $scope.preview.swap.allDefaults = $common.isEmptyString($scope.preview.swap.xml);
+
+                        $scope.preview.time.xml = $generatorXml.clusterTime(val).join('');
+                        $scope.preview.time.java = $generatorJava.clusterTime(val).join('');
+                        $scope.preview.time.allDefaults = $common.isEmptyString($scope.preview.time.xml);
+
+                        $scope.preview.pools.xml = $generatorXml.clusterPools(val).join('');
+                        $scope.preview.pools.java = $generatorJava.clusterPools(val).join('');
+                        $scope.preview.pools.allDefaults = $common.isEmptyString($scope.preview.pools.xml);
+
+                        $scope.preview.transactions.xml = $generatorXml.clusterTransactions(val).join('');
+                        $scope.preview.transactions.java = $generatorJava.clusterTransactions(val).join('');
+                        $scope.preview.transactions.allDefaults = $common.isEmptyString($scope.preview.transactions.xml);
 
                         $common.markChanged($scope.ui.inputForm, 'clusterBackupItemChanged');
                     }
@@ -286,7 +321,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
             $table.tableReset();
 
             $timeout(function () {
-                $common.ensureActivePanel($scope.panels, "general-data", 'clusterName');
+                $common.ensureActivePanel($scope.panels, "general", 'clusterName');
             });
 
             var newItem = angular.copy($scope.template);
@@ -305,35 +340,35 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
         // Check cluster logical consistency.
         function validate(item) {
             if ($common.isEmptyString(item.name))
-                return showPopoverMessage($scope.panels, 'general-data', 'clusterName', 'Name should not be empty');
+                return showPopoverMessage($scope.panels, 'general', 'clusterName', 'Name should not be empty');
                     sessionStorage.removeItem('clusterSelectedItem');
 
             if (item.discovery.kind == 'Vm' && item.discovery.Vm.addresses.length == 0)
-                return showPopoverMessage($scope.panels, 'general-data', 'addresses', 'Addresses are not specified');
+                return showPopoverMessage($scope.panels, 'general', 'addresses', 'Addresses are not specified');
 
             if (item.discovery.kind == 'S3' && $common.isEmptyString(item.discovery.S3.bucketName))
-                return showPopoverMessage($scope.panels, 'general-data', 'bucketName', 'Bucket name should not be empty');
+                return showPopoverMessage($scope.panels, 'general', 'bucketName', 'Bucket name should not be empty');
 
             if (item.discovery.kind == 'Cloud') {
                 if ($common.isEmptyString(item.discovery.Cloud.identity))
-                    return showPopoverMessage($scope.panels, 'general-data', 'identity', 'Identity should not be empty');
+                    return showPopoverMessage($scope.panels, 'general', 'identity', 'Identity should not be empty');
 
                 if ($common.isEmptyString(item.discovery.Cloud.provider))
-                    return showPopoverMessage($scope.panels, 'general-data', 'provider', 'Provider should not be empty');
+                    return showPopoverMessage($scope.panels, 'general', 'provider', 'Provider should not be empty');
             }
 
             if (item.discovery.kind == 'GoogleStorage') {
                 if ($common.isEmptyString(item.discovery.GoogleStorage.projectName))
-                    return showPopoverMessage($scope.panels, 'general-data', 'projectName', 'Project name should not be empty');
+                    return showPopoverMessage($scope.panels, 'general', 'projectName', 'Project name should not be empty');
 
                 if ($common.isEmptyString(item.discovery.GoogleStorage.bucketName))
-                    return showPopoverMessage($scope.panels, 'general-data', 'bucketName', 'Bucket name should not be empty');
+                    return showPopoverMessage($scope.panels, 'general', 'bucketName', 'Bucket name should not be empty');
 
                 if ($common.isEmptyString(item.discovery.GoogleStorage.serviceAccountP12FilePath))
-                    return showPopoverMessage($scope.panels, 'general-data', 'serviceAccountP12FilePath', 'Private key path should not be empty');
+                    return showPopoverMessage($scope.panels, 'general', 'serviceAccountP12FilePath', 'Private key path should not be empty');
 
                 if ($common.isEmptyString(item.discovery.GoogleStorage.serviceAccountId))
-                    return showPopoverMessage($scope.panels, 'general-data', 'serviceAccountId', 'Account ID should not be empty');
+                    return showPopoverMessage($scope.panels, 'general', 'serviceAccountId', 'Account ID should not be empty');
             }
 
             if (!item.swapSpaceSpi || !item.swapSpaceSpi.kind && item.caches) {
@@ -346,7 +381,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
                         if (cache.cache.swapEnabled) {
                             $scope.ui.expanded = true;
 
-                            return showPopoverMessage($scope.panels, 'swap-data', 'swapSpaceSpi',
+                            return showPopoverMessage($scope.panels, 'swap', 'swapSpaceSpi',
                                 'Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!');
                         }
                     }

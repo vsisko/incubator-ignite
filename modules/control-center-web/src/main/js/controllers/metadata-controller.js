@@ -63,7 +63,11 @@ controlCenterModule.controller('metadataController', [
 
             var showPopoverMessage = $common.showPopoverMessage;
 
-            $scope.preview = {};
+            $scope.preview = {
+                general: {xml: '', java: '', allDefaults: true},
+                query: {xml: '', java: '', allDefaults: true},
+                store: {xml: '', java: '', allDefaults: true}
+            };
 
             var presets = [
                 {
@@ -535,13 +539,17 @@ controlCenterModule.controller('metadataController', [
                         if (val) {
                             sessionStorage.metadataBackupItem = angular.toJson(val);
 
-                            $scope.preview.generalXml = $generatorXml.metadataGeneral(val).join('');
-                            $scope.preview.queryXml = $generatorXml.metadataQuery(val).join('');
-                            $scope.preview.storeXml = $generatorXml.metadataStore(val).join('');
+                            $scope.preview.general.xml = $generatorXml.metadataGeneral(val).join('');
+                            $scope.preview.general.java = $generatorJava.metadataGeneral(val).join('');
+                            $scope.preview.general.all = $common.isEmptyString($scope.preview.general.xml);
 
-                            $scope.preview.generalJava = $generatorJava.metadataGeneral(val).join('');
-                            $scope.preview.queryJava = $generatorJava.metadataQuery(val).join('');
-                            $scope.preview.storeJava = $generatorJava.metadataStore(val).join('');
+                            $scope.preview.query.xml = $generatorXml.metadataQuery(val).join('');
+                            $scope.preview.query.java = $generatorJava.metadataQuery(val).join('');
+                            $scope.preview.query.all = $common.isEmptyString($scope.preview.query.xml);
+
+                            $scope.preview.store.xml = $generatorXml.metadataStore(val).join('');
+                            $scope.preview.store.java = $generatorJava.metadataStore(val).join('');
+                            $scope.preview.store.all = $common.isEmptyString($scope.preview.store.xml);
 
                             $common.markChanged($scope.ui.inputForm, 'metadataBackupItemChanged');
                         }
@@ -581,7 +589,7 @@ controlCenterModule.controller('metadataController', [
                 $table.tableReset();
 
                 $timeout(function () {
-                    $common.ensureActivePanel($scope.panels, 'metadata-data', 'metadataName');
+                    $common.ensureActivePanel($scope.panels, 'metadata', 'metadataName');
                 });
 
                 setSelectedAndBackupItem(undefined, {space: $scope.spaces[0]._id});
@@ -605,17 +613,17 @@ controlCenterModule.controller('metadataController', [
             // Check metadata logical consistency.
             function validate(item) {
                 if ($common.isEmptyString(item.name))
-                    return showPopoverMessage($scope.panels, 'metadata-data', 'metadataName', 'Name should not be empty');
+                    return showPopoverMessage($scope.panels, 'metadata', 'metadataName', 'Name should not be empty');
 
                 if ($common.isEmptyString(item.keyType))
-                    return showPopoverMessage($scope.panels, 'metadata-data', 'keyType', 'Key type should not be empty');
+                    return showPopoverMessage($scope.panels, 'metadata', 'keyType', 'Key type should not be empty');
                 else if (!$common.isValidJavaClass('Key type', item.keyType, true, 'keyType'))
-                    return showPopoverMessage($scope.panels, 'metadata-data', 'keyType', 'Key type should be valid Java class');
+                    return showPopoverMessage($scope.panels, 'metadata', 'keyType', 'Key type should be valid Java class');
 
                 if ($common.isEmptyString(item.valueType))
-                    return showPopoverMessage($scope.panels, 'metadata-data', 'valueType', 'Value type should not be empty');
+                    return showPopoverMessage($scope.panels, 'metadata', 'valueType', 'Value type should not be empty');
                 else if (!$common.isValidJavaClass('Value type', item.valueType, false, 'valueType'))
-                    return showPopoverMessage($scope.panels, 'metadata-data', 'valueType', 'Value type should valid Java class');
+                    return showPopoverMessage($scope.panels, 'metadata', 'valueType', 'Value type should valid Java class');
 
                 var qry = queryConfigured(item);
 
@@ -628,10 +636,10 @@ controlCenterModule.controller('metadataController', [
                             var fields = group.fields;
 
                             if ($common.isEmptyArray(fields))
-                                return showPopoverMessage($scope.panels, 'metadataQuery-data', 'groups' + i, 'Group fields are not specified');
+                                return showPopoverMessage($scope.panels, 'metadataQuery', 'groups' + i, 'Group fields are not specified');
 
                             if (fields.length == 1) {
-                                return showPopoverMessage($scope.panels, 'metadataQuery-data', 'groups' + i, 'Group has only one field. Consider to use ascending or descending fields.');
+                                return showPopoverMessage($scope.panels, 'metadataQuery', 'groups' + i, 'Group has only one field. Consider to use ascending or descending fields.');
                             }
                         }
                     }
@@ -641,19 +649,19 @@ controlCenterModule.controller('metadataController', [
 
                 if (str) {
                     if ($common.isEmptyString(item.databaseSchema))
-                        return showPopoverMessage($scope.panels, 'metadataCache-data', 'databaseSchema', 'Database schema should not be empty');
+                        return showPopoverMessage($scope.panels, 'metadataCache', 'databaseSchema', 'Database schema should not be empty');
 
                     if ($common.isEmptyString(item.databaseTable))
-                        return showPopoverMessage($scope.panels, 'metadataCache-data', 'databaseTable', 'Database table should not be empty');
+                        return showPopoverMessage($scope.panels, 'metadataCache', 'databaseTable', 'Database table should not be empty');
 
                     if ($common.isEmptyArray(item.keyFields) && !$common.isJavaBuildInClass(item.keyType))
-                        return showPopoverMessage($scope.panels, 'metadataCache-data', 'keyFields-add', 'Key fields are not specified');
+                        return showPopoverMessage($scope.panels, 'metadataCache', 'keyFields-add', 'Key fields are not specified');
 
                     if ($common.isEmptyArray(item.valueFields))
-                        return showPopoverMessage($scope.panels, 'metadataCache-data', 'valueFields-add', 'Value fields are not specified');
+                        return showPopoverMessage($scope.panels, 'metadataCache', 'valueFields-add', 'Value fields are not specified');
                 }
                 else if (!qry) {
-                    return showPopoverMessage($scope.panels, 'metadataQuery-data', 'metadataQuery-data-title', 'SQL query metadata should be configured');
+                    return showPopoverMessage($scope.panels, 'metadataQuery', 'metadataQuery-title', 'SQL query metadata should be configured');
                 }
 
                 return true;

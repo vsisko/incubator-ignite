@@ -31,8 +31,6 @@ hr {
     margin: 20px 0;
 }
 
-
-
 .navbar-default .navbar-brand, .navbar-default .navbar-brand:hover {
     position: absolute;
     width: 100%;
@@ -614,10 +612,8 @@ table tr:hover {
         margin: 0;
     }
 
-    i {
-        line-height: 44px;
-        height: 44px;
-        font-size: 14px;
+    .btn-group {
+        margin: -5px 0 0 10px;
     }
 
     input {
@@ -658,7 +654,6 @@ table tr:hover {
     i {
         font-size: 14px;
     }
-
 
 }
 
@@ -1353,9 +1348,13 @@ a {
     }
 }
 
-.ace_hidden-cursors { opacity:0 }
+.ace_hidden-cursors {
+    opacity: 0;
+}
 
-.ace_cursor { opacity:0 }
+.ace_cursor {
+    opacity: 0;
+}
 
 .ace_editor, #ace_document {
     margin: 0.85em 0 0 0;
@@ -1375,7 +1374,9 @@ a {
 }
 
 .sql-editor {
-    .ace_cursor { opacity:1 }
+    .ace_cursor {
+        opacity: 1;
+    }
 }
 
 .preview-panel {
@@ -1394,6 +1395,7 @@ a {
     margin-right: 3px;
     overflow: visible;
     position: absolute;
+    width: 92%;
     z-index: 9999;
 
     label {
@@ -1403,6 +1405,18 @@ a {
 
     i {
         cursor: pointer;
+    }
+}
+
+.preview-content-empty {
+    color: #999999;
+    display: table;
+    width: 100%;
+
+    label {
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
     }
 }
 
@@ -1453,4 +1467,8 @@ a {
         -moz-transform: rotate(180deg);
         transform: rotate(180deg);
     }
+}
+
+.theme-line .dropdown-menu {
+    min-width: 75px;
 }

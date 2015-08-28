@@ -20,8 +20,7 @@
   "general": [
     {
       "label": "General",
-      "id": "general-data",
-      "preview": "general",
+      "group": "general",
       "fields": [
         {
           "label": "Name",
@@ -33,6 +32,7 @@
         },
         {
           "label": "Clusters",
+          "id": "clusters",
           "type": "dropdown-multiple",
           "model": "clusters",
           "placeholder": "Choose clusters",
@@ -47,6 +47,7 @@
         },
         {
           "label": "Mode",
+          "id": "cacheMode",
           "type": "dropdown",
           "model": "cacheMode",
           "placeholder": "PARTITIONED",
@@ -62,6 +63,7 @@
         },
         {
           "label": "Atomicity",
+          "id": "atomicityMode",
           "type": "dropdown",
           "model": "atomicityMode",
           "placeholder": "ATOMIC",
@@ -76,6 +78,7 @@
         },
         {
           "label": "Backups",
+          "id": "backups",
           "type": "number",
           "model": "backups",
           "hide": "backupItem.cacheMode != 'PARTITIONED'",
@@ -86,6 +89,7 @@
         },
         {
           "label": "Read from backup",
+          "id": "readFromBackup",
           "type": "check",
           "model": "readFromBackup",
           "placeholder": true,
@@ -97,6 +101,7 @@
         },
         {
           "label": "Copy on read",
+          "id": "copyOnRead",
           "type": "check",
           "model": "copyOnRead",
           "placeholder": true,
@@ -107,6 +112,7 @@
         },
         {
           "label": "Invalidate near cache",
+          "id": "invalidate",
           "type": "check",
           "model": "invalidate",
           "tip": [
@@ -118,14 +124,14 @@
     },
     {
       "label": "Memory",
-      "id": "memory-data",
-      "preview": "memory",
+      "group": "memory",
       "tip": [
         "Cache memory settings."
       ],
       "fields": [
         {
           "label": "Mode",
+          "id": "memoryMode",
           "type": "dropdown",
           "model": "memoryMode",
           "placeholder": "ONHEAP_TIERED",
@@ -164,6 +170,7 @@
         },
         {
           "label": "Eviction policy",
+          "id": "evictionPolicy",
           "type": "dropdown-details",
           "settings": true,
           "path": "evictionPolicy",
@@ -299,6 +306,7 @@
         },
         {
           "label": "Start size",
+          "id": "startSize",
           "type": "number",
           "model": "startSize",
           "placeholder": 1500000,
@@ -308,6 +316,7 @@
         },
         {
           "label": "Swap enabled",
+          "id": "swapEnabled",
           "type": "check",
           "model": "swapEnabled",
           "tip": [
@@ -318,14 +327,14 @@
     },
     {
       "label": "Queries & Indexing",
-      "id": "queriesAndIndexing-data",
-      "preview": "query",
+      "gpoup": "query",
       "tip": [
         "Cache query settings."
       ],
       "fields": [
         {
           "label": "On-heap cache for off-heap indexes",
+          "id": "sqlOnheapRowCacheSize",
           "type": "number",
           "model": "sqlOnheapRowCacheSize",
           "placeholder": 10240,
@@ -335,6 +344,7 @@
         },
         {
           "label": "Long query timeout",
+          "id": "longQueryWarningTimeout",
           "type": "number",
           "model": "longQueryWarningTimeout",
           "placeholder": 3000,
@@ -344,6 +354,7 @@
         },
         {
           "label": "Metadata",
+          "id": "queryMetadata",
           "type": "dropdown-multiple",
           "model": "queryMetadata",
           "placeholder": "Choose metadata",
@@ -358,6 +369,7 @@
         },
         {
           "ui": "table-pair",
+          "id": "indexedTypes",
           "type": "indexedTypes",
           "model": "indexedTypes",
           "keyName": "keyClass",
@@ -371,6 +383,7 @@
         },
         {
           "label": "SQL functions",
+          "id": "sqlFunctionClasses",
           "type": "table-simple",
           "model": "sqlFunctionClasses",
           "placeholder": "SQL function full class name",
@@ -386,6 +399,7 @@
         },
         {
           "label": "Escape table and filed names",
+          "id": "sqlEscapeAll",
           "type": "check",
           "model": "sqlEscapeAll",
           "tip": [
@@ -397,8 +411,7 @@
     },
     {
       "label": "Store",
-      "id": "store-data",
-      "preview": "store",
+      "group": "store",
       "tip": [
         "Cache store settings."
       ],
@@ -577,6 +590,7 @@
         },
         {
           "label": "Load previous value",
+          "id": "loadPreviousValue",
           "type": "check",
           "model": "loadPreviousValue",
           "tip": [
@@ -604,6 +618,7 @@
         },
         {
           "label": "Write-through",
+          "id": "writeThrough",
           "type": "check",
           "model": "writeThrough",
           "tip": [
@@ -620,6 +635,7 @@
           "details": [
             {
               "label": "Enabled",
+              "id": "writeBehindEnabled",
               "type": "check",
               "model": "writeBehindEnabled",
               "tip": [
@@ -628,6 +644,7 @@
             },
             {
               "label": "Batch size",
+              "id": "writeBehindBatchSize",
               "type": "number",
               "model": "writeBehindBatchSize",
               "disabled": "!backupItem.writeBehindEnabled",
@@ -639,6 +656,7 @@
             },
             {
               "label": "Flush size",
+              "id": "writeBehindFlushSize",
               "type": "number",
               "model": "writeBehindFlushSize",
               "disabled": "!backupItem.writeBehindEnabled",
@@ -650,6 +668,7 @@
             },
             {
               "label": "Flush frequency",
+              "id": "writeBehindFlushFrequency",
               "type": "number",
               "model": "writeBehindFlushFrequency",
               "disabled": "!backupItem.writeBehindEnabled",
@@ -660,6 +679,7 @@
             },
             {
               "label": "Flush threads count",
+              "id": "writeBehindFlushThreadCount",
               "type": "number",
               "model": "writeBehindFlushThreadCount",
               "disabled": "!backupItem.writeBehindEnabled",
@@ -676,14 +696,14 @@
   "advanced": [
     {
       "label": "Concurrency control",
-      "id": "concurrency-data",
-      "preview": "concurrency",
+      "group": "concurrency",
       "tip": [
         "Cache concurrent usage settings."
       ],
       "fields": [
         {
           "label": "Max async operations",
+          "id": "maxConcurrentAsyncOperations",
           "type": "number",
           "model": "maxConcurrentAsyncOperations",
           "placeholder": 500,
@@ -694,6 +714,7 @@
         },
         {
           "label": "Default lock timeout",
+          "id": "defaultLockTimeout",
           "type": "number",
           "model": "defaultLockTimeout",
           "placeholder": 0,
@@ -704,6 +725,7 @@
         },
         {
           "label": "Entry versioning",
+          "id": "atomicWriteOrderMode",
           "type": "dropdown",
           "model": "atomicWriteOrderMode",
           "placeholder": "Choose versioning",
@@ -721,8 +743,7 @@
     },
     {
       "label": "Rebalance",
-      "id": "rebalance-data",
-      "preview": "rebalance",
+      "group": "rebalance",
       "hide": "backupItem.cacheMode == 'LOCAL'",
       "tip": [
         "Cache rebalance settings."
@@ -730,6 +751,7 @@
       "fields": [
         {
           "label": "Mode",
+          "id": "rebalanceMode",
           "type": "dropdown",
           "model": "rebalanceMode",
           "placeholder": "ASYNC",
@@ -745,6 +767,7 @@
         },
         {
           "label": "Pool size",
+          "id": "rebalanceThreadPoolSize",
           "type": "number",
           "model": "rebalanceThreadPoolSize",
           "placeholder": 2,
@@ -755,6 +778,7 @@
         },
         {
           "label": "Batch size",
+          "id": "rebalanceBatchSize",
           "type": "number",
           "model": "rebalanceBatchSize",
           "placeholder": "512 * 1024",
@@ -765,6 +789,7 @@
         },
         {
           "label": "Order",
+          "id": "rebalanceOrder",
           "type": "number",
           "model": "rebalanceOrder",
           "placeholder": 0,
@@ -774,6 +799,7 @@
         },
         {
           "label": "Delay",
+          "id": "rebalanceDelay",
           "type": "number",
           "model": "rebalanceDelay",
           "placeholder": 0,
@@ -783,6 +809,7 @@
         },
         {
           "label": "Timeout",
+          "id": "rebalanceTimeout",
           "type": "number",
           "model": "rebalanceTimeout",
           "placeholder": 10000,
@@ -792,6 +819,7 @@
         },
         {
           "label": "Throttle",
+          "id": "rebalanceThrottle",
           "type": "number",
           "model": "rebalanceThrottle",
           "placeholder": 0,
@@ -803,8 +831,7 @@
     },
     {
       "label": "Server near cache",
-      "id": "serverNearCache-data",
-      "preview": "serverNearCache",
+      "group": "serverNearCache",
       "hide": "backupItem.cacheMode != 'PARTITIONED'",
       "tip": [
         "Near cache settings.",
@@ -814,6 +841,7 @@
       "fields": [
         {
           "label": "Enabled",
+          "id": "nearCacheEnabled",
           "type": "check",
           "model": "nearCacheEnabled",
           "tip": [
@@ -822,6 +850,7 @@
         },
         {
           "label": "Start size",
+          "id": "nearStartSize",
           "type": "number",
           "path": "nearConfiguration",
           "model": "nearStartSize",
@@ -833,6 +862,7 @@
         },
         {
           "label": "Eviction policy",
+          "id": "nearCacheEvictionPolicy",
           "type": "dropdown-details",
           "settings": true,
           "path": "nearConfiguration.nearEvictionPolicy",
@@ -970,14 +1000,14 @@
     },
     {
       "label": "Statistics",
-      "id": "statistics-data",
-      "preview": "statistics",
+      "group": "statistics",
       "tip": [
         "Cache statistics and management settings."
       ],
       "fields": [
         {
           "label": "Statistics enabled",
+          "id": "statisticsEnabled",
           "type": "check",
           "model": "statisticsEnabled",
           "tip": [
@@ -986,6 +1016,7 @@
         },
         {
           "label": "Management enabled",
+          "id": "managementEnabled",
           "type": "check",
           "model": "managementEnabled",
           "tip": [
