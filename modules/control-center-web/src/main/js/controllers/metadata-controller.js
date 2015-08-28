@@ -781,7 +781,7 @@ controlCenterModule.controller('metadataController', [
                             .success(function () {
                                 $common.showInfo('All metadata have been removed');
 
-                                $scope.metadata = [];
+                                $scope.metadatas = [];
 
                                 $scope.selectItem(undefined, undefined);
                             })
