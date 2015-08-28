@@ -238,7 +238,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
 
                         $scope.preview.events.xml = $generatorXml.clusterEvents(val).join('');
                         $scope.preview.events.java = $generatorJava.clusterEvents(val).join('');
-                        $scope.preview.events.java = !$common.isEmptyString($scope.preview.eventsJava);
+                        $scope.preview.events.allDefaults = $common.isEmptyString($scope.preview.events.xml);
 
                         $scope.preview.marshaller.xml = $generatorXml.clusterMarshaller(val).join('');
                         $scope.preview.marshaller.java = $generatorJava.clusterMarshaller(val).join('');
