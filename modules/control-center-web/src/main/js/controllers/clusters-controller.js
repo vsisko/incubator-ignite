@@ -16,8 +16,11 @@
  */
 
 // Controller for Clusters screen.
-controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
-    function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview) {
+controlCenterModule.controller('clustersController', ['$scope', '$controller', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
+    function ($scope, $controller, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview) {
+        // Initialize the super class and extend it.
+        angular.extend(this, $controller('save-remove', {$scope: $scope}));
+
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
@@ -397,8 +400,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$timeo
                 save(item);
         };
 
-        // Save cluster with new name.
-        $scope.saveItemAs = function () {
+        // Copy cluster with new name.
+        $scope.copyItem = function () {
             $table.tableReset();
 
             if (validate($scope.backupItem))

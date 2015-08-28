@@ -39,6 +39,9 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
                 $scope.notebook = notebook;
 
                 $scope.notebook_name = notebook.name;
+
+                if (!notebook.paragraphs || notebook.paragraphs.length == 0)
+                    $scope.addParagraph();
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);
@@ -97,7 +100,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
 
         var paragraph = {name: 'Query' + (sz ==0 ? '' : sz), editor: true, query: '', pageSize: $scope.pageSizes[0]};
 
-        if ($scope.caches.length > 0)
+        if ($scope.caches && $scope.caches.length > 0)
             paragraph.cache = $scope.caches[0];
 
         $scope.notebook.paragraphs.push(paragraph);
@@ -123,9 +126,6 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
             var node = clusters[0];
 
             $scope.caches = node.caches;
-
-            if (!$scope.notebook.paragraphs || $scope.notebook.paragraphs.length == 0)
-                $scope.addParagraph();
         })
         .error(function (err, status) {
             $scope.caches = undefined;

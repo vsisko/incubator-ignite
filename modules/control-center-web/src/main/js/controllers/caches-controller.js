@@ -17,8 +17,11 @@
 
 // Controller for Caches screen.
 controlCenterModule.controller('cachesController', [
-        '$scope', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
-        function ($scope, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview) {
+        '$scope', '$controller', '$http', '$timeout', '$common', '$focus', '$confirm', '$copy', '$table', '$preview',
+        function ($scope, $controller, $http, $timeout, $common, $focus, $confirm, $copy, $table, $preview) {
+            // Initialize the super class and extend it.
+            angular.extend(this, $controller('save-remove', {$scope: $scope}));
+
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
             $scope.javaBuildInClasses = $common.javaBuildInClasses;
@@ -461,7 +464,7 @@ controlCenterModule.controller('cachesController', [
             };
 
             // Save cache with new name.
-            $scope.saveItemAs = function () {
+            $scope.copyItem = function () {
                 $table.tableReset();
 
                 if (validate($scope.backupItem))

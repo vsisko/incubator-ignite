@@ -107,16 +107,6 @@ hr {
     text-decoration: none;
 }
 
-.theme-line .navbar-nav a {
-    background-color: transparent;
-}
-
-.theme-line .navbar-nav a:hover,
-.theme-line .navbar-nav a:active,
-.theme-line .navbar-nav a:focus {
-    background-color: transparent;
-}
-
 .theme-line .main-links {
     padding-top: 50px;
 }
@@ -173,15 +163,6 @@ hr {
     font-size: 22px;
 }
 
-.theme-line .btn-primary {
-    border: 0 none;
-    background-color: $ignite-red;
-}
-
-.theme-line .btn-primary:hover {
-    background-color: $ignite-red-hover;
-}
-
 .theme-line .main-content .nav-horizontal a {
     box-shadow: 0 0;
     border: 0 none;
@@ -201,15 +182,14 @@ hr {
     border-bottom: 5px solid #888;
 }
 
-.theme-line .navbar-nav, .theme-line .sidebar-nav {
-    ul li > a.active {
+ul.navbar-nav, .sidebar-nav {
+    li > a.active:not(.dropdown-toggle) {
         cursor: default;
         pointer-events: none;
     }
 }
 
 .theme-line .sidebar-nav {
-    color: #474a54;
     padding-bottom: 30px;
 
     ul {
@@ -217,8 +197,8 @@ hr {
         list-style: none;
         font-size: 14px;
         margin: 3px 0 0;
+
         li {
-            color: #666;
             line-height: $input-height;
 
             span.fa-stack {
@@ -236,6 +216,14 @@ hr {
                 -o-text-overflow: ellipsis;
                 text-overflow: ellipsis;
             }
+
+            a:hover {
+                color: $link-hover-color;
+            }
+
+            a.active {
+                color: $link-color;
+            }
         }
     }
 }
@@ -249,10 +237,6 @@ hr {
     li a {
         color: #666;
         background-color: transparent;
-    }
-
-    li a:hover {
-        color: $ignite-red;
     }
 
     .active {
@@ -386,78 +370,14 @@ hr {
     border-bottom-color: $ignite-red;
 }
 
-.theme-line .navbar-nav {
-    color: #888;
-}
-
-.theme-line .navbar-nav a {
-    color: #bbb;
-}
-
-.theme-line header a.btn {
-    background-color: $ignite-red;
-}
-
-.theme-line header a.btn:hover {
-    background-color: $ignite-red-hover;
+.nav > li {
+    > a { color: $navbar-default-link-color }
+    > a:hover { color: $link-hover-color }
+    > a.active { color: $link-color }
 }
 
 .theme-line header .navbar-nav .tt-cursor {
     background-color: $ignite-red;
-}
-
-.theme-line header .navbar-nav a:hover, .theme-line header .navbar-nav .open > a {
-    color: $ignite-red;
-}
-
-.theme-line .navbar-nav .active a {
-    //font-weight: bold;
-    color: $ignite-red;
-}
-
-.theme-line .navbar-nav .active a:hover {
-    color: $ignite-red-hover;
-}
-
-.theme-line .main-links .links a:hover {
-    color: $ignite-red;
-}
-
-.theme-line .main-content a {
-    color: $ignite-red;
-}
-
-.theme-line .main-content a:hover {
-    color: $ignite-red-hover;
-}
-
-.theme-line .sidebar-nav ul li a.active:before {
-    background-color: $ignite-red;
-}
-
-.theme-line .sidebar-nav ul li a.active {
-    color: $ignite-red;
-}
-
-.theme-line .sidebar-nav ul li a:hover, .theme-line .sidebar-nav ul li a.active:hover {
-    color: $ignite-red-hover;
-}
-
-.theme-line .main-content .nav-horizontal a.active {
-    border-color: $ignite-red;
-    color: $ignite-red;
-}
-
-.theme-line .main-content .nav-horizontal a:hover {
-    color: $ignite-red-hover;
-}
-
-.theme-line .main-content .nav-horizontal a.active:hover {
-    border-color: $ignite-red-hover;
-}
-
-.theme-line header .navbar-nav a.active, .theme-line #versions-list li a:hover strong, .theme-line #versions-list li a.active .current, .theme-line #versions-list li a:active .current {
-    color: $ignite-red;
 }
 
 .theme-line header .navbar-nav a {
@@ -493,22 +413,6 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     font-family: Roboto Slab, serif;
     margin-bottom: 10px;
-}
-
-.submit-vote.submit-vote-parent.voted a.submit-vote-button, .submit-vote.submit-vote-parent a.submit-vote-button:hover {
-    background-color: $ignite-red;
-}
-
-div.submit-vote.submit-vote-parent.voted a.submit-vote-button:hover {
-    background-color: $ignite-red-hover;
-}
-
-a, .link .title {
-    color: $ignite-red;
-}
-
-a:hover, .link:hover .title {
-    color: $ignite-red-hover;
 }
 
 .header h1.navbar-brand a {
@@ -647,6 +551,18 @@ button {
     margin-right: 5px;
 }
 
+.btn {
+    padding: 3px 6px;
+}
+
+.btn-group {
+    margin-right: 5px;
+
+    > button {
+        margin-right: 0;
+    }
+}
+
 h1,
 h2,
 h3 {
@@ -665,16 +581,6 @@ h3 {
 
 table tr:hover {
     cursor: pointer;
-}
-
-.btn {
-    padding: 3px 6px;
-}
-
-button .caret, .btn .caret {
-    float: right;
-    margin-left: 5px;
-    margin-top: 7px;
 }
 
 .base-control {
@@ -922,6 +828,16 @@ button .caret, .btn .caret {
         padding-right: 0 !important;
     }
 
+    margin: 0;
+
+    //tbody, thead { display: block; }
+    //
+    //tbody {
+    //    height: 100px;
+    //    overflow-y: auto;
+    //    overflow-x: hidden;
+    //}
+
     td {
         padding: 3px 6px;
     }
@@ -950,8 +866,6 @@ button .caret, .btn .caret {
             }
         }
     }
-
-    margin: 0;
 }
 
 div.affix.padding-top-dflt {
