@@ -60,17 +60,17 @@ block content
                             a(bs-collapse-toggle) Server
                             button.btn.btn-primary.pull-right(type='submit' style='margin-top: -5px') Download
                     .panel-collapse(role='tabpanel' bs-collapse-target)
-                        div(ng-show='selectedItem' bs-tabs style='margin-top: 0.65em')
-                            div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
+                        .summary-tabs(bs-tabs ng-show='selectedItem' template='summary/summary-tabs')
+                            div(bs-pane title='XML')
                                 div(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlServer')
-                            div(title='<img src="/images/java.png" width="16px" height="16px"/> Java' bs-pane)
+                            div(bs-pane title='Java')
                                 .details-row
                                     .col-xs-2.col-sm-2.col-md-1
                                         label Generate:
                                     .col-xs-4.col-sm-3.col-md-3
                                         button.form-control(type='button' ng-model='configServer.javaClassServer'  bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
                                 div(ui-ace='{ onLoad: aceInit, mode: "java" }' ng-model='javaServer')
-                            div(title='<img src="/images/docker.png" width="16px" height="16px"/> Dockerfile' bs-pane)
+                            div(bs-pane title='Dockerfile')
                                 .details-row
                                     p
                                         +hard-link('https://docs.docker.com/reference/builder', 'Docker')
@@ -99,10 +99,10 @@ block content
                         div(ng-show='selectedItem')
                             .details-row(ng-repeat='field in clientFields')
                                 +form-row-custom(['col-xs-4 col-sm-4 col-md-3'], ['col-xs-4 col-sm-4 col-md-3'], 'backupItem')
-                            div(bs-tabs style='margin-top: 0.65em')
-                                div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
+                            .summary-tabs(bs-tabs template='summary/summary-tabs')
+                                div(bs-pane title='XML')
                                     div(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlClient')
-                                div(title='<img src="/images/java.png" width="16px" height="16px"/> Java' bs-pane)
+                                div(bs-pane title='Java')
                                     .details-row
                                         .col-xs-2.col-sm-2.col-md-1
                                             label Generate:

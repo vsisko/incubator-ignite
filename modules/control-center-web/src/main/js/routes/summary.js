@@ -24,6 +24,11 @@ var $generatorJava = require('./generator/generator-java');
 var $generatorDocker = require('./generator/generator-docker');
 var $generatorProperties = require('./generator/generator-properties');
 
+// GET template for summary tabs.
+router.get('/summary-tabs', function (req, res) {
+    res.render('configuration/summary-tabs', {});
+});
+
 /* GET summary page. */
 router.get('/', function (req, res) {
     res.render('configuration/summary');
