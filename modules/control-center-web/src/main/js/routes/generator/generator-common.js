@@ -108,14 +108,11 @@ $generatorCommon.builder = function () {
 
     res.emptyLineIfNeeded = function () {
         if (this.needEmptyLine) {
-            this.line();
+            this.push('\n');
+            this.lineStart = true;
 
             this.needEmptyLine = false;
-
-            return true;
         }
-
-        return false;
     };
 
     res.imports = {};

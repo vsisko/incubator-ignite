@@ -126,6 +126,13 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
         $scope.clusters = data.clusters;
 
         if ($scope.clusters.length > 0) {
+            // Populate clusters with caches.
+            _.forEach($scope.clusters, function (cluster) {
+                cluster.caches = _.filter(data.caches, function (cache) {
+                    return _.contains(cluster.caches, cache._id);
+                });
+            });
+
             var restoredId = sessionStorage.summarySelectedId;
 
             var selectIdx = 0;

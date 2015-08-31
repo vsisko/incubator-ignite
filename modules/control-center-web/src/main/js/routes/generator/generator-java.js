@@ -103,6 +103,8 @@ $generatorJava.needNewVariable = function (res, varName) {
  * @param varFullGenericType2 Optional full class name of second generic.
  */
 $generatorJava.declareVariable = function (res, varNew, varName, varFullType, varFullActualType, varFullGenericType1, varFullGenericType2) {
+    res.emptyLineIfNeeded();
+
     var varType = res.importClass(varFullType);
 
     if (varFullActualType && varFullGenericType1) {
@@ -116,6 +118,8 @@ $generatorJava.declareVariable = function (res, varNew, varName, varFullType, va
     }
     else
         res.line((varNew ? (varType + ' ') : '') + varName + ' = new ' + varType + '();');
+
+    res.needEmptyLine = true;
 };
 
 /**
@@ -186,6 +190,8 @@ $generatorJava.multiparamProperty = function (res, varName, obj, propName, type,
     var val = obj[propName];
 
     if (val && val.length > 0) {
+        res.emptyLineIfNeeded();
+
         res.append(varName + '.' + $generatorJava.setterName(setterName ? setterName : propName) + '(');
 
         for (var i = 0; i < val.length; i++) {
@@ -201,9 +207,7 @@ $generatorJava.multiparamProperty = function (res, varName, obj, propName, type,
 
 $generatorJava.beanProperty = function (res, varName, bean, beanPropName, beanVarName, beanClass, props, createBeanAlthoughNoProps) {
     if (bean && $commonUtils.hasProperty(bean, props)) {
-        if (!res.emptyLineIfNeeded()) {
-            res.line();
-        }
+        res.emptyLineIfNeeded();
 
         var clsName = res.importClass(beanClass);
 
@@ -289,18 +293,27 @@ $generatorJava.beanProperty = function (res, varName, bean, beanPropName, beanVa
  */
 $generatorJava.evictionPolicy = function (res, varName, evictionPolicy, propertyName) {
     if (evictionPolicy && evictionPolicy.kind) {
-        var e = $generatorCommon.EVICTION_POLICIES[evictionPolicy.kind];
+        var evictionPolicyDesc = $generatorCommon.EVICTION_POLICIES[evictionPolicy.kind];
 
         var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
 
-        $generatorJava.beanProperty(res, varName, obj, propertyName, propertyName, e.className, e.fields, true);
+        $generatorJava.beanProperty(res, varName, obj, propertyName, propertyName,
+            evictionPolicyDesc.className, evictionPolicyDesc.fields, true);
     }
 };
 
 // Generate cluster general group.
-$generatorJava.clusterGeneral = function (cluster, res) {
+$generatorJava.clusterGeneral = function (cluster, clientNearCfg, res) {
     if (!res)
         res = $generatorCommon.builder();
+
+    $generatorJava.declareVariable(res, true, 'cfg', 'org.apache.ignite.configuration.IgniteConfiguration');
+
+    if (clientNearCfg) {
+        res.line('cfg.setClientMode(true);');
+
+        res.needEmptyLine = true;
+    }
 
     if (cluster.discovery) {
         var d = cluster.discovery;
@@ -383,8 +396,6 @@ $generatorJava.clusterGeneral = function (cluster, res) {
                 break;
 
             case 'Jdbc':
-                res.line();
-
                 if (d.Jdbc) {
                     $generatorJava.declareVariable(res, true, 'ipFinder', 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
 
@@ -655,8 +666,6 @@ $generatorJava.cacheGeneral = function (cache, varName, res) {
 
     if (cache.cacheMode == 'PARTITIONED')
         $generatorJava.property(res, varName, cache, 'backups');
-
-    res.needEmptyLine = true;
 
     $generatorJava.property(res, varName, cache, 'readFromBackup');
     $generatorJava.property(res, varName, cache, 'copyOnRead');
@@ -1114,64 +1123,57 @@ $generatorJava.clusterCaches = function (caches, res) {
  *
  * @param cluster Cluster to process.
  * @param javaClass If 'true' then generate factory class otherwise generate code snippet.
- * @param clientNearConfiguration Near cache configuration for client node.
+ * @param clientNearCfg Near cache configuration for client node.
  */
-$generatorJava.cluster = function (cluster, javaClass, clientNearConfiguration) {
+$generatorJava.cluster = function (cluster, javaClass, clientNearCfg) {
     var res = $generatorCommon.builder();
 
-    if (javaClass) {
-        res.line('/**');
-        res.line(' * ' + $generatorCommon.mainComment());
-        res.line(' */');
-        res.startBlock('public class ConfigurationFactory {');
-        res.line('/**');
-        res.line(' * Configure grid.');
-        res.line(' */');
-        res.startBlock('public IgniteConfiguration createConfiguration() {');
-    }
+    if (cluster) {
+        if (javaClass) {
+            res.line('/**');
+            res.line(' * ' + $generatorCommon.mainComment());
+            res.line(' */');
+            res.startBlock('public class ConfigurationFactory {');
+            res.line('/**');
+            res.line(' * Configure grid.');
+            res.line(' */');
+            res.startBlock('public IgniteConfiguration createConfiguration() {');
+        }
 
-    $generatorJava.declareVariable(res, true, 'cfg', 'org.apache.ignite.configuration.IgniteConfiguration');
+        $generatorJava.clusterGeneral(cluster, clientNearCfg, res);
 
-    res.line();
+        $generatorJava.clusterAtomics(cluster, res);
 
-    if (clientNearConfiguration) {
-        res.line('cfg.setClientMode(true);');
-        res.line();
-    }
+        $generatorJava.clusterCommunication(cluster, res);
 
-    $generatorJava.clusterGeneral(cluster, res);
+        $generatorJava.clusterDeployment(cluster, res);
 
-    $generatorJava.clusterAtomics(cluster, res);
+        $generatorJava.clusterEvents(cluster, res);
 
-    $generatorJava.clusterCommunication(cluster, res);
+        $generatorJava.clusterMarshaller(cluster, res);
 
-    $generatorJava.clusterDeployment(cluster, res);
+        $generatorJava.clusterMetrics(cluster, res);
 
-    $generatorJava.clusterEvents(cluster, res);
+        $generatorJava.clusterP2p(cluster, res);
 
-    $generatorJava.clusterMarshaller(cluster, res);
+        $generatorJava.clusterSwap(cluster, res);
 
-    $generatorJava.clusterMetrics(cluster, res);
+        $generatorJava.clusterTime(cluster, res);
 
-    $generatorJava.clusterP2p(cluster, res);
+        $generatorJava.clusterPools(cluster, res);
 
-    $generatorJava.clusterSwap(cluster, res);
+        $generatorJava.clusterTransactions(cluster, res);
 
-    $generatorJava.clusterTime(cluster, res);
+        $generatorJava.clusterCaches(cluster.caches, res);
 
-    $generatorJava.clusterPools(cluster, res);
+        if (javaClass) {
+            res.line();
+            res.line('return cfg;');
+            res.endBlock('}');
+            res.endBlock('}');
 
-    $generatorJava.clusterTransactions(cluster, res);
-
-    $generatorJava.clusterCaches(cluster.caches, res);
-
-    if (javaClass) {
-        res.line();
-        res.line('return cfg;');
-        res.endBlock('}');
-        res.endBlock('}');
-
-        return res.generateImports() + '\n\n' + res.join('')
+            return res.generateImports() + '\n\n' + res.join('')
+        }
     }
 
     return res.join('');

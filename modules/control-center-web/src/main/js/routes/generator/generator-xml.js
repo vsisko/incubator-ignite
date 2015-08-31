@@ -962,101 +962,105 @@ $generatorXml.clusterCaches = function(caches, res) {
 
 // Generate cluster config.
 $generatorXml.cluster = function (cluster, clientNearCfg) {
-    var res = $generatorCommon.builder();
+    if (cluster) {
+        var res = $generatorCommon.builder();
 
-    res.deep = 1;
+        res.deep = 1;
 
-    if (clientNearCfg) {
-        res.startBlock('<bean id="nearCacheBean" class="org.apache.ignite.configuration.NearCacheConfiguration">');
+        if (clientNearCfg) {
+            res.startBlock('<bean id="nearCacheBean" class="org.apache.ignite.configuration.NearCacheConfiguration">');
 
-        if (clientNearCfg.nearStartSize)
-            $generatorXml.property(res, clientNearCfg, 'nearStartSize');
+            if (clientNearCfg.nearStartSize)
+                $generatorXml.property(res, clientNearCfg, 'nearStartSize');
 
-        if (clientNearCfg.nearEvictionPolicy && clientNearCfg.nearEvictionPolicy.kind)
-            $generatorXml.evictionPolicy(res, clientNearCfg.nearEvictionPolicy, 'nearEvictionPolicy');
+            if (clientNearCfg.nearEvictionPolicy && clientNearCfg.nearEvictionPolicy.kind)
+                $generatorXml.evictionPolicy(res, clientNearCfg.nearEvictionPolicy, 'nearEvictionPolicy');
+
+            res.endBlock('</bean>');
+
+            res.line();
+        }
+
+        // Generate Ignite Configuration.
+        res.startBlock('<bean class="org.apache.ignite.configuration.IgniteConfiguration">');
+
+        if (clientNearCfg) {
+            res.line('<property name="clientMode" value="true" />');
+
+            res.line();
+        }
+
+        $generatorXml.clusterGeneral(cluster, res);
+
+        $generatorXml.clusterAtomics(cluster, res);
+
+        $generatorXml.clusterCommunication(cluster, res);
+
+        $generatorXml.clusterDeployment(cluster, res);
+
+        $generatorXml.clusterEvents(cluster, res);
+
+        $generatorXml.clusterMarshaller(cluster, res);
+
+        $generatorXml.clusterMetrics(cluster, res);
+
+        $generatorXml.clusterP2p(cluster, res);
+
+        $generatorXml.clusterSwap(cluster, res);
+
+        $generatorXml.clusterTime(cluster, res);
+
+        $generatorXml.clusterPools(cluster, res);
+
+        $generatorXml.clusterTransactions(cluster, res);
+
+        $generatorXml.clusterCaches(cluster.caches, res);
 
         res.endBlock('</bean>');
 
-        res.line();
-    }
+        // Build final XML:
+        // 1. Add header.
+        var xml = '<?xml version="1.0" encoding="UTF-8"?>\n\n';
 
-    // Generate Ignite Configuration.
-    res.startBlock('<bean class="org.apache.ignite.configuration.IgniteConfiguration">');
+        xml += '<!-- ' + $generatorCommon.mainComment() + ' -->\n';
+        xml += '<beans xmlns="http://www.springframework.org/schema/beans"\n';
+        xml += '       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n';
+        xml += '       xmlns:util="http://www.springframework.org/schema/util"\n';
+        xml += '       xsi:schemaLocation="http://www.springframework.org/schema/beans\n';
+        xml += '                           http://www.springframework.org/schema/beans/spring-beans.xsd\n';
+        xml += '                           http://www.springframework.org/schema/util\n';
+        xml += '                           http://www.springframework.org/schema/util/spring-util.xsd">\n';
 
-    if (clientNearCfg) {
-        res.line('<property name="clientMode" value="true" />');
-
-        res.line();
-    }
-
-    $generatorXml.clusterGeneral(cluster, res);
-
-    $generatorXml.clusterAtomics(cluster, res);
-
-    $generatorXml.clusterCommunication(cluster, res);
-
-    $generatorXml.clusterDeployment(cluster, res);
-
-    $generatorXml.clusterEvents(cluster, res);
-
-    $generatorXml.clusterMarshaller(cluster, res);
-
-    $generatorXml.clusterMetrics(cluster, res);
-
-    $generatorXml.clusterP2p(cluster, res);
-
-    $generatorXml.clusterSwap(cluster, res);
-
-    $generatorXml.clusterTime(cluster, res);
-
-    $generatorXml.clusterPools(cluster, res);
-
-    $generatorXml.clusterTransactions(cluster, res);
-
-    $generatorXml.clusterCaches(cluster.caches, res);
-
-    res.endBlock('</bean>');
-
-    // Build final XML:
-    // 1. Add header.
-    var xml = '<?xml version="1.0" encoding="UTF-8"?>\n\n';
-
-    xml += '<!-- ' + $generatorCommon.mainComment() + ' -->\n';
-    xml += '<beans xmlns="http://www.springframework.org/schema/beans"\n';
-    xml += '       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n';
-    xml += '       xmlns:util="http://www.springframework.org/schema/util"\n';
-    xml += '       xsi:schemaLocation="http://www.springframework.org/schema/beans\n';
-    xml += '                           http://www.springframework.org/schema/beans/spring-beans.xsd\n';
-    xml += '                           http://www.springframework.org/schema/util\n';
-    xml += '                           http://www.springframework.org/schema/util/spring-util.xsd">\n';
-
-    // 2. Add external property file and all data sources.
-    if (res.datasources.length > 0) {
-        xml += '    <!-- Load external properties file. -->\n';
-        xml += '    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">\n';
-        xml += '        <property name="location" value="classpath:secret.properties"/>\n';
-        xml += '    </bean>\n\n';
-
-        xml += '    <!-- Data source beans will be initialized from external properties file. -->\n';
-
-        _.forEach(res.datasources, function (item) {
-            var beanId = item.dataSourceBean;
-
-            xml += '    <bean id= "' + beanId + '" class="' + item.className + '">\n';
-            xml += '        <property name="URL" value="${' + beanId + '.jdbc.url}" />\n';
-            xml += '        <property name="user" value="${' + beanId + '.jdbc.username}" />\n';
-            xml += '        <property name="password" value="${' + beanId + '.jdbc.password}" />\n';
+        // 2. Add external property file and all data sources.
+        if (res.datasources.length > 0) {
+            xml += '    <!-- Load external properties file. -->\n';
+            xml += '    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">\n';
+            xml += '        <property name="location" value="classpath:secret.properties"/>\n';
             xml += '    </bean>\n\n';
-        });
+
+            xml += '    <!-- Data source beans will be initialized from external properties file. -->\n';
+
+            _.forEach(res.datasources, function (item) {
+                var beanId = item.dataSourceBean;
+
+                xml += '    <bean id= "' + beanId + '" class="' + item.className + '">\n';
+                xml += '        <property name="URL" value="${' + beanId + '.jdbc.url}" />\n';
+                xml += '        <property name="user" value="${' + beanId + '.jdbc.username}" />\n';
+                xml += '        <property name="password" value="${' + beanId + '.jdbc.password}" />\n';
+                xml += '    </bean>\n\n';
+            });
+        }
+
+        // 3. Add main content.
+        xml += res.join('');
+
+        // 4. Add footer.
+        xml += '</beans>\n';
+
+        return xml;
     }
 
-    // 3. Add main content.
-    xml += res.join('');
-
-    // 4. Add footer.
-    xml += '</beans>\n';
-
-    return xml;
+    return '';
 };
 
 // For server side we should export XML generation entry point.

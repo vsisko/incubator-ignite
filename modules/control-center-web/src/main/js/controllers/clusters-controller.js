@@ -212,12 +212,12 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
                     if (val) {
                         sessionStorage.clusterBackupItem = angular.toJson(val);
 
-                        var clusterCaches = _.reduce($scope.caches, function(memo, cache){
+                        var clusterCaches = _.reduce($scope.caches, function(caches, cache){
                             if (_.contains(val.caches, cache.value)) {
-                                memo.push(cache.cache);
+                                caches.push(cache.cache);
                             }
 
-                            return memo;
+                            return caches;
                         }, []);
 
                         $scope.preview.general.xml = $generatorXml.clusterCaches(clusterCaches, $generatorXml.clusterGeneral(val)).join('');
