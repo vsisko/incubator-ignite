@@ -186,7 +186,6 @@ controlCenterModule.controller('metadataController', [
             $http.get('/models/metadata.json')
                 .success(function (data) {
                     $scope.screenTip = data.screenTip;
-                    $scope.templateTip = data.templateTip;
                     $scope.metadata = data.metadata;
                     $scope.metadataDb = data.metadataDb;
                 })

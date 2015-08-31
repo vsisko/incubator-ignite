@@ -16,14 +16,6 @@
       "</ul>"
     ]
   },
-  "templateTip": [
-    "Use following template for metadata:",
-    "<ul>",
-    "  <li>query - Create cache type metadata to use with queries only.</li>",
-    "  <li>store - Create cache type metadata to use with JDBC POJO store only.</li>",
-    "  <li>both - Create cache type metadata to use with query and store.</li>",
-    "</ul>"
-  ],
   "metadata": [
     {
       "label": "Metadata common",
