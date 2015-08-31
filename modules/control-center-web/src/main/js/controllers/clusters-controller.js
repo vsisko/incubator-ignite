@@ -23,6 +23,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
 
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
+        $scope.compactJavaName = $common.compactJavaName;
 
         $scope.tableReset = $table.tableReset;
         $scope.tableNewItem = $table.tableNewItem;
@@ -120,7 +121,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
         var simpleTables = {
             addresses: {msg: 'Such IP address already exists!', id: 'IpAddress'},
             regions: {msg: 'Such region already exists!', id: 'Region'},
-            zones: {msg: 'Such zone already exists!', id: 'Zone'}
+            zones: {msg: 'Such zone already exists!', id: 'Zone'},
+            peerClassLoadingLocalClassPathExclude: {msg: 'Such package already exists!', id: 'PeerClsPathExclude'}
         };
 
         $scope.tableSimpleValid = function (item, field, val, index) {

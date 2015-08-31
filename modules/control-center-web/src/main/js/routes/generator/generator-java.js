@@ -574,14 +574,7 @@ $generatorJava.clusterP2p = function (cluster, res) {
         $generatorJava.property(res, 'cfg', cluster, 'peerClassLoadingEnabled');
 
         if (p2pEnabled) {
-            var clsPathExclude = cluster.peerClassLoadingLocalClassPathExclude;
-
-            if (clsPathExclude && clsPathExclude.length > 0) {
-                var clsPathExcludeWrapper = {peerClassLoadingLocalClassPathExclude: clsPathExclude.split(',')};
-
-                $generatorJava.multiparamProperty(res, 'cfg', clsPathExcludeWrapper, 'peerClassLoadingLocalClassPathExclude');
-            }
-
+            $generatorJava.multiparamProperty(res, 'cfg', cluster, 'peerClassLoadingLocalClassPathExclude');
             $generatorJava.property(res, 'cfg', cluster, 'peerClassLoadingMissedResourcesCacheSize');
             $generatorJava.property(res, 'cfg', cluster, 'peerClassLoadingThreadPoolSize');
         }
