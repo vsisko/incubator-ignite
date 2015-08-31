@@ -421,9 +421,9 @@ $generatorXml.clusterP2p = function (cluster, res) {
         $generatorXml.property(res, cluster, 'peerClassLoadingEnabled');
 
         if (p2pEnabled) {
-            $generatorXml.listProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
             $generatorXml.property(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
             $generatorXml.property(res, cluster, 'peerClassLoadingThreadPoolSize');
+            $generatorXml.listProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
         }
 
         res.needEmptyLine = true;
