@@ -464,8 +464,7 @@ mixin preview(preview, id)
 
     .preview-panel
         .preview-legend
-            label Preview
-            i.group-legend-btn(ng-click='#{previewState} = !#{previewState}')
+            i(ng-click='#{previewState} = !#{previewState}')
                 img(ng-if='#{previewState}' src='/images/xml.png' title='Show XML')
                 img(ng-if='!#{previewState}' src='/images/java.png' title='Show Java code')
         .preview-content(ng-if='!preview[#{preview}].allDefaults && !#{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{preview}].xml' min-height='{{::group.minHeight}}')

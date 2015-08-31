@@ -27,6 +27,7 @@ $ignite-block-callout-right: #50af51;
 $ignite-block-callout-right-background: #f3f8f3;
 $ignite-block-callout-gradient-to: #ffffff;
 $ignite-placeholder-color: #999999;
+$ignite-preview-background: #e8f1fc;
 
 hr {
     margin: 20px 0;
@@ -1249,6 +1250,8 @@ a {
 }
 
 .preview-panel {
+    background-color: $ignite-preview-background;
+
     margin-top: 10px;
     margin-left: 20px;
 
@@ -1256,24 +1259,23 @@ a {
     border: thin dotted lightgrey;
 
     padding: 0 3px;
+
+    .ace_editor {
+        background-color: $ignite-preview-background;
+    }
 }
 
 .preview-legend {
     top: 0;
     right: 0;
-    margin-right: 3px;
+    margin-right: 5px;
     overflow: visible;
     position: absolute;
-    width: 92%;
     z-index: 900;
-
-    label {
-        padding: 0 5px 0 5px;
-        background: white;
-    }
 
     i {
         cursor: pointer;
+        background-image: linear-gradient(white 45%, $ignite-preview-background 100%);
     }
 }
 
