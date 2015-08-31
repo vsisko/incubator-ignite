@@ -25,7 +25,6 @@ mixin block-callout(titleWorkflow, contentWorkflow, whatsNextWorkflow, whatsNext
             label.block-callout-header-right #{whatsNextWorkflow}
             p(ng-bind-html=whatsNextContent)
 
-
 mixin tipField(lines)
     i.tipField.fa.fa-question-circle(ng-if=lines bs-tooltip='joinTip(#{lines})' type='button')
     i.tipField.fa.fa-question-circle.blank(ng-if='!#{lines}')
@@ -436,7 +435,7 @@ mixin main-table(title, rows, focusId, click, rowTemplate)
 
 
 mixin groups(groups, dataSource)
-    .panel.panel-default(ng-repeat='group in #{groups}' ng-click='triggerDigest=true')
+    .panel.panel-default(ng-repeat='group in #{groups}' ng-click='triggerDigest=true' ng-hide='{{group.hide}}')
         .panel-heading
             h3
                 a(id='{{::group.group + "-title"}}' bs-collapse-toggle ng-click='hidePopover()') {{::group.label}}
