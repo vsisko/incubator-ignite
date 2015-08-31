@@ -182,6 +182,8 @@ $generatorJava.listProperty = function (res, varName, obj, propName, enumType, s
         }
 
         res.line('));');
+
+        res.needEmptyLine = true;
     }
 };
 
@@ -270,13 +272,14 @@ $generatorJava.beanProperty = function (res, varName, bean, beanPropName, beanVa
             }
         }
 
-        res.line();
+        res.needEmptyLine = true;
+
         res.line(varName + '.' + $generatorJava.setterName(beanPropName) + '(' + beanVarName + ');');
 
         res.needEmptyLine = true;
     }
     else if (createBeanAlthoughNoProps) {
-        res.line();
+        res.emptyLineIfNeeded();
         res.line(varName + '.' + $generatorJava.setterName(beanPropName) + '(new ' + res.importClass(beanClass) + '());');
 
         res.needEmptyLine = true;
@@ -460,17 +463,19 @@ $generatorJava.clusterEvents = function (cluster, res) {
             res.append('int[] events = new int[EventType.' + cluster.includeEventTypes[0] + '.length');
 
             for (i = 1; i < cluster.includeEventTypes.length; i++) {
-                res.line();
+                res.needEmptyLine = true;
 
                 res.append('    + EventType.' + cluster.includeEventTypes[i] + '.length');
             }
 
             res.line('];');
-            res.line();
+
+            res.needEmptyLine = true;
+
             res.line('int k = 0;');
 
             for (i = 0; i < cluster.includeEventTypes.length; i++) {
-                res.line();
+                res.needEmptyLine = true;
 
                 var e = cluster.includeEventTypes[i];
 
@@ -478,7 +483,8 @@ $generatorJava.clusterEvents = function (cluster, res) {
                 res.line('k += EventType.' + e + '.length;');
             }
 
-            res.line();
+            res.needEmptyLine = true;
+
             res.line('cfg.setIncludeEventTypes(events);');
         }
 
@@ -712,7 +718,7 @@ $generatorJava.cacheStore = function (cache, varName, res) {
 
                     var dsClsName = $generatorCommon.dataSourceClassName(storeFactory.dialect);
 
-                    res.line();
+                    res.needEmptyLine = true;
 
                     $generatorJava.declareVariable(res, true, dsVarName, dsClsName);
 
@@ -824,15 +830,17 @@ $generatorJava.metadataQueryFields = function (res, meta, fieldProperty) {
     var fields = meta[fieldProperty];
 
     if (fields && fields.length > 0) {
-        res.line();
-
         $generatorJava.declareVariable(res, $generatorJava.needNewVariable(res, fieldProperty), fieldProperty, 'java.util.Map', 'java.util.LinkedHashMap', 'java.lang.String', 'java.lang.Class<?>');
 
         _.forEach(fields, function (field) {
             res.line(fieldProperty + '.put("' + field.name + '", ' + res.importClass(field.className) + '.class);');
         });
 
+        res.needEmptyLine = true;
+
         res.line('typeMeta.' + $generatorJava.toJavaName('set', fieldProperty) + '(' + fieldProperty + ');');
+
+        res.needEmptyLine = true;
     }
 };
 
@@ -851,9 +859,12 @@ $generatorJava.metadataGroups = function (res, meta) {
 
                 var varNew = !res.groups;
 
-                res.line();
+                res.needEmptyLine = true;
+
                 res.line((varNew ? 'Map<String, LinkedHashMap<String, IgniteBiTuple<Class<?>, Boolean>>> ' : '') +
                     "groups = new LinkedHashMap<>();");
+
+                res.needEmptyLine = true;
 
                 if (varNew)
                     res.groups = true;
@@ -863,6 +874,8 @@ $generatorJava.metadataGroups = function (res, meta) {
                 res.line((varNew ? 'LinkedHashMap<String, IgniteBiTuple<Class<?>, Boolean>> ' : '') +
                     'groupItems = new LinkedHashMap<>();');
 
+                res.needEmptyLine = true;
+
                 if (varNew)
                     res.groupItems = true;
 
@@ -871,11 +884,17 @@ $generatorJava.metadataGroups = function (res, meta) {
                         'new IgniteBiTuple<Class<?>, Boolean>(' + res.importClass(field.className) + '.class, ' + field.direction + '));');
                 });
 
+                res.needEmptyLine = true;
+
                 res.line('groups.put("' + group.name + '", groupItems);');
             }
         });
 
+        res.needEmptyLine = true;
+
         res.line('typeMeta.setGroups(groups);');
+
+        res.needEmptyLine = true;
     }
 };
 
@@ -884,7 +903,7 @@ $generatorJava.metadataDatabaseFields = function (res, meta, fieldProperty) {
     var dbFields = meta[fieldProperty];
 
     if (dbFields && dbFields.length > 0) {
-        res.line();
+        res.needEmptyLine = true;
 
         $generatorJava.declareVariable(res, $generatorJava.needNewVariable(res, fieldProperty), fieldProperty, 'java.util.Collection', 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeFieldMetadata');
 
@@ -898,6 +917,8 @@ $generatorJava.metadataDatabaseFields = function (res, meta, fieldProperty) {
         });
 
         res.line('typeMeta.' + $generatorJava.toJavaName('set', fieldProperty) + '(' + fieldProperty + ');');
+
+        res.needEmptyLine = true;
     }
 };
 
@@ -922,8 +943,6 @@ $generatorJava.metadataQuery = function (meta, res) {
     $generatorJava.metadataQueryFields(res, meta, 'queryFields');
     $generatorJava.metadataQueryFields(res, meta, 'ascendingFields');
     $generatorJava.metadataQueryFields(res, meta, 'descendingFields');
-
-    res.needEmptyLine = true;
 
     $generatorJava.listProperty(res, 'typeMeta', meta, 'textFields');
 
@@ -960,10 +979,10 @@ $generatorJava.cacheMetadata = function(meta, res) {
     $generatorJava.metadataQuery(meta, res);
     $generatorJava.metadataStore(meta, res);
 
-    res.line();
+    res.emptyLineIfNeeded();
     res.line('types.add(typeMeta);');
-    res.line();
 
+    res.needEmptyLine = true;
 };
 
 // Generate cache type metadata configs.
@@ -973,11 +992,7 @@ $generatorJava.cacheMetadatas = function (qryMeta, storeMeta, varName, res) {
 
     // Generate cache type metadata configs.
     if ((qryMeta && qryMeta.length > 0) || (storeMeta && storeMeta.length > 0)) {
-        res.emptyLineIfNeeded();
-
         $generatorJava.declareVariable(res, $generatorJava.needNewVariable(res, 'types'), 'types', 'java.util.Collection', 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeMetadata');
-
-        res.line();
 
         var metaNames = [];
 
@@ -1125,7 +1140,8 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearCfg) {
         $generatorJava.clusterCaches(cluster.caches, res);
 
         if (javaClass) {
-            res.line();
+            res.needEmptyLine = true;
+
             res.line('return cfg;');
             res.endBlock('}');
             res.endBlock('}');
