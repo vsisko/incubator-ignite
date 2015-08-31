@@ -495,7 +495,14 @@ controlCenterModule.service('$common', [
 
                 var marginTop = parent.css('marginTop');
 
-                var parentHeight = Math.max(right.attr('min-height').replace('px', ''), 75, left.height() - 2 * (isDefined(marginTop) ? marginTop.replace('px', '') : 0));
+                var minHeight = right.attr('min-height');
+
+                if (isDefined(minHeight) && minHeight.length > 0)
+                    minHeight = minHeight.replace('px', '');
+                else
+                    minHeight = 0;
+
+                var parentHeight = Math.max(minHeight, 75, left.height() - 2 * (isDefined(marginTop) ? marginTop.replace('px', '') : 0));
 
                 parent.outerHeight(parentHeight);
 
