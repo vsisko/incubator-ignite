@@ -507,15 +507,11 @@ $generatorXml.cacheGeneral = function(cache, res) {
 
     $generatorXml.property(res, cache, 'name');
 
-    res.needEmptyLine = true;
-
     $generatorXml.property(res, cache, 'cacheMode');
     $generatorXml.property(res, cache, 'atomicityMode');
 
     if (cache.cacheMode == 'PARTITIONED')
         $generatorXml.property(res, cache, 'backups');
-
-    res.needEmptyLine = true;
 
     $generatorXml.property(res, cache, 'readFromBackup');
     $generatorXml.property(res, cache, 'copyOnRead');
