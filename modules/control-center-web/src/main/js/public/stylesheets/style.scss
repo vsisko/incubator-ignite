@@ -861,6 +861,9 @@ table tr:hover {
 div.affix.padding-top-dflt {
     z-index: 910;
     background-color: white;
+    hr {
+        margin-bottom: 0;
+    }
 }
 
 .panel-title a {
@@ -1155,10 +1158,17 @@ label.required:after {
     padding-right: 10px
 }
 
-//  Summary page
-#cfgResult textarea {
-    font-family: monospace;
-    font-size: 12px;
+.summary-tabs {
+    margin-top: 0.65em;
+}
+
+.summary-tab {
+    img {
+        margin-right: 5px;
+        height: 16px;
+        width: 16px;
+        float: left;
+    }
 }
 
 input[type="number"]::-webkit-outer-spin-button,

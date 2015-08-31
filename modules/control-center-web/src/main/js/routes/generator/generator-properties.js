@@ -32,7 +32,7 @@ $generatorProperties = {};
  * @returns {string} Generated content.
  */
 $generatorProperties.dataSourcesProperties = function (cluster) {
-    var res = exports.builder();
+    var res = $generatorCommon.builder();
 
     var datasources = [];
 

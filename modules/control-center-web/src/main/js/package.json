@@ -15,7 +15,7 @@
   ],
   "license": "Apache-2.0",
   "keywords": "grid",
-  "homepage": "https://ignite.incubator.apache.org/",
+  "homepage": "https://ignite.apache.org/",
   "engines": {
     "node": ">=0.12.4"
   },

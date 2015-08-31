@@ -343,7 +343,6 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
         function validate(item) {
             if ($common.isEmptyString(item.name))
                 return showPopoverMessage($scope.panels, 'general', 'clusterName', 'Name should not be empty');
-                    sessionStorage.removeItem('clusterSelectedItem');
 
             if (item.discovery.kind == 'Vm' && item.discovery.Vm.addresses.length == 0)
                 return showPopoverMessage($scope.panels, 'general', 'addresses', 'Addresses are not specified');

@@ -469,8 +469,8 @@ mixin preview(preview, id)
             i.group-legend-btn(ng-click='#{previewState} = !#{previewState}')
                 img(ng-if='#{previewState}' src='/images/xml.png' title='Show XML')
                 img(ng-if='!#{previewState}' src='/images/java.png' title='Show Java code')
-        .preview-content(ng-if='!preview[#{preview}].allDefaults && !#{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{preview}].xml')
-        .preview-content(ng-if='!preview[#{preview}].allDefaults && #{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "java"}' ng-model='preview[#{preview}].java')
+        .preview-content(ng-if='!preview[#{preview}].allDefaults && !#{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{preview}].xml' min-height='{{::group.minHeight}}')
+        .preview-content(ng-if='!preview[#{preview}].allDefaults && #{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "java"}' ng-model='preview[#{preview}].java' min-height='{{::group.minHeight}}')
         .preview-content-empty(ng-if='preview[#{preview}].allDefaults' id='#{id}')
             label All Defaults
 

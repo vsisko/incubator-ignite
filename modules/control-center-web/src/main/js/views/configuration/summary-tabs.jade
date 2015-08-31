@@ -16,11 +16,8 @@
 
 ul.nav(ng-class='$navClass', role='tablist')
     li(role='presentation' ng-repeat='$pane in $panes track by $index' ng-class='[ $isActive($pane, $index) ? $activeClass : "", $pane.disabled ? "disabled" : "" ]')
-        a(ng-if='$index == 0' role='tab' data-toggle='tab' ng-click='!$pane.disabled && $setActive($pane.name || $index)' data-index='{{ $index }}' aria-controls='$pane.title') {{$pane.title}}
-            i.fa.fa-remove(ng-click='removeTab($index)' ng-if='$index > 0' style='margin-left: 5px')
-        a(ng-if='$index > 0' role='tab' data-toggle='tab' ng-click='!$pane.disabled && $setActive($pane.name || $index)' data-index='{{ $index }}' aria-controls='$pane.title') {{$pane.title}}: {{$index}}
-            i.fa.fa-remove(ng-click='removeTab($index)' style='margin-left: 5px')
-    li.pull-right(bs-tooltip data-title='Add new query')
-        a(role='tab' data-toggle='tab' ng-click='addTab()')
-            i.fa.fa-plus
+        a.summary-tab(ng-switch='$pane.title' role='tab' data-toggle='tab' ng-click='!$pane.disabled && $setActive($pane.name || $index)' data-index='{{ $index }}' aria-controls='$pane.title') {{$pane.title}}
+            img(ng-switch-when='XML' src='/images/xml.png')
+            img(ng-switch-when='Java' src='/images/java.png')
+            img(ng-switch-when='Dockerfile' src='/images/docker.png')
 .tab-content(ng-transclude)

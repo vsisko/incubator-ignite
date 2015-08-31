@@ -495,7 +495,7 @@ controlCenterModule.service('$common', [
 
                 var marginTop = parent.css('marginTop');
 
-                var parentHeight = Math.max(75, left.height() - 2 * (isDefined(marginTop) ? marginTop.replace("px", "") : 0));
+                var parentHeight = Math.max(right.attr('min-height').replace('px', ''), 75, left.height() - 2 * (isDefined(marginTop) ? marginTop.replace('px', '') : 0));
 
                 parent.outerHeight(parentHeight);
 
@@ -608,7 +608,7 @@ controlCenterModule.service('$common', [
                 for (var i = 0; i < parts.length; i++) {
                     var part = parts[i];
 
-                    if (!isValidJavaIdentifier(msg, part))
+                    if (!isValidJavaIdentifier(msg, part, elemId))
                         return false;
                 }
 
