@@ -19,8 +19,10 @@ package org.apache.ignite.internal.processors.platform.utils;
 
 import org.apache.ignite.*;
 import org.apache.ignite.cache.*;
+import org.apache.ignite.internal.*;
 import org.apache.ignite.internal.portable.*;
 import org.apache.ignite.internal.processors.platform.*;
+import org.apache.ignite.internal.processors.platform.compute.*;
 import org.apache.ignite.internal.processors.platform.memory.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.lang.*;
@@ -434,7 +436,7 @@ public class PlatformUtils {
     /**
      * Apply continuous query events to listener.
      *
-     * @param ctx Interop context.
+     * @param ctx Context.
      * @param lsnrPtr Listener pointer.
      * @param evts Events.
      * @throws javax.cache.event.CacheEntryListenerException In case of failure.
@@ -473,7 +475,7 @@ public class PlatformUtils {
     /**
      * Evaluate the filter.
      *
-     * @param ctx Interop context.
+     * @param ctx Context.
      * @param filterPtr Native filter pointer.
      * @param evt Event.
      * @return Result.
@@ -574,6 +576,157 @@ public class PlatformUtils {
         }
         else
             writer.writeBoolean(false);
+    }
+
+    /**
+     * Get GridGain platform processor.
+     *
+     * @param grid Ignite instance.
+     * @return Platform processor.
+     */
+    public static PlatformProcessor platformProcessor(Ignite grid) {
+        GridKernalContext ctx = ((IgniteKernal) grid).context();
+
+        return ctx.platform();
+    }
+
+    /**
+     * Gets interop context for the grid.
+     *
+     * @param grid Grid
+     * @return Context.
+     */
+    public static PlatformContext platformContext(Ignite grid) {
+        return platformProcessor(grid).context();
+    }
+
+    /**
+     * Reallocate arbitrary memory chunk.
+     *
+     * @param memPtr Memory pointer.
+     * @param cap Capacity.
+     */
+    public static void reallocate(long memPtr, int cap) {
+        PlatformMemoryUtils.reallocate(memPtr, cap);
+    }
+
+    /**
+     * Get error data.
+     *
+     * @param err Error.
+     * @return Error data.
+     */
+    @SuppressWarnings("UnusedDeclaration")
+    public static byte[] errorData(Throwable err) {
+        if (err instanceof PlatformExtendedException) {
+            PlatformContext ctx = ((PlatformExtendedException)err).context();
+
+            try (PlatformMemory mem = ctx.memory().allocate()) {
+                // Write error data.
+                PlatformOutputStream out = mem.output();
+
+                PortableRawWriterEx writer = ctx.writer(out);
+
+                try {
+                    PlatformUtils.writeErrorData(err, writer, ctx.kernalContext().log(PlatformContext.class));
+                }
+                finally {
+                    out.synchronize();
+                }
+
+                // Read error data into separate array.
+                PlatformInputStream in = mem.input();
+
+                in.synchronize();
+
+                int len = in.remaining();
+
+                assert len > 0;
+
+                byte[] arr = in.array();
+                byte[] res = new byte[len];
+
+                System.arraycopy(arr, 0, res, 0, len);
+
+                return res;
+            }
+        }
+        else
+            return null;
+    }
+
+    /**
+     * Writes invocation result (of a job/service/etc) using a common protocol.
+     *
+     * @param writer Writer.
+     * @param resObj Result.
+     * @param err Error.
+     */
+    public static void writeInvocationResult(PortableRawWriterEx writer, Object resObj, Exception err)
+    {
+        if (err == null) {
+            writer.writeBoolean(true);
+            writer.writeObject(resObj);
+        }
+        else {
+            writer.writeBoolean(false);
+
+            PlatformNativeException nativeErr = null;
+
+            if (err instanceof IgniteCheckedException)
+                nativeErr = ((IgniteCheckedException)err).getCause(PlatformNativeException.class);
+            else if (err instanceof IgniteException)
+                nativeErr = ((IgniteException)err).getCause(PlatformNativeException.class);
+
+            if (nativeErr == null) {
+                writer.writeBoolean(false);
+                writer.writeString(err.getClass().getName());
+                writer.writeString(err.getMessage());
+            }
+            else {
+                writer.writeBoolean(true);
+                writer.writeObject(nativeErr.cause());
+            }
+        }
+    }
+
+    /**
+     * Reads invocation result (of a job/service/etc) using a common protocol.
+     *
+     * @param ctx Platform context.
+     * @param reader Reader.
+     * @return Result.
+     * @throws IgniteCheckedException When invocation result is an error.
+     */
+    public static Object readInvocationResult(PlatformContext ctx, PortableRawReaderEx reader)
+        throws IgniteCheckedException {
+        // 1. Read success flag.
+        boolean success = reader.readBoolean();
+
+        if (success)
+            // 2. Return result as is.
+            return reader.readObjectDetached();
+        else {
+            // 3. Read whether exception is in form of object or string.
+            boolean hasException = reader.readBoolean();
+
+            if (hasException) {
+                // 4. Full exception.
+                Object nativeErr = reader.readObjectDetached();
+
+                assert nativeErr != null;
+
+                throw ctx.createNativeException(nativeErr);
+            }
+            else {
+                // 5. Native exception was not serializable, we have only message.
+                String errMsg = reader.readString();
+
+                assert errMsg != null;
+
+                throw new IgniteCheckedException(errMsg);
+            }
+        }
     }
 
     /**

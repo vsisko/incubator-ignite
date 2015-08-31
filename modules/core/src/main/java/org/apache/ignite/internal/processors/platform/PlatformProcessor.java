@@ -37,4 +37,18 @@ public interface PlatformProcessor extends GridProcessor {
      * @return Environment pointer.
      */
     public long environmentPointer();
+
+    /**
+     * Gets platform context.
+     *
+     * @return Platform context.
+     */
+    public PlatformContext context();
+
+    /**
+     * Await until platform processor is safe to use.
+     *
+     * @throws IgniteCheckedException If failed.
+     */
+    public void awaitStart() throws IgniteCheckedException;
 }
