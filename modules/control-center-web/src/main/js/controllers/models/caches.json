@@ -573,10 +573,12 @@
               "fields": [
                 {
                   "label": "Hibernate properties",
+                  "id": "hibernateProperties",
                   "type": "table-simple",
                   "path": "cacheStoreFactory.CacheHibernateBlobStoreFactory",
                   "model": "hibernateProperties",
                   "placeholder": "key=value",
+                  "focusId": "HibProp",
                   "addTip": "Add new Hibernate property.",
                   "removeTip": "Remove Hibernate property.",
                   "tip": [

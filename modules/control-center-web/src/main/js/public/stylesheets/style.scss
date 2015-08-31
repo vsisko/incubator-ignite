@@ -861,6 +861,9 @@ table tr:hover {
 div.affix.padding-top-dflt {
     z-index: 910;
     background-color: white;
+    hr {
+        margin-bottom: 0;
+    }
 }
 
 .panel-title a {

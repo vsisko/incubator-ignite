@@ -155,17 +155,44 @@ controlCenterModule.controller('cachesController', [
             };
 
             $scope.tableSimpleValid = function (item, field, fx, index) {
-                if (!$common.isValidJavaClass('SQL function', fx, false, $table.tableFieldId(index, 'SqlFx')))
-                    return $table.tableFocusInvalidField(index, 'SqlFx');
+                var model;
 
-                var model = item[field.model];
+                switch (field.model) {
+                    case 'hibernateProperties':
+                        if (fx.indexOf('=') < 0)
+                            return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'HibProp'), 'Property should be present in format key=value!');
 
-                if ($common.isDefined(model)) {
-                    var idx = _.indexOf(model, fx);
+                        model = item.cacheStoreFactory.CacheHibernateBlobStoreFactory[field.model];
 
-                    // Found duplicate.
-                    if (idx >= 0 && idx != index)
-                        return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'SqlFx'), 'SQL function with such class name already exists!');
+                        var key = fx.split('=')[0];
+
+                        var exist = false;
+
+                        if ($common.isDefined(model)) {
+                            model.forEach(function (val) {
+                                if (val.split('=')[0] == key)
+                                    exist = true;
+                            })
+                        }
+
+                        if (exist)
+                            return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'HibProp'), 'Property with such name already exists!');
+
+                        break;
+
+                    case 'sqlFunctionClasses':
+                        if (!$common.isValidJavaClass('SQL function', fx, false, $table.tableFieldId(index, 'SqlFx')))
+                            return $table.tableFocusInvalidField(index, 'SqlFx');
+
+                        model = item[field.model];
+
+                        if ($common.isDefined(model)) {
+                            var idx = _.indexOf(model, fx);
+
+                            // Found duplicate.
+                            if (idx >= 0 && idx != index)
+                                return $common.showPopoverMessage(null, null, $table.tableFieldId(index, 'SqlFx'), 'SQL function with such class name already exists!');
+                        }
                 }
 
                 return true;
@@ -397,7 +424,6 @@ controlCenterModule.controller('cachesController', [
             function validate(item) {
                 if ($common.isEmptyString(item.name))
                     return showPopoverMessage($scope.panels, 'general', 'cacheName', 'Name should not be empty');
-                        sessionStorage.removeItem('cacheSelectedItem');
 
                 if (item.memoryMode == 'OFFHEAP_TIERED' && item.offHeapMaxMemory == null)
                     return showPopoverMessage($scope.panels, 'memory', 'offHeapMaxMemory',

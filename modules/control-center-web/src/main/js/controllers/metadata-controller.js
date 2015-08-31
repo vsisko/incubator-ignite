@@ -866,7 +866,7 @@ controlCenterModule.controller('metadataController', [
 
                     var model = item[field.model];
 
-                    if (!$common.isValidJavaIdentifier(dbFieldTable.msg + ' java name', dbFieldValue.javaName))
+                    if (!$common.isValidJavaIdentifier(dbFieldTable.msg + ' java name', dbFieldValue.javaName, $table.tableFieldId(index, 'JavaName' + dbFieldTable.id)))
                         return $table.tableFocusInvalidField(index, 'JavaName' + dbFieldTable.id);
 
                     if ($common.isDefined(model)) {
