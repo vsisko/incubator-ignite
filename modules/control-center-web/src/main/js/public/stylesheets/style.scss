@@ -100,51 +100,6 @@ hr {
     text-decoration: none;
 }
 
-.theme-line .main-links {
-    padding-top: 50px;
-}
-
-.theme-line .main-links h3 {
-    margin-top: 0;
-    font-size: 17px;
-}
-
-.theme-line .main-links .links a {
-    color: #888;
-}
-
-.theme-line .main-links .links a:hover {
-    text-decoration: none;
-}
-
-.theme-line #category-columns,
-.theme-solid #category-columns {
-    margin: 50px 30px 0;
-}
-
-.theme-line #category-columns h4 {
-    text-transform: uppercase;
-    font-weight: 300;
-    color: #999;
-    font-size: 14px;
-}
-
-.theme-line #category-columns ul {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 15px;
-}
-
-.theme-line #category-columns ul li a {
-    padding: 5px 0;
-    display: block;
-    font-size: 16px;
-}
-
-.theme-line #category-columns ul .view-all {
-    font-size: 0.85em;
-}
-
 .theme-line .docs-header {
     color: #999;
     overflow: hidden;
@@ -156,26 +111,7 @@ hr {
     font-size: 22px;
 }
 
-.theme-line .main-content .nav-horizontal a {
-    box-shadow: 0 0;
-    border: 0 none;
-    background-color: #fff;
-    border-radius: 0;
-    color: #aaa;
-    padding: 6px;
-    margin: 0 14px;
-}
-
-.theme-line .main-content .nav-horizontal a:hover {
-    color: #999;
-    border-bottom: 5px solid #ddd;
-}
-
-.theme-line .main-content .nav-horizontal a.active {
-    border-bottom: 5px solid #888;
-}
-
-ul.navbar-nav, .sidebar-nav {
+.sidebar-nav {
     li > a.active:not(.dropdown-toggle) {
         cursor: default;
         pointer-events: none;
@@ -188,7 +124,7 @@ ul.navbar-nav, .sidebar-nav {
     ul {
         padding: 0;
         list-style: none;
-        font-size: 14px;
+        font-size: $font-size-base;
         margin: 3px 0 0;
 
         li {
@@ -225,26 +161,10 @@ ul.navbar-nav, .sidebar-nav {
     text-decoration: none;
 }
 
-.theme-line .select,
-.theme-line .typeahead {
-    li a {
-        color: #666;
-        background-color: transparent;
-    }
-
-    .active {
-        background-color: #eee;
-    }
-}
-
 .dropdown-menu {
     max-height: 20em;
     overflow: auto;
     overflow-x: hidden;
-}
-
-.theme-line .sidebar-nav ul li .subcategory {
-    padding-left: 15px;
 }
 
 .theme-line .sidebar-nav h4 {
@@ -278,10 +198,6 @@ ul.navbar-nav, .sidebar-nav {
 
 .header {
     padding: 15px;
-}
-
-.header .has-github {
-    padding-right: 136px;
 }
 
 .header h1.navbar-brand {
@@ -399,12 +315,10 @@ ul.navbar-nav, .sidebar-nav {
 
 body {
     font-weight: 400;
-    font-family: Roboto Slab, serif;;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
-    font-family: Roboto Slab, serif;
     margin-bottom: 10px;
 }
 
@@ -414,11 +328,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .header h1.navbar-brand {
     width: 96px;
-}
-
-.block-edit-parameters {
-    text-align: right;
-    padding-bottom: 5px;
 }
 
 .container-footer {
@@ -463,23 +372,6 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 22px;
 }
 
-.modal .modal-content .modal-header h4 .fa {
-    display: block;
-    font-size: 41px;
-    color: #ddd;
-    margin-bottom: 5px;
-}
-
-.modal .modal-content .modal-header p {
-    color: #aaa;
-    font-size: 1em;
-    margin: 3px 0 0;
-}
-
-.modal .modal-content .modal-spacer {
-    padding: 10px 10px 0 10px;
-}
-
 .modal .modal-content .modal-footer {
     margin-top: 0;
 }
@@ -487,10 +379,6 @@ h1, h2, h3, h4, h5, h6 {
 .modal-body {
     margin-left: 20px;
     margin-right: 20px;
-}
-
-h1.ignite-logo {
-    background-image: url("#{$logo-path}");
 }
 
 .block-display-image img {
@@ -624,14 +512,6 @@ table tr:hover {
     }
 }
 
-.theme-line .paragraph-header {
-
-}
-
-.line-control {
-    width: auto;
-}
-
 .theme-line .panel-heading {
     padding: 10px 10px;
     margin: 0;
@@ -642,7 +522,7 @@ table tr:hover {
         .result {
             float: right;
             i {
-                font-size: 14px;
+                font-size: $font-size-base;
                 line-height: 14px;
             }
         }
@@ -653,7 +533,7 @@ table tr:hover {
     }
 
     i {
-        font-size: 14px;
+        font-size: $font-size-base;
     }
 
 }
@@ -866,10 +746,6 @@ div.affix.padding-top-dflt {
     }
 }
 
-.panel-title a {
-    font-size: 14px;
-}
-
 .panel-details {
     margin-top: 10px;
 
@@ -953,10 +829,6 @@ div.affix.padding-top-dflt {
     padding: 5px;
 }
 
-.popover-content .close {
-    margin-left: 5px;
-}
-
 .popover-arrow {
     background: white;
     border: 1px solid $ignite-red;
@@ -1032,7 +904,7 @@ label {
 }
 
 .tipLabel {
-    font-size: 14px;
+    font-size: $font-size-base;
     margin-left: 5px;
 }
 
@@ -1294,11 +1166,6 @@ a {
 
 .agent-download {
     padding: 10px 10px 10px 20px;
-}
-
-.theme-line .panel-title h3 {
-    margin-top: 20px;
-    margin-bottom: 20px;
 }
 
 .block-callout-parent {
