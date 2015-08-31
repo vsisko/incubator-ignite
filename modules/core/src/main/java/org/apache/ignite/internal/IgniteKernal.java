@@ -72,6 +72,7 @@ import org.apache.ignite.lang.*;
 import org.apache.ignite.lifecycle.*;
 import org.apache.ignite.marshaller.*;
 import org.apache.ignite.marshaller.optimized.*;
+import org.apache.ignite.marshaller.portable.*;
 import org.apache.ignite.mxbean.*;
 import org.apache.ignite.plugin.*;
 import org.apache.ignite.spi.*;
@@ -104,7 +105,7 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
     private static final long serialVersionUID = 0L;
 
     /** Ignite site that is shown in log messages. */
-    static final String SITE = "ignite.incubator.apache.org";
+    static final String SITE = "ignite.apache.org";
 
     /** System line separator. */
     private static final String NL = U.nl();
@@ -1173,6 +1174,9 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
         add(ATTR_MARSHALLER, cfg.getMarshaller().getClass().getName());
         add(ATTR_USER_NAME, System.getProperty("user.name"));
         add(ATTR_GRID_NAME, gridName);
+        add(ATTR_PORTABLE_PROTO_VER, cfg.getMarshaller() instanceof PortableMarshaller ?
+            ((PortableMarshaller)cfg.getMarshaller()).getProtocolVersion().toString() :
+            PortableMarshaller.DFLT_PORTABLE_PROTO_VER.toString());
 
         add(ATTR_PEER_CLASSLOADING, cfg.isPeerClassLoadingEnabled());
         add(ATTR_DEPLOYMENT_MODE, cfg.getDeploymentMode());
