@@ -74,6 +74,11 @@ $generatorCommon.builder = function () {
     };
 
     res.line = function (s) {
+        if (this.needEmptyLine) {
+            this.push('\n');
+            this.needEmptyLine = false;
+        }
+
         if (s)
             this.append(s);
 

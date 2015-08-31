@@ -182,6 +182,8 @@ $generatorJava.listProperty = function (res, varName, obj, propName, enumType, s
         }
 
         res.line('));');
+
+        res.needEmptyLine = true;
     }
 };
 
@@ -209,9 +211,7 @@ $generatorJava.beanProperty = function (res, varName, bean, beanPropName, beanVa
     if (bean && $commonUtils.hasProperty(bean, props)) {
         res.emptyLineIfNeeded();
 
-        var clsName = res.importClass(beanClass);
-
-        res.line(clsName + ' ' + beanVarName + ' = new ' + clsName + '();');
+        $generatorJava.declareVariable(res, true, beanVarName, beanClass);
 
         for (var propName in props) {
             if (props.hasOwnProperty(propName)) {
@@ -272,14 +272,17 @@ $generatorJava.beanProperty = function (res, varName, bean, beanPropName, beanVa
             }
         }
 
+        res.needEmptyLine = true;
+
         res.line(varName + '.' + $generatorJava.setterName(beanPropName) + '(' + beanVarName + ');');
 
         res.needEmptyLine = true;
     }
     else if (createBeanAlthoughNoProps) {
         res.emptyLineIfNeeded();
-
         res.line(varName + '.' + $generatorJava.setterName(beanPropName) + '(new ' + res.importClass(beanClass) + '());');
+
+        res.needEmptyLine = true;
     }
 };
 
@@ -322,104 +325,71 @@ $generatorJava.clusterGeneral = function (cluster, clientNearCfg, res) {
 
         switch (d.kind) {
             case 'Multicast':
-                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder');
-
-                if (d.Multicast)
-                    $generatorJava.beanProperty(res, 'discovery', d.Multicast, 'ipFinder', 'ipFinder',
-                        'TcpDiscoveryMulticastIpFinder', {
-                            multicastGroup: null,
-                            multicastPort: null,
-                            responseWaitTime: null,
-                            addressRequestAttempts: null,
-                            localAddress: null
-                        }, true);
-                else
-                    res.line('discovery.setIpFinder(new TcpDiscoveryMulticastIpFinder());');
-
+                $generatorJava.beanProperty(res, 'discovery', d.Multicast, 'ipFinder', 'ipFinder',
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder',
+                    {
+                        multicastGroup: null,
+                        multicastPort: null,
+                        responseWaitTime: null,
+                        addressRequestAttempts: null,
+                        localAddress: null
+                    }, true);
 
                 break;
 
             case 'Vm':
-                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder');
-
-                if (d.Vm)
-                    $generatorJava.beanProperty(res, 'discovery', d.Vm, 'ipFinder', 'ipFinder',
-                        'TcpDiscoveryVmIpFinder', {addresses: {type: 'list'}}, true);
-                else
-                    res.line('discovery.setIpFinder(new TcpDiscoveryVmIpFinder());');
+                $generatorJava.beanProperty(res, 'discovery', d.Vm, 'ipFinder', 'ipFinder',
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder',
+                    {addresses: {type: 'list'}}, true);
 
                 break;
 
             case 'S3':
-                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder');
-
-                if (d.S3)
-                    $generatorJava.beanProperty(res, 'discovery', d.S3, 'ipFinder', 'ipFinder',
-                        'TcpDiscoveryS3IpFinder', {bucketName: null}, true);
-                else
-                    res.line('discovery.setIpFinder(new TcpDiscoveryS3IpFinder());');
+                $generatorJava.beanProperty(res, 'discovery', d.S3, 'ipFinder', 'ipFinder',
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder', {bucketName: null}, true);
 
                 break;
 
             case 'Cloud':
-                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder');
-
-                if (d.Cloud)
-                    $generatorJava.beanProperty(res, 'discovery', d.Cloud, 'ipFinder', 'ipFinder',
-                        'TcpDiscoveryCloudIpFinder', {
-                            credential: null,
-                            credentialPath: null,
-                            identity: null,
-                            provider: null,
-                            regions: {type: 'list'},
-                            zones: {type: 'list'}
-                        }, true);
-                else
-                    res.line('discovery.setIpFinder(new TcpDiscoveryCloudIpFinder());');
+                $generatorJava.beanProperty(res, 'discovery', d.Cloud, 'ipFinder', 'ipFinder',
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder',
+                    {
+                        credential: null,
+                        credentialPath: null,
+                        identity: null,
+                        provider: null,
+                        regions: {type: 'list'},
+                        zones: {type: 'list'}
+                    }, true);
 
                 break;
 
             case 'GoogleStorage':
-                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder');
-
-                if (d.GoogleStorage)
-                    $generatorJava.beanProperty(res, 'discovery', d.GoogleStorage, 'ipFinder', 'ipFinder',
-                        'TcpDiscoveryGoogleStorageIpFinder', {
-                            projectName: null,
-                            bucketName: null,
-                            serviceAccountP12FilePath: null,
-                            serviceAccountId: null
-                        }, true);
-                else
-                    res.line('discovery.setIpFinder(new TcpDiscoveryGoogleStorageIpFinder());');
+                $generatorJava.beanProperty(res, 'discovery', d.GoogleStorage, 'ipFinder', 'ipFinder',
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder',
+                    {
+                        projectName: null,
+                        bucketName: null,
+                        serviceAccountP12FilePath: null,
+                        serviceAccountId: null
+                    }, true);
 
                 break;
 
             case 'Jdbc':
-                if (d.Jdbc) {
-                    $generatorJava.declareVariable(res, true, 'ipFinder', 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
-
-                    res.line('ipFinder.setInitSchema(' + ($commonUtils.isDefined(d.Jdbc.initSchema) && d.Jdbc.initSchema) + ');');
-                    res.line('discovery.setIpFinder(ipFinder);');
-                }
-                else
-                    res.line('discovery.setIpFinder(new TcpDiscoveryJdbcIpFinder());');
+                $generatorJava.beanProperty(res, 'discovery', d.Jdbc, 'ipFinder', 'ipFinder',
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder', {initSchema: null}, true);
 
                 break;
 
             case 'SharedFs':
-                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder');
-
-                if (d.SharedFs)
-                    $generatorJava.beanProperty(res, 'discovery', d.SharedFs, 'ipFinder', 'ipFinder',
-                        'TcpDiscoverySharedFsIpFinder', {path: null}, true);
-                else
-                    res.line('discovery.setIpFinder(new TcpDiscoverySharedFsIpFinder());');
+                $generatorJava.beanProperty(res, 'discovery', d.SharedFs, 'ipFinder', 'ipFinder',
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder', {path: null}, true);
 
                 break;
 
             default:
-                throw 'Unknown discovery kind: ' + d.kind;
+                res.line('Unknown discovery kind: ' + d.kind);
         }
 
         res.emptyLineIfNeeded();
@@ -493,17 +463,19 @@ $generatorJava.clusterEvents = function (cluster, res) {
             res.append('int[] events = new int[EventType.' + cluster.includeEventTypes[0] + '.length');
 
             for (i = 1; i < cluster.includeEventTypes.length; i++) {
-                res.line();
+                res.needEmptyLine = true;
 
                 res.append('    + EventType.' + cluster.includeEventTypes[i] + '.length');
             }
 
             res.line('];');
-            res.line();
+
+            res.needEmptyLine = true;
+
             res.line('int k = 0;');
 
             for (i = 0; i < cluster.includeEventTypes.length; i++) {
-                res.line();
+                res.needEmptyLine = true;
 
                 var e = cluster.includeEventTypes[i];
 
@@ -511,7 +483,8 @@ $generatorJava.clusterEvents = function (cluster, res) {
                 res.line('k += EventType.' + e + '.length;');
             }
 
-            res.line();
+            res.needEmptyLine = true;
+
             res.line('cfg.setIncludeEventTypes(events);');
         }
 
@@ -574,16 +547,9 @@ $generatorJava.clusterP2p = function (cluster, res) {
         $generatorJava.property(res, 'cfg', cluster, 'peerClassLoadingEnabled');
 
         if (p2pEnabled) {
-            var clsPathExclude = cluster.peerClassLoadingLocalClassPathExclude;
-
-            if (clsPathExclude && clsPathExclude.length > 0) {
-                var clsPathExcludeWrapper = {peerClassLoadingLocalClassPathExclude: clsPathExclude.split(',')};
-
-                $generatorJava.multiparamProperty(res, 'cfg', clsPathExcludeWrapper, 'peerClassLoadingLocalClassPathExclude');
-            }
-
             $generatorJava.property(res, 'cfg', cluster, 'peerClassLoadingMissedResourcesCacheSize');
             $generatorJava.property(res, 'cfg', cluster, 'peerClassLoadingThreadPoolSize');
+            $generatorJava.multiparamProperty(res, 'cfg', cluster, 'peerClassLoadingLocalClassPathExclude');
         }
 
         res.needEmptyLine = true;
@@ -645,8 +611,6 @@ $generatorJava.clusterTransactions = function (cluster, res) {
     $generatorJava.beanProperty(res, 'cfg', cluster.transactionConfiguration, 'transactionConfiguration',
         'transactionConfiguration', $generatorCommon.TRANSACTION_CONFIGURATION.className,
         $generatorCommon.TRANSACTION_CONFIGURATION.fields);
-
-    res.needEmptyLine = true;
 
     return res;
 };
@@ -754,7 +718,7 @@ $generatorJava.cacheStore = function (cache, varName, res) {
 
                     var dsClsName = $generatorCommon.dataSourceClassName(storeFactory.dialect);
 
-                    res.line();
+                    res.needEmptyLine = true;
 
                     $generatorJava.declareVariable(res, true, dsVarName, dsClsName);
 
@@ -866,15 +830,17 @@ $generatorJava.metadataQueryFields = function (res, meta, fieldProperty) {
     var fields = meta[fieldProperty];
 
     if (fields && fields.length > 0) {
-        res.line();
-
         $generatorJava.declareVariable(res, $generatorJava.needNewVariable(res, fieldProperty), fieldProperty, 'java.util.Map', 'java.util.LinkedHashMap', 'java.lang.String', 'java.lang.Class<?>');
 
         _.forEach(fields, function (field) {
             res.line(fieldProperty + '.put("' + field.name + '", ' + res.importClass(field.className) + '.class);');
         });
 
+        res.needEmptyLine = true;
+
         res.line('typeMeta.' + $generatorJava.toJavaName('set', fieldProperty) + '(' + fieldProperty + ');');
+
+        res.needEmptyLine = true;
     }
 };
 
@@ -893,9 +859,12 @@ $generatorJava.metadataGroups = function (res, meta) {
 
                 var varNew = !res.groups;
 
-                res.line();
+                res.needEmptyLine = true;
+
                 res.line((varNew ? 'Map<String, LinkedHashMap<String, IgniteBiTuple<Class<?>, Boolean>>> ' : '') +
                     "groups = new LinkedHashMap<>();");
+
+                res.needEmptyLine = true;
 
                 if (varNew)
                     res.groups = true;
@@ -905,6 +874,8 @@ $generatorJava.metadataGroups = function (res, meta) {
                 res.line((varNew ? 'LinkedHashMap<String, IgniteBiTuple<Class<?>, Boolean>> ' : '') +
                     'groupItems = new LinkedHashMap<>();');
 
+                res.needEmptyLine = true;
+
                 if (varNew)
                     res.groupItems = true;
 
@@ -913,11 +884,17 @@ $generatorJava.metadataGroups = function (res, meta) {
                         'new IgniteBiTuple<Class<?>, Boolean>(' + res.importClass(field.className) + '.class, ' + field.direction + '));');
                 });
 
+                res.needEmptyLine = true;
+
                 res.line('groups.put("' + group.name + '", groupItems);');
             }
         });
 
+        res.needEmptyLine = true;
+
         res.line('typeMeta.setGroups(groups);');
+
+        res.needEmptyLine = true;
     }
 };
 
@@ -926,7 +903,7 @@ $generatorJava.metadataDatabaseFields = function (res, meta, fieldProperty) {
     var dbFields = meta[fieldProperty];
 
     if (dbFields && dbFields.length > 0) {
-        res.line();
+        res.needEmptyLine = true;
 
         $generatorJava.declareVariable(res, $generatorJava.needNewVariable(res, fieldProperty), fieldProperty, 'java.util.Collection', 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeFieldMetadata');
 
@@ -940,6 +917,8 @@ $generatorJava.metadataDatabaseFields = function (res, meta, fieldProperty) {
         });
 
         res.line('typeMeta.' + $generatorJava.toJavaName('set', fieldProperty) + '(' + fieldProperty + ');');
+
+        res.needEmptyLine = true;
     }
 };
 
@@ -964,8 +943,6 @@ $generatorJava.metadataQuery = function (meta, res) {
     $generatorJava.metadataQueryFields(res, meta, 'queryFields');
     $generatorJava.metadataQueryFields(res, meta, 'ascendingFields');
     $generatorJava.metadataQueryFields(res, meta, 'descendingFields');
-
-    res.needEmptyLine = true;
 
     $generatorJava.listProperty(res, 'typeMeta', meta, 'textFields');
 
@@ -1002,10 +979,10 @@ $generatorJava.cacheMetadata = function(meta, res) {
     $generatorJava.metadataQuery(meta, res);
     $generatorJava.metadataStore(meta, res);
 
-    res.line();
+    res.emptyLineIfNeeded();
     res.line('types.add(typeMeta);');
-    res.line();
 
+    res.needEmptyLine = true;
 };
 
 // Generate cache type metadata configs.
@@ -1015,11 +992,7 @@ $generatorJava.cacheMetadatas = function (qryMeta, storeMeta, varName, res) {
 
     // Generate cache type metadata configs.
     if ((qryMeta && qryMeta.length > 0) || (storeMeta && storeMeta.length > 0)) {
-        res.emptyLineIfNeeded();
-
         $generatorJava.declareVariable(res, $generatorJava.needNewVariable(res, 'types'), 'types', 'java.util.Collection', 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeMetadata');
-
-        res.line();
 
         var metaNames = [];
 
@@ -1167,7 +1140,8 @@ $generatorJava.cluster = function (cluster, javaClass, clientNearCfg) {
         $generatorJava.clusterCaches(cluster.caches, res);
 
         if (javaClass) {
-            res.line();
+            res.needEmptyLine = true;
+
             res.line('return cfg;');
             res.endBlock('}');
             res.endBlock('}');

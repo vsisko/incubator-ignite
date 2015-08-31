@@ -656,17 +656,6 @@
           ]
         },
         {
-          "label": "Local class path exclude",
-          "id": "peerClassLoadingLocalClassPathExclude",
-          "type": "text",
-          "model": "peerClassLoadingLocalClassPathExclude",
-          "disabled": "!backupItem.peerClassLoadingEnabled",
-          "tip": [
-            "List of packages separated by comma from the system classpath that need to be peer-to-peer loaded from task originating node.",
-            "'*' is supported at the end of the package name which means that all sub-packages and their classes are included like in Java package import clause."
-          ]
-        },
-        {
           "label": "Missed resources cache size",
           "id": "peerClassLoadingMissedResourcesCacheSize",
           "type": "number",
@@ -687,6 +676,20 @@
           "placeholder": "availableProcessors",
           "tip": [
             "Thread pool size to use for peer class loading."
+          ]
+        },
+        {
+          "label": "Local class path exclude",
+          "id": "peerClassLoadingLocalClassPathExclude",
+          "type": "table-simple",
+          "model": "peerClassLoadingLocalClassPathExclude",
+          "disabled": "!backupItem.peerClassLoadingEnabled",
+          "focusId": "PeerClsPathExclude",
+          "addTip": "Add package name.",
+          "removeTip": "Remove package name.",
+          "tableTip": [
+            "List of packages from the system classpath that need to be peer-to-peer loaded from task originating node.",
+            "'*' is supported at the end of the package name which means that all sub-packages and their classes are included like in Java package import clause."
           ]
         }
       ]

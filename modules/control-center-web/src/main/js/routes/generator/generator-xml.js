@@ -421,16 +421,9 @@ $generatorXml.clusterP2p = function (cluster, res) {
         $generatorXml.property(res, cluster, 'peerClassLoadingEnabled');
 
         if (p2pEnabled) {
-            var clsPathExclude = cluster.peerClassLoadingLocalClassPathExclude;
-
-            if (clsPathExclude && clsPathExclude.length > 0) {
-                var clsPathExcludeWrapper = {peerClassLoadingLocalClassPathExclude: clsPathExclude.split(',')};
-
-                $generatorXml.listProperty(res, clsPathExcludeWrapper, 'peerClassLoadingLocalClassPathExclude');
-            }
-
             $generatorXml.property(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
             $generatorXml.property(res, cluster, 'peerClassLoadingThreadPoolSize');
+            $generatorXml.listProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
         }
 
         res.needEmptyLine = true;
