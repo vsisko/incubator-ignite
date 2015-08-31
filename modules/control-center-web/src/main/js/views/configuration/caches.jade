@@ -27,7 +27,7 @@ block content
         hr
     .docs-body(ng-controller='cachesController')
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
-        +main-table('Caches:', 'caches', 'cacheName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:"Cache mode not set"}}, {{row.atomicityMode | displayValue:atomicities:"Cache atomicity not set"}}')
+        +main-table('Caches:', 'caches', 'cacheName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.cacheMode | displayValue:cacheModes:"Cache mode not set"}}, {{row.atomicityMode | displayValue:atomicities:"Cache atomicity not set"}}')
         .padding-top-dflt(bs-affix)
             button.btn.btn-primary(id='new-item' ng-click='createItem()') New
             +save-remove-buttons

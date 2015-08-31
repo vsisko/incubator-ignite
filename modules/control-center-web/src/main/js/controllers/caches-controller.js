@@ -408,7 +408,7 @@ controlCenterModule.controller('cachesController', [
 
                 var newItem = {
                     space: $scope.spaces[0]._id,
-                    cacheModes: 'PARTITIONED',
+                    cacheMode: 'PARTITIONED',
                     atomicityMode: 'ATOMIC',
                     readFromBackup: true,
                     copyOnRead: true,

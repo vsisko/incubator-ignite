@@ -164,6 +164,16 @@ $generatorCommon.builder = function () {
     return res;
 };
 
+// Atomic configuration code generation descriptor.
+$generatorCommon.ATOMIC_CONFIGURATION = {
+    className: 'org.apache.ignite.configuration.AtomicConfiguration',
+    fields: {
+        backups: null,
+        cacheMode: {type: 'enum', enumClass: 'org.apache.ignite.cache.CacheMode', dflt: 'PARTITIONED'},
+        atomicSequenceReserveSize: null
+    }
+};
+
 // Eviction policies code generation descriptors.
 $generatorCommon.EVICTION_POLICIES = {
     LRU: {
@@ -252,16 +262,6 @@ $generatorCommon.STORE_FACTORIES = {
     CacheHibernateBlobStoreFactory: {
         className: 'org.apache.ignite.cache.store.hibernate.CacheHibernateBlobStoreFactory',
         fields: {hibernateProperties: {type: 'propertiesAsList', propVarName: 'props'}}
-    }
-};
-
-// Atomic configuration code generation descriptor.
-$generatorCommon.ATOMIC_CONFIGURATION = {
-    className: 'org.apache.ignite.configuration.AtomicConfiguration',
-    fields: {
-        backups: null,
-        cacheMode: {type: 'enum', enumClass: 'org.apache.ignite.cache.CacheMode'},
-        atomicSequenceReserveSize: null
     }
 };
 
