@@ -660,7 +660,7 @@ controlCenterModule.controller('metadataController', [
                         return showPopoverMessage($scope.panels, 'metadataCache', 'valueFields-add', 'Value fields are not specified');
                 }
                 else if (!qry) {
-                    return showPopoverMessage($scope.panels, 'metadataQuery', 'metadataQuery-title', 'SQL query metadata should be configured');
+                    return showPopoverMessage($scope.panels, 'metadataQuery', 'query-title', 'SQL query metadata should be configured');
                 }
 
                 return true;
