@@ -17,11 +17,10 @@
 
 package org.apache.ignite.internal.processors.rest.protocols.http.jetty;
 
-import net.sf.json.*;
-import net.sf.json.processors.*;
-import org.apache.ignite.internal.processors.cache.query.*;
+import java.util.UUID;
+import net.sf.json.JsonConfig;
+import net.sf.json.processors.JsonValueProcessor;
 
-import java.text.*;
 import java.util.*;
 
 /**
