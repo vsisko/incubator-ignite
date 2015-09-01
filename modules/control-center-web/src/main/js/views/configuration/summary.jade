@@ -32,6 +32,9 @@ include ../includes/controls
 mixin hard-link(ref, txt)
     a(style='color:#ec1c24' href=ref target='_blank') #{txt}
 
+mixin btn-download
+    button.btn.btn-primary.pull-right(type='submit' ng-click='$event.stopPropagation()') Download
+
 block content
     .docs-header
         h1 Configurations Summary
@@ -56,7 +59,7 @@ block content
                         input(type='hidden' name='_id' value='{{selectedItem._id}}')
                         input(type='hidden' name='os' value='{{os}}')
                         input(type='hidden' name='javaClass' value='{{javaClassServer}}')
-                        button.btn.btn-primary.pull-right(type='submit') Download
+                        +btn-download
                     .panel-collapse(role='tabpanel' bs-collapse-target)
                         .summary-tabs(bs-tabs ng-show='selectedItem' template='summary/summary-tabs')
                             div(bs-pane title='XML')
@@ -90,7 +93,7 @@ block content
                         input(type='hidden' name='_id' value='{{selectedItem._id}}')
                         input(type='hidden' name='javaClass' value='{{javaClassClient}}')
                         input(type='hidden' name='clientNearConfiguration' value='{{backupItem}}')
-                        button.btn.btn-primary.pull-right(type='submit') Download
+                        +btn-download
                     .panel-collapse(role='tabpanel' bs-collapse-target)
                         div(ng-show='selectedItem')
                             .details-row(ng-repeat='field in clientFields')
