@@ -995,7 +995,7 @@ controlCenterModule.service('$table', ['$common', '$focus', function ($common, $
 }]);
 
 // Preview support service.
-controlCenterModule.service('$preview', [function ($timeout) {
+controlCenterModule.service('$preview', ['$timeout', function ($timeout) {
     var Range = require('ace/range').Range;
 
     var previewPrevContent = [];
@@ -1023,6 +1023,8 @@ controlCenterModule.service('$preview', [function ($timeout) {
                     }
                 }
             }
+
+            previewPrevContent = [];
 
             if (start >= 0) {
                 if (end < 0)
