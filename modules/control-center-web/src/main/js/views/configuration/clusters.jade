@@ -29,9 +29,11 @@ block content
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Clusters:', 'clusters', 'clusterName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:"Discovery not set"}}')
         .padding-top-dflt(bs-affix)
-            button.btn.btn-primary(id='new-item' ng-click='createItem()') New
-            +save-remove-buttons
+            .panel-tip-container(data-placement='bottom' bs-tooltip data-title='Create new cluster')
+                button.btn.btn-primary(id='new-item' ng-click='createItem()') New
+            +save-remove-buttons('cluster')
             //label {{ui.formTitle}}
+            br
             hr
         form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true' ng-click='triggerDigest = true')
@@ -41,4 +43,4 @@ block content
                     +groups('advanced', 'backupItem')
             +advanced-options-top
             .section(ng-show='ui.expanded')
-                +save-remove-buttons
+                +save-remove-buttons('cluster')

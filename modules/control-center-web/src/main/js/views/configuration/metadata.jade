@@ -29,13 +29,16 @@ block content
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Types metadata:', 'metadatas', 'metadataName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}')
         .padding-top-dflt(bs-affix)
-            button.btn.btn-primary(id='new-item' ng-click='createItem()') New
-            button.btn.btn-primary(ng-click='showLoadMetadataModal()') Load from database
-            +save-remove-buttons
+            .panel-tip-container(data-placement='bottom' bs-tooltip data-title='Create new metadata')
+                button.btn.btn-primary(id='new-item' ng-click='createItem()') New
+            .panel-tip-container(bs-tooltip data-title='Load new metadata from database' data-placement='bottom')
+                button.btn.btn-primary(ng-click='showLoadMetadataModal()') Load from database
+            +save-remove-buttons('metadata')
             //label {{ui.formTitle}}
+            br
             hr
         form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true')
                 +groups('metadata', 'backupItem')
             .section
-                +save-remove-buttons
+                +save-remove-buttons('metadata')
