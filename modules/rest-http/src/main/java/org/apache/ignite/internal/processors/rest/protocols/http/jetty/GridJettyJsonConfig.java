@@ -17,12 +17,18 @@
 
 package org.apache.ignite.internal.processors.rest.protocols.http.jetty;
 
-import net.sf.json.*;
-import net.sf.json.processors.*;
-import org.apache.ignite.internal.processors.cache.query.*;
+import java.text.DateFormat;
+import java.util.UUID;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.processors.JsonBeanProcessor;
+import net.sf.json.processors.JsonBeanProcessorMatcher;
+import net.sf.json.processors.JsonValueProcessor;
 
-import java.text.*;
 import java.util.*;
+import net.sf.json.processors.JsonValueProcessorMatcher;
+import org.apache.ignite.internal.processors.cache.query.GridCacheSqlIndexMetadata;
+import org.apache.ignite.internal.processors.cache.query.GridCacheSqlMetadata;
 
 /**
  * Jetty protocol json configuration.

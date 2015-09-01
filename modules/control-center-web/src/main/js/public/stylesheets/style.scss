@@ -19,8 +19,6 @@
 
 $logo-path: "https://www.filepicker.io/api/file/QagunjDGRFul2JgNCAli";
 $input-height: 28px;
-$ignite-red: #ec1c24;
-$ignite-red-hover: #950d12;
 $ignite-block-callout-left: #248fb2;
 $ignite-block-callout-left-background: #f4f8fa;
 $ignite-block-callout-right: #50af51;
@@ -28,6 +26,13 @@ $ignite-block-callout-right-background: #f3f8f3;
 $ignite-block-callout-gradient-to: #ffffff;
 $ignite-placeholder-color: #999999;
 $ignite-preview-background: #e8f1fc;
+$ignite-border-color: #ddd;
+$ignite-border-bottom-color: $brand-primary;
+$ignite-background-color: #fff;
+$ignite-background-dark-color: #eee;
+$ignite-phone-color: #f9f9f9;
+$ignite-header-color: #555;
+$ignite-invalid-color: $brand-primary;
 
 hr {
     margin: 20px 0;
@@ -66,53 +71,28 @@ hr {
 }
 
 .border-left {
-    box-shadow: 1px 0 0 0 #eee inset;
+    box-shadow: 1px 0 0 0 $ignite-background-dark-color inset;
 }
 
 .border-right {
-    box-shadow: 1px 0 0 0 #eee;
+    box-shadow: 1px 0 0 0 $ignite-background-dark-color;
 }
 
 .theme-line {
-    background-color: #f9f9f9;
+    background-color: $ignite-phone-color;
 }
 
 .theme-line header {
-    background-color: #fff;
-}
-
-.theme-line header a.btn {
-    border: 0 none;
-    padding: 10px 25px;
-    background-color: rgba(0, 0, 0, 0.15);
-}
-
-.theme-line header a.btn:hover {
-    background-color: rgba(0, 0, 0, 0.25);
-}
-
-.theme-line header a.btn.btn-link {
-    background: transparent;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.theme-line header a.btn.btn-link:hover {
-    color: #fff;
-    text-decoration: none;
-}
-
-.theme-line .docs-header {
-    color: #999;
-    overflow: hidden;
+    background-color: $ignite-background-color;
 }
 
 .theme-line .docs-header h1 {
-    color: #444;
+    color: $ignite-header-color;
     margin-top: 0;
     font-size: 22px;
 }
 
-.sidebar-nav {
+ul.navbar-nav, .sidebar-nav {
     li > a.active:not(.dropdown-toggle) {
         cursor: default;
         pointer-events: none;
@@ -139,7 +119,7 @@ hr {
 
             a {
                 font-size: 18px;
-                color: #666;
+                color: $ignite-header-color;
                 position: relative;
                 white-space: nowrap;
                 overflow: hidden;
@@ -162,30 +142,24 @@ hr {
     text-decoration: none;
 }
 
+.theme-line .select,
+.theme-line .typeahead {
+    li a {
+        color: $ignite-header-color;
+        background-color: transparent;
+    }
+
+    .active {
+        background-color: $ignite-background-dark-color;
+    }
+}
+
 .dropdown-menu {
     max-height: 20em;
     overflow: auto;
     overflow-x: hidden;
 }
 
-.theme-line .sidebar-nav h4 {
-    margin-top: 2em;
-    font-weight: normal;
-    text-transform: uppercase;
-    font-size: 11px;
-    margin-bottom: 10px;
-    color: #bbb;
-}
-
-.theme-line .sidebar-nav h4:first-child {
-    margin-top: 0;
-}
-
-.theme-line .sidebar-nav .ask {
-    width: 100%;
-    text-align: center;
-    padding: 10px;
-}
 
 .theme-line .border-left .sidebar-nav {
     padding-left: 15px;
@@ -227,57 +201,16 @@ hr {
     display: inline-block;
 }
 
-.header .nav.navbar-nav .stable,
-.header .nav.navbar-nav .beta,
-.header .nav.navbar-nav .private {
-    font-size: 9px;
-    padding: 3px 5px;
-    display: inline-block;
-    line-height: 8px;
-    border-radius: 3px;
-    margin-left: 6px;
-    color: #fff;
-    top: -2px;
-    position: relative;
-    opacity: 0.6;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
-    filter: alpha(opacity=60);
-}
-
-.header .nav.navbar-nav a:hover > .stable,
-.header .nav.navbar-nav a:hover > .beta,
-.header .nav.navbar-nav a:hover > .private {
-    opacity: 1;
-    -ms-filter: none;
-    filter: none;
-}
-
-.header .nav.navbar-nav .beta {
-    background-color: #59c3d1;
-}
-
-.header .nav.navbar-nav .stable {
-    background-color: #41b841;
-}
-
-.header .nav.navbar-nav .private {
-    background-color: #333;
-}
-
 .theme-line header {
     border-bottom: 8px solid;
 }
 
-.theme-line header h2 {
-    color: #aaa;
-}
-
 .theme-line header p {
-    color: #666;
+    color: $ignite-header-color;
 }
 
 .theme-line header {
-    border-bottom-color: $ignite-red;
+    border-bottom-color: $ignite-border-bottom-color;
 }
 
 .nav > li {
@@ -286,17 +219,8 @@ hr {
     > a.active { color: $link-color }
 }
 
-.theme-line header .navbar-nav .tt-cursor {
-    background-color: $ignite-red;
-}
-
 .theme-line header .navbar-nav a {
     font-size: 18px;
-}
-
-.theme-line.body-threes .section-right .threes-nav .btn-default:hover, .theme-line.page-docs.body-threes .section-right .threes-nav .pull-right a:hover {
-    color: $ignite-red;
-    border-color: $ignite-red;
 }
 
 .theme-line .section-right {
@@ -310,8 +234,8 @@ hr {
 .body-box .main-content,
 .body-overlap .main-content {
     padding: 30px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+    box-shadow: 0 0 0 1px $ignite-border-color;
+    background-color: $ignite-background-color;
 }
 
 body {
@@ -359,13 +283,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .modal .modal-content {
     border-radius: 0;
-    background-color: #f7f7f7;
+    background-color: $ignite-background-dark-color;
 }
 
 .modal .modal-content .modal-header {
-    background-color: #fff;
+    background-color: $ignite-background-color;
     text-align: center;
-    color: #555;
+    color: $ignite-header-color;
     padding: 15px 25px 15px 15px;
 }
 
@@ -455,7 +379,6 @@ h3 {
 }
 
 h3 {
-    color: black;
     font-size: 1.2em;
     margin-top: 0;
     margin-bottom: 1.5em;
@@ -489,7 +412,7 @@ table tr:hover {
 
 .theme-line .notebook-header {
     color: black;
-    border-color: #eee;
+    border-color: $ignite-background-dark-color;
 
     font-size: 22px;
     line-height: 44px;
@@ -514,20 +437,20 @@ table tr:hover {
 }
 
 .theme-line .panel-heading {
-    padding: 5px 10px 8px 10px;
+    padding: 5px 10px;
     margin: 0;
     cursor: pointer;
-    font-size: 1.2em;
+    font-size: $font-size-large;
+    line-height: 27px;
 
-    i {
-        font-size: $font-size-base;
-    }
+    a { color: black; }
+
+    .btn-group { margin-left: 10px; }
 }
 
 .theme-line .panel-heading:hover {
     text-decoration: underline;
 }
-
 
 .theme-line .panel-body {
     padding: 10px 20px;
@@ -555,7 +478,6 @@ table tr:hover {
     }
 
     .active a {
-        color: $ignite-red;
         font-weight: bold;
     }
 
@@ -566,10 +488,9 @@ table tr:hover {
             margin: 10px 0;
 
             > .active > a {
-                color: $ignite-red;
                 font-weight: bold;
-                border-color: #ddd;
-                background-color: #eee;
+                border-color: $ignite-border-color;
+                background-color: $ignite-background-dark-color;
             }
         }
     }
@@ -583,7 +504,6 @@ table tr:hover {
 
     label {
         line-height: $input-height;
-        color: #666;
     }
 
     td {
@@ -605,7 +525,7 @@ table tr:hover {
 
     label {
         line-height: $input-height;
-        color: #666;
+        color: $ignite-header-color;
     }
 
     td {
@@ -638,7 +558,7 @@ table tr:hover {
 
     label {
         line-height: $input-height;
-        color: #666;
+        color: $ignite-header-color;
     }
 
     thead > tr th, td {
@@ -656,10 +576,9 @@ table tr:hover {
             margin: 10px 0;
 
             > .active > a {
-                color: $ignite-red;
                 font-weight: bold;
-                border-color: #ddd;
-                background-color: #eee;
+                border-color: $ignite-border-color;
+                background-color: $ignite-background-dark-color;
             }
         }
     }
@@ -720,10 +639,9 @@ table tr:hover {
             margin: 10px 0 0 0;
 
             > .active > a {
-                color: $ignite-red;
                 font-weight: bold;
-                border-color: #ddd;
-                background-color: #eee;
+                border-color: $ignite-border-color;
+                background-color: $ignite-background-dark-color;
             }
         }
     }
@@ -802,17 +720,17 @@ div.affix.padding-top-dflt {
 }
 
 .tooltip.right .tooltip-arrow {
-    border-right-color: $ignite-red;
+    border-right-color: $brand-primary;
 }
 
 .tooltip > .tooltip-inner {
     max-width: 400px;
     text-align: left;
-    background-color: $ignite-red;
+    background-color: $brand-primary;
 }
 
 .popover {
-    color: $ignite-red;
+    color: $brand-primary;
     max-width: 400px;
 }
 
@@ -822,7 +740,7 @@ div.affix.padding-top-dflt {
 
 .popover-arrow {
     background: white;
-    border: 1px solid $ignite-red;
+    border: 1px solid $brand-primary;
 }
 
 .popover-arrow:after, .popover-arrow:before {
@@ -844,7 +762,7 @@ div.affix.padding-top-dflt {
 
 .popover-arrow:before {
     border: solid 8px transparent;
-    border-right-color: $ignite-red;
+    border-right-color: $brand-primary;
     margin-top: -8px;
 }
 
@@ -920,7 +838,7 @@ label {
 }
 
 .fa-remove {
-    color: $ignite-red;
+    color: $brand-primary;
     cursor: pointer;
 }
 
@@ -937,21 +855,21 @@ label {
 }
 
 .fa-chevron-circle-down {
-    color: $ignite-red;
+    color: $brand-primary;
     cursor: pointer;
     margin-right: 5px;
     font-size: 16px;
 }
 
 .fa-chevron-circle-up {
-    color: $ignite-red;
+    color: $brand-primary;
     cursor: pointer;
     margin-right: 5px;
     font-size: 16px;
 }
 
 label.required:after {
-    color: $ignite-red;
+    color: $brand-primary;
     content: ' *';
     display: inline;
 }
@@ -1045,33 +963,16 @@ input[type="number"] {
 }
 
 input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
-    border-color: $ignite-red;
+    border-color: $ignite-invalid-color;
 
     :focus {
-        border-color: $ignite-red;
+        border-color: $ignite-invalid-color;
     }
-}
-
-.form-control-feedback {
-    display: inline-block;
-    color: $ignite-red;
-    right: 18px;
-    line-height: $input-height;
-    pointer-events: initial;
-}
-
-.syntaxhighlighter {
-    padding: 10px 5px;
-    border-radius: 6px;
 }
 
 .theme-line .nav-tabs > li > a {
     padding: 5px 5px;
-    color: #555;
-}
-
-.theme-line .nav-tabs > li.active > a {
-    color: $ignite-red;
+    color: $ignite-header-color;
 }
 
 .viewedUser {
@@ -1082,8 +983,6 @@ input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
     text-align: center;
 
     margin-top: -15px;
-
-    background-color: #f8d5d8;
 }
 
 a {
@@ -1233,7 +1132,7 @@ a {
 
     .ace_gutter {
         background: transparent !important;
-        border: 1px #ddd;
+        border: 1px $ignite-border-color;
         border-right-style: solid;
     }
 
@@ -1304,9 +1203,9 @@ a {
         margin: 0 0.4em;
         min-width: 1em;
         min-height: 1em;
-        border: 4px solid #646464;
-        border-right-color: #e6e6e6;
-        border-left-color: #e6e6e6;
+        border: 4px solid $ignite-border-color;
+        border-right-color: $ignite-border-color;
+        border-left-color: $ignite-border-color;
         content: "";
         -webkit-animation: halfspin 1s ease infinite;
         -moz-animation: halfspin 1s ease infinite;

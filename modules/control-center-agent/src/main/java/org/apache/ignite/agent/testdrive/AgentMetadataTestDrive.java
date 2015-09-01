@@ -1,12 +1,17 @@
 package org.apache.ignite.agent.testdrive;
 
-import org.apache.ignite.agent.*;
-import org.h2.tools.*;
-
-import java.io.*;
-import java.sql.*;
-import java.util.concurrent.atomic.*;
-import java.util.logging.*;
+import java.io.File;
+import java.io.FileReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.ignite.agent.AgentUtils;
+import org.h2.tools.RunScript;
+import org.h2.tools.Server;
 
 /**
  * Test drive for metadata load from database.

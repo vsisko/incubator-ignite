@@ -17,7 +17,7 @@
 
 package org.apache.ignite.agent.remote;
 
-import com.google.gson.*;
+import com.google.gson.JsonObject;
 
 /**
  * Sender for messages to web-socket.

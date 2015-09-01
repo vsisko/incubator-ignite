@@ -17,15 +17,25 @@
 
 package org.apache.ignite.agent.handlers;
 
-import org.apache.ignite.agent.*;
-import org.apache.ignite.agent.remote.*;
-import org.apache.ignite.schema.parser.*;
-
-import java.io.*;
-import java.net.*;
-import java.sql.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.ignite.agent.AgentConfiguration;
+import org.apache.ignite.agent.AgentUtils;
+import org.apache.ignite.agent.remote.Remote;
+import org.apache.ignite.schema.parser.DbMetadataReader;
+import org.apache.ignite.schema.parser.DbTable;
 
 /**
  * Remote API to extract database metadata.

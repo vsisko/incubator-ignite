@@ -348,7 +348,9 @@ var NotebookSchema = new Schema({
     paragraphs: [{
         name: String,
         query: String,
-        result: {type: String, enum: ['table', 'bar']}
+        editor: Boolean,
+        result: {type: String, enum: ['none', 'table', 'bar']},
+        pageSize: Number
     }]
 });
 

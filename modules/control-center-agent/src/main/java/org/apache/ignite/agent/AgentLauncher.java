@@ -17,15 +17,14 @@
 
 package org.apache.ignite.agent;
 
-import com.beust.jcommander.*;
-import org.apache.ignite.agent.handlers.*;
-import org.apache.ignite.agent.testdrive.*;
-import org.eclipse.jetty.util.ssl.*;
-import org.eclipse.jetty.websocket.client.*;
-
-import java.io.*;
-import java.net.*;
-import java.util.logging.*;
+import com.beust.jcommander.JCommander;
+import java.io.File;
+import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.ignite.agent.handlers.RestExecutor;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 /**
  * Control Center Agent launcher.
@@ -60,6 +59,11 @@ public class AgentLauncher {
 
             return;
         }
+
+        if (cmdCfg.testDriveSql() && cmdCfg.nodeUri() != null)
+            log.log(Level.WARNING,
+                "URI for connect to Ignite REST server will be ignored because --test-drive-sql option was specified.");
+
 
         if (cmdCfg.configPath() != null)
             cfg.load(new File(cmdCfg.configPath()).toURI().toURL());
