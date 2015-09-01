@@ -17,11 +17,12 @@
 
 package org.apache.ignite.agent;
 
-import com.beust.jcommander.*;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import com.beust.jcommander.Parameter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.util.Properties;
 
 /**
  * Agent configuration.

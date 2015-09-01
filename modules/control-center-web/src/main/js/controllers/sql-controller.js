@@ -25,7 +25,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
 
     $scope.joinTip = $common.joinTip;
 
-    $scope.pageSizes = [50, 100, 200, 400, 800, 1000];
+    $scope.pageSizes = [10, 25, 50];
 
     $scope.modes = [
         {value: 'PARTITIONED', label: 'PARTITIONED'},
@@ -39,6 +39,8 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
                 $scope.notebook = notebook;
 
                 $scope.notebook_name = notebook.name;
+
+                $scope.notebook.activeIdx = [];
 
                 if (!notebook.paragraphs || notebook.paragraphs.length == 0)
                     $scope.addParagraph();
@@ -67,6 +69,8 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
                     }
 
                     $scope.notebook.edit = false;
+
+                    $common.showInfo("Notebook successfully renamed.");
                 })
                 .error(function (errMsg) {
                     $common.showError(errMsg);
@@ -74,6 +78,26 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
         }
         else
             $scope.notebook.edit = false
+    };
+
+    $scope.saveNotebook = function() {
+        $http.post('/notebooks/save', $scope.notebook)
+            .success(function () {
+                $common.showInfo("Notebook successfully saved.");
+            })
+            .error(function (errMsg) {
+                $common.showError(errMsg);
+            });
+    };
+
+    $scope.removeNotebook = function() {
+        $http.post('/notebooks/remove', $scope.notebook)
+            .success(function () {
+                $common.showInfo("Notebook successfully removed.");
+            })
+            .error(function (errMsg) {
+                $common.showError(errMsg);
+            });
     };
 
     $scope.renameParagraph = function(paragraph, newName) {
@@ -103,11 +127,26 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
         if ($scope.caches && $scope.caches.length > 0)
             paragraph.cache = $scope.caches[0];
 
+        $scope.notebook.activeIdx.push($scope.notebook.paragraphs.length);
+
         $scope.notebook.paragraphs.push(paragraph);
     };
 
-    $scope.removeParagraph = function(idx) {
-        $scope.notebook.splice(idx, 1);
+    $scope.removeParagraph = function(paragraph) {
+        var paragraph_idx = _.findIndex($scope.notebook.paragraphs, function (item) {
+            return paragraph == item;
+        });
+
+        var panel_idx = _.findIndex($scope.notebook.activeIdx, function (item) {
+            console.log(item);
+
+            return paragraph_idx == item;
+        });
+
+        if (panel_idx >= 0)
+            $scope.notebook.activeIdx.splice(panel_idx, 1);
+
+        $scope.notebook.paragraphs.splice(paragraph_idx, 1);
     };
 
     $http.get('/models/sql.json')
@@ -230,5 +269,5 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
 
     $scope.getter = function (value) {
         return value;
-    }
+    };
 }]);

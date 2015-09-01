@@ -1,14 +1,34 @@
 package org.apache.ignite.agent.testdrive;
 
-import org.apache.ignite.*;
-import org.apache.ignite.agent.testdrive.model.*;
-import org.apache.ignite.cache.*;
-import org.apache.ignite.configuration.*;
-import org.apache.ignite.lang.*;
-
-import java.util.*;
-import java.util.concurrent.atomic.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.Ignition;
+import org.apache.ignite.agent.AgentConfiguration;
+import org.apache.ignite.agent.testdrive.model.Car;
+import org.apache.ignite.agent.testdrive.model.CarKey;
+import org.apache.ignite.agent.testdrive.model.Country;
+import org.apache.ignite.agent.testdrive.model.CountryKey;
+import org.apache.ignite.agent.testdrive.model.Department;
+import org.apache.ignite.agent.testdrive.model.DepartmentKey;
+import org.apache.ignite.agent.testdrive.model.Employee;
+import org.apache.ignite.agent.testdrive.model.EmployeeKey;
+import org.apache.ignite.agent.testdrive.model.Parking;
+import org.apache.ignite.agent.testdrive.model.ParkingKey;
+import org.apache.ignite.cache.CacheTypeMetadata;
+import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.internal.IgniteEx;
+import org.apache.ignite.internal.IgniteNodeAttributes;
+import org.apache.ignite.internal.util.typedef.F;
+import org.apache.ignite.lang.IgniteBiTuple;
 
 /**
  * Test drive for SQL.
@@ -299,7 +319,7 @@ public class AgentSqlTestDrive {
     /**
      * Start ignite node with cacheEmployee and populate it with data.
      */
-    public static void testDrive() {
+    public static void testDrive(AgentConfiguration acfg) {
         if (initLatch.compareAndSet(false, true)) {
             log.log(Level.INFO, "TEST-DRIVE: Prepare node configuration...");
 
@@ -312,7 +332,20 @@ public class AgentSqlTestDrive {
 
                 log.log(Level.INFO, "TEST-DRIVE: Start embedded node with indexed enabled caches...");
 
-                Ignite ignite = Ignition.start(cfg);
+                IgniteEx ignite = (IgniteEx)Ignition.start(cfg);
+
+                String host = ((Collection<String>)
+                    ignite.localNode().attribute(IgniteNodeAttributes.ATTR_REST_JETTY_ADDRS)).iterator().next();
+
+                Integer port = ignite.localNode().attribute(IgniteNodeAttributes.ATTR_REST_JETTY_PORT);
+
+                if (F.isEmpty(host) || port == null) {
+                    log.log(Level.SEVERE, "TEST-DRIVE: Failed to start embedded node with rest!");
+
+                    return;
+                }
+
+                acfg.nodeUri(String.format("http://%s:%d", "0.0.0.0".equals(host) ? "127.0.0.1" : host, port));
 
                 log.log(Level.INFO, "TEST-DRIVE: Embedded node started");
 

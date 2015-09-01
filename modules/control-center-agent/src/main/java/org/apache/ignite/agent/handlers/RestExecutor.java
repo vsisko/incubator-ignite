@@ -17,20 +17,26 @@
 
 package org.apache.ignite.agent.handlers;
 
-import org.apache.commons.codec.*;
-import org.apache.http.*;
-import org.apache.http.client.entity.*;
-import org.apache.http.client.methods.*;
-import org.apache.http.client.utils.*;
-import org.apache.http.entity.*;
-import org.apache.http.impl.client.*;
-import org.apache.ignite.agent.*;
-import org.apache.ignite.agent.remote.*;
-
-import java.io.*;
-import java.net.*;
-import java.nio.charset.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.codec.Charsets;
+import org.apache.http.Header;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.ignite.agent.AgentConfiguration;
+import org.apache.ignite.agent.remote.Remote;
 
 /**
  * Executor for REST requests.

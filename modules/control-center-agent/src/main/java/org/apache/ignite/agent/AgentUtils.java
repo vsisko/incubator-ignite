@@ -17,10 +17,12 @@
 
 package org.apache.ignite.agent;
 
-import java.io.*;
-import java.net.*;
-import java.security.*;
-import java.util.logging.*;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.ProtectionDomain;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utility methods.

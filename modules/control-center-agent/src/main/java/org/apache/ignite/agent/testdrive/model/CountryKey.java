@@ -17,7 +17,7 @@
 
 package org.apache.ignite.agent.testdrive.model;
 
-import java.io.*;
+import java.io.Serializable;
 
 /**
  * CountryKey definition.

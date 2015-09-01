@@ -17,18 +17,28 @@
 
 package org.apache.ignite.agent;
 
-import com.google.gson.*;
-import org.apache.http.auth.*;
-import org.apache.ignite.agent.handlers.*;
-import org.apache.ignite.agent.remote.*;
-import org.apache.ignite.agent.testdrive.*;
-import org.eclipse.jetty.websocket.api.*;
-import org.eclipse.jetty.websocket.api.annotations.*;
-
-import java.io.*;
-import java.net.*;
-import java.util.concurrent.*;
-import java.util.logging.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.ignite.agent.handlers.DatabaseMetadataExtractor;
+import org.apache.ignite.agent.handlers.RestExecutor;
+import org.apache.ignite.agent.remote.Remote;
+import org.apache.ignite.agent.remote.RemoteHandler;
+import org.apache.ignite.agent.remote.WebSocketSender;
+import org.apache.ignite.agent.testdrive.AgentMetadataTestDrive;
+import org.apache.ignite.agent.testdrive.AgentSqlTestDrive;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 /**
  * Handler for web-socket connection.
@@ -170,7 +180,7 @@ public class AgentSocket implements WebSocketSender {
             AgentMetadataTestDrive.testDrive();
 
         if (cfg.testDriveSql())
-            AgentSqlTestDrive.testDrive();
+            AgentSqlTestDrive.testDrive(cfg);
     }
 
     /**
