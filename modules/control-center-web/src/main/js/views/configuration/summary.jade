@@ -45,13 +45,7 @@ block content
             | No cluster configured. You can&nbsp;
             a(href='clusters') configure
             | &nbsp;it.
-        .padding-dflt(ng-if='clusters.length > 0')
-            lable.labelHeader Clusters:
-            table.links(st-table='clusters')
-                tbody
-                    tr(ng-repeat='row in clusters track by row._id')
-                        td(ng-class='{active: row._id == selectedItem._id}')
-                            a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
+        +main-table('Clusters:', 'clusters', 'clusterName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}')
         div(ng-show='selectedItem' role='tab' method='post' action='summary/download')
             .padding-dflt(bs-collapse data-start-collapsed='false')
                 .panel.panel-default

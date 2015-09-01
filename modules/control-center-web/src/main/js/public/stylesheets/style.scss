@@ -25,7 +25,6 @@ $ignite-block-callout-right: #50af51;
 $ignite-block-callout-right-background: #f3f8f3;
 $ignite-block-callout-gradient-to: #ffffff;
 $ignite-placeholder-color: #999999;
-$ignite-preview-background: #e8f1fc;
 $ignite-border-color: #ddd;
 $ignite-border-bottom-color: $brand-primary;
 $ignite-background-color: #fff;
@@ -36,6 +35,10 @@ $ignite-invalid-color: $brand-primary;
 
 hr {
     margin: 20px 0;
+}
+
+a.active {
+    font-weight: bold;
 }
 
 .navbar-default .navbar-brand, .navbar-default .navbar-brand:hover {
@@ -477,10 +480,6 @@ table tr:hover {
         padding-left: 18px;
     }
 
-    .active a {
-        font-weight: bold;
-    }
-
     tfoot > tr > td {
         padding: 0;
 
@@ -488,7 +487,6 @@ table tr:hover {
             margin: 10px 0;
 
             > .active > a {
-                font-weight: bold;
                 border-color: $ignite-border-color;
                 background-color: $ignite-background-dark-color;
             }
@@ -576,7 +574,6 @@ table tr:hover {
             margin: 10px 0;
 
             > .active > a {
-                font-weight: bold;
                 border-color: $ignite-border-color;
                 background-color: $ignite-background-dark-color;
             }
@@ -639,7 +636,6 @@ table tr:hover {
             margin: 10px 0 0 0;
 
             > .active > a {
-                font-weight: bold;
                 border-color: $ignite-border-color;
                 background-color: $ignite-background-dark-color;
             }
@@ -1149,8 +1145,6 @@ a {
 }
 
 .preview-panel {
-    background-color: $ignite-preview-background;
-
     margin-top: 10px;
     margin-left: 20px;
 
@@ -1158,23 +1152,17 @@ a {
     border: thin dotted lightgrey;
 
     padding: 0 3px;
-
-    .ace_editor {
-        background-color: $ignite-preview-background;
-    }
 }
 
 .preview-legend {
     top: 0;
-    right: 0;
-    margin-right: 5px;
     overflow: visible;
     position: absolute;
     z-index: 900;
 
-    i {
-        cursor: pointer;
-        background-image: linear-gradient(white 45%, $ignite-preview-background 100%);
+    a {
+        background-color: white;
+        margin-left: 5px;
     }
 }
 

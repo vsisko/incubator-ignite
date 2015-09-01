@@ -44,6 +44,14 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
 
         $scope.previewInit = $preview.previewInit;
 
+        $scope.aceChanged = function (editor) {
+            console.log('aceChanged');
+
+            var edt = editor[1];
+
+            edt.navigateFileStart();
+        };
+
         $scope.formChanged = $common.formChanged;
 
         $scope.hidePopover = $common.hidePopover;
