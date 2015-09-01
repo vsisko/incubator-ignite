@@ -426,8 +426,8 @@ mixin main-table(title, rows, focusId, click, rowTemplate)
         table.links(st-table='displayedRows' st-safe-src='#{rows}')
             tbody
                 tr(ng-repeat='row in displayedRows track by row._id')
-                    td(ng-class='{active: row._id == selectedItem._id}')
-                        a(on-click-focus=focusId ng-click=click) #{rowTemplate}
+                    td
+                        a(ng-class='{active: row._id == selectedItem._id}' on-click-focus=focusId ng-click=click) #{rowTemplate}
             tfoot
                 tr
                     td.text-right
@@ -463,12 +463,11 @@ mixin preview(preview, id)
     -var previewState = preview + 'State'
 
     .preview-panel
-        .preview-legend
-            i(ng-click='#{previewState} = !#{previewState}')
-                img(ng-if='#{previewState}' src='/images/xml.png' title='Show XML')
-                img(ng-if='!#{previewState}' src='/images/java.png' title='Show Java code')
-        .preview-content(ng-if='!preview[#{preview}].allDefaults && !#{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "xml"}' ng-model='preview[#{preview}].xml' min-height='{{::group.minHeight}}')
-        .preview-content(ng-if='!preview[#{preview}].allDefaults && #{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, mode: "java"}' ng-model='preview[#{preview}].java' min-height='{{::group.minHeight}}')
+        .preview-legend(ng-show='!preview[#{preview}].allDefaults')
+            a(ng-class='{active: !#{previewState}}' ng-click='#{previewState} = false') XML&nbsp;
+            a(ng-class='{active: #{previewState}}' ng-click='#{previewState} = true') Java
+        .preview-content(ng-if='!preview[#{preview}].allDefaults && !#{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, onChange: previewChanged, mode: "xml"}' ng-model='preview[#{preview}].xml' min-height='{{::group.minHeight}}')
+        .preview-content(ng-if='!preview[#{preview}].allDefaults && #{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, onChange: previewChanged, mode: "java"}' ng-model='preview[#{preview}].java' min-height='{{::group.minHeight}}')
         .preview-content-empty(ng-if='preview[#{preview}].allDefaults' id='#{id}')
             label All Defaults
 

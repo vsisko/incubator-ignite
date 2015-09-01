@@ -994,9 +994,51 @@ controlCenterModule.service('$table', ['$common', '$focus', function ($common, $
     }
 }]);
 
-
 // Preview support service.
-controlCenterModule.service('$preview', [function () {
+controlCenterModule.service('$preview', [function ($timeout) {
+    var Range = require('ace/range').Range;
+
+    var previewPrevContent = [];
+
+    function previewChanged (ace) {
+        var content = ace[0];
+
+        if (content.action == 'remove')
+            previewPrevContent = content.lines;
+        else {
+            var previewNewContent = content.lines;
+
+            var start = -1;
+            var end = -1;
+            var prevLen = previewPrevContent.length;
+            var newLen = previewNewContent.length;
+
+            for (var i = 0; i < newLen || i < prevLen; i++) {
+                if (previewNewContent[i] != previewPrevContent[i]) {
+                    if (start < 0)
+                        start = i;
+                    else {
+                        end = i;
+                        break;
+                    }
+                }
+            }
+
+            if (start >= 0) {
+                if (end < 0)
+                    end = start + 1;
+
+                var editor = ace[1];
+
+                editor.selection.setSelectionRange(new Range(start, 0, end, 0), false);
+
+                $timeout(function() {
+                    editor.clearSelection();
+                }, 3000);
+            }
+        }
+    }
+
     return {
         previewInit: function (editor) {
             editor.setReadOnly(true);
@@ -1011,7 +1053,8 @@ controlCenterModule.service('$preview', [function () {
             renderer.setOption('fontSize', '10px');
 
             editor.setTheme('ace/theme/chrome');
-        }
+        },
+        previewChanged: previewChanged
     }
 }]);
 

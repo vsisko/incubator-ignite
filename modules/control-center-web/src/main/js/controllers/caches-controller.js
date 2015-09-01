@@ -48,6 +48,7 @@ controlCenterModule.controller('cachesController', [
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
             $scope.previewInit = $preview.previewInit;
+            $scope.previewChanged = $preview.previewChanged;
 
             $scope.formChanged = $common.formChanged;
 
