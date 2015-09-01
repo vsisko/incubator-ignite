@@ -63,6 +63,7 @@ $dataStructures.JAVA_BUILD_IN_CLASSES = [
     {short: 'Float', full: 'java.lang.Float'},
     {short: 'Integer', full: 'java.lang.Integer'},
     {short: 'Long', full: 'java.lang.Long'},
+    {short: 'Object', full: 'java.lang.Object'},
     {short: 'Short', full: 'java.lang.Short'},
     {short: 'String', full: 'java.lang.String'},
     {short: 'Time', full: 'java.sql.Time'},

@@ -52,13 +52,11 @@ block content
         div(ng-show='selectedItem' role='tab' method='post' action='summary/download')
             .padding-dflt(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
-                    form.panel-heading(role='tab' method='post' action='summary/download')
+                    form.panel-heading(role='tab' method='post' action='summary/download' bs-collapse-toggle) Server
                         input(type='hidden' name='_id' value='{{selectedItem._id}}')
                         input(type='hidden' name='os' value='{{os}}')
                         input(type='hidden' name='javaClass' value='{{javaClassServer}}')
-                        h3
-                            a(bs-collapse-toggle) Server
-                            button.btn.btn-primary.pull-right(type='submit' style='margin-top: -5px') Download
+                        button.btn.btn-primary.pull-right(type='submit') Download
                     .panel-collapse(role='tabpanel' bs-collapse-target)
                         .summary-tabs(bs-tabs ng-show='selectedItem' template='summary/summary-tabs')
                             div(bs-pane title='XML')
@@ -88,13 +86,11 @@ block content
                                 div(ui-ace='{ onLoad: aceInit, mode: "dockerfile" }' ng-model='dockerServer')
             .padding-dflt(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
-                    form.panel-heading(role='tab' method='post' action='summary/download')
+                    form.panel-heading(role='tab' method='post' action='summary/download' bs-collapse-toggle) Client
                         input(type='hidden' name='_id' value='{{selectedItem._id}}')
                         input(type='hidden' name='javaClass' value='{{javaClassClient}}')
                         input(type='hidden' name='clientNearConfiguration' value='{{backupItem}}')
-                        h3
-                            a(bs-collapse-toggle) Client
-                            button.btn.btn-primary.pull-right(type='submit' style='margin-top: -5px') Download
+                        button.btn.btn-primary.pull-right(type='submit') Download
                     .panel-collapse(role='tabpanel' bs-collapse-target)
                         div(ng-show='selectedItem')
                             .details-row(ng-repeat='field in clientFields')

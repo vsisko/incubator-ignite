@@ -15,13 +15,6 @@
       "</ul>"
     ]
   },
-  "templateTip": [
-    "Use following template to add a new cluster:",
-    "<ul>",
-    "  <li>multicast - cluster with multicast discovery.</li>",
-    "  <li>local - cluster with static ips discovery and pre-configured list of IP addresses.</li>",
-    "</ul>"
-  ],
   "general": [
     {
       "label": "General",

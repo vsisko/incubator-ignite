@@ -52,13 +52,22 @@ $generatorXml.element = function (res, tag, attr1, val1, attr2, val2) {
 };
 
 // Add property.
-$generatorXml.property = function (res, obj, propName, setterName) {
+$generatorXml.property = function (res, obj, propName, setterName, dflt) {
     if ($commonUtils.isDefined(obj)) {
         var val = obj[propName];
 
-        if ($commonUtils.isDefined(val))
-            $generatorXml.element(res, 'property', 'name', setterName ? setterName : propName, 'value', $generatorXml.escape(val));
+        if ($commonUtils.isDefined(val)) {
+            var hasDflt = $commonUtils.isDefined(dflt);
+
+            if (!hasDflt || (hasDflt && val != dflt)) {
+                $generatorXml.element(res, 'property', 'name', setterName ? setterName : propName, 'value', $generatorXml.escape(val));
+
+                return true;
+            }
+        }
     }
+
+    return false;
 };
 
 // Add property for class name.
@@ -98,11 +107,19 @@ $generatorXml.listProperty = function (res, obj, propName, listType, rowFactory)
 };
 
 // Add bean property.
-$generatorXml.beanProperty = function (res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
+$generatorXml.beanProperty = function (res, bean, beanPropName, desc, createBeanAlthoughNoProps) {
+    var props = desc.fields;
+
     if (bean && $commonUtils.hasProperty(bean, props)) {
-        res.emptyLineIfNeeded();
-        res.startBlock('<property name="' + beanPropName + '">');
-        res.startBlock('<bean class="' + beanClass + '">');
+        var tmpRes = $generatorCommon.builder();
+
+        tmpRes.deep = res.deep;
+
+        tmpRes.emptyLineIfNeeded();
+        tmpRes.startBlock('<property name="' + beanPropName + '">');
+        tmpRes.startBlock('<bean class="' + desc.className + '">');
+        
+        var hasData = false;
 
         for (var propName in props) {
             if (props.hasOwnProperty(propName)) {
@@ -110,51 +127,64 @@ $generatorXml.beanProperty = function (res, bean, beanPropName, beanClass, props
 
                 if (descr) {
                     if (descr.type == 'list') {
-                        $generatorXml.listProperty(res, bean, propName, descr.setterName);
+                        $generatorXml.listProperty(tmpRes, bean, propName, descr.setterName);
                     }
                     else if (descr.type == 'jdbcDialect') {
                         if (bean[propName]) {
-                            res.startBlock('<property name="' + propName + '">');
-                            res.line('<bean class="' + $generatorCommon.jdbcDialectClassName(bean[propName]) + '"/>');
-                            res.endBlock('</property>');
+                            tmpRes.startBlock('<property name="' + propName + '">');
+                            tmpRes.line('<bean class="' + $generatorCommon.jdbcDialectClassName(bean[propName]) + '"/>');
+                            tmpRes.endBlock('</property>');
+
+                            hasData = true;
                         }
                     }
                     else if (descr.type == 'propertiesAsList') {
                         var val = bean[propName];
 
                         if (val && val.length > 0) {
-                            res.startBlock('<property name="' + propName + '">');
-                            res.startBlock('<props>');
+                            tmpRes.startBlock('<property name="' + propName + '">');
+                            tmpRes.startBlock('<props>');
 
                             for (var i = 0; i < val.length; i++) {
                                 var nameAndValue = val[i];
 
                                 var eqIndex = nameAndValue.indexOf('=');
                                 if (eqIndex >= 0) {
-                                    res.line('<prop key="' + $generatorXml.escape(nameAndValue.substring(0, eqIndex)) + '">' +
+                                    tmpRes.line('<prop key="' + $generatorXml.escape(nameAndValue.substring(0, eqIndex)) + '">' +
                                         $generatorXml.escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
                                 }
                             }
 
-                            res.endBlock('</props>');
-                            res.endBlock('</property>');
+                            tmpRes.endBlock('</props>');
+                            tmpRes.endBlock('</property>');
+
+                            hasData = true;
                         }
                     }
-                    else
-                        $generatorXml.property(res, bean, propName, descr.setterName);
+                    else {
+                        if ($generatorXml.property(tmpRes, bean, propName, descr.setterName, descr.dflt))
+                            hasData = true;
+                    }
                 }
                 else
-                    $generatorXml.property(res, bean, propName);
+                    if ($generatorXml.property(tmpRes, bean, propName))
+                        hasData = true;
             }
         }
 
-        res.endBlock('</bean>');
-        res.endBlock('</property>');
+        tmpRes.endBlock('</bean>');
+        tmpRes.endBlock('</property>');
+
+        if (hasData)
+            _.forEach(tmpRes, function (line) {
+                res.push(line);
+            });
+
     }
     else if (createBeanAlthoughNoProps) {
         res.emptyLineIfNeeded();
         res.line('<property name="' + beanPropName + '">');
-        res.line('    <bean class="' + beanClass + '"/>');
+        res.line('    <bean class="' + desc.className + '"/>');
         res.line('</property>');
     }
 };
@@ -162,11 +192,8 @@ $generatorXml.beanProperty = function (res, bean, beanPropName, beanClass, props
 // Generate eviction policy.
 $generatorXml.evictionPolicy = function (res, evtPlc, propName) {
     if (evtPlc && evtPlc.kind) {
-        var e = $generatorCommon.EVICTION_POLICIES[evtPlc.kind];
-
-        var obj = evtPlc[evtPlc.kind.toUpperCase()];
-
-        $generatorXml.beanProperty(res, obj, propName, e.className, e.fields, true);
+        $generatorXml.beanProperty(res, evtPlc[evtPlc.kind.toUpperCase()], propName,
+            $generatorCommon.EVICTION_POLICIES[evtPlc.kind], true);
     }
 };
 
@@ -292,9 +319,7 @@ $generatorXml.clusterAtomics = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    var atomicCfg = $generatorCommon.ATOMIC_CONFIGURATION;
-
-    $generatorXml.beanProperty(res, cluster.atomicConfiguration, 'atomicConfiguration', atomicCfg.className, atomicCfg.fields);
+    $generatorXml.beanProperty(res, cluster.atomicConfiguration, 'atomicConfiguration', $generatorCommon.ATOMIC_CONFIGURATION);
 
     res.needEmptyLine = true;
 
@@ -323,9 +348,8 @@ $generatorXml.clusterDeployment = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    $generatorXml.property(res, cluster, 'deploymentMode');
-
-    res.needEmptyLine = true;
+    if ($generatorXml.property(res, cluster, 'deploymentMode', null, 'SHARED'))
+        res.needEmptyLine = true;
 
     return res;
 };
@@ -379,9 +403,7 @@ $generatorXml.clusterMarshaller = function (cluster, res) {
     var marshaller = cluster.marshaller;
 
     if (marshaller && marshaller.kind) {
-        var marshallerDesc = $generatorCommon.MARSHALLERS[marshaller.kind];
-
-        $generatorXml.beanProperty(res, marshaller[marshaller.kind], 'marshaller', marshallerDesc.className, marshallerDesc.fields, true);
+        $generatorXml.beanProperty(res, marshaller[marshaller.kind], 'marshaller', $generatorCommon.MARSHALLERS[marshaller.kind], true);
 
         res.needEmptyLine = true;
     }
@@ -437,11 +459,9 @@ $generatorXml.clusterSwap = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    var swapSpaceSpi = $generatorCommon.SWAP_SPACE_SPI;
-
     if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
         $generatorXml.beanProperty(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
-            swapSpaceSpi.className, swapSpaceSpi.fields, true);
+            $generatorCommon.SWAP_SPACE_SPI, true);
 
         res.needEmptyLine = true;
     }
@@ -484,9 +504,7 @@ $generatorXml.clusterTransactions = function (cluster, res) {
     if (!res)
         res = $generatorCommon.builder();
 
-    var trnCfg = $generatorCommon.TRANSACTION_CONFIGURATION;
-
-    $generatorXml.beanProperty(res, cluster.transactionConfiguration, 'transactionConfiguration', trnCfg.className, trnCfg.fields);
+    $generatorXml.beanProperty(res, cluster.transactionConfiguration, 'transactionConfiguration', $generatorCommon.TRANSACTION_CONFIGURATION);
 
     res.needEmptyLine = true;
 
@@ -578,9 +596,7 @@ $generatorXml.cacheStore = function(cache, res) {
         var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
 
         if (storeFactory) {
-            var storeFactoryDesc = $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind];
-
-            $generatorXml.beanProperty(res, storeFactory, 'cacheStoreFactory', storeFactoryDesc.className, storeFactoryDesc.fields, true);
+            $generatorXml.beanProperty(res, storeFactory, 'cacheStoreFactory', $generatorCommon.STORE_FACTORIES[cache.cacheStoreFactory.kind], true);
 
             if (storeFactory.dialect) {
                 if (_.findIndex(res.datasources, function (ds) {

@@ -50,8 +50,6 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
 
         var showPopoverMessage = $common.showPopoverMessage;
 
-        $scope.template = {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}};
-
         $scope.discoveries = [
             {value: 'Vm', label: 'static IPs'},
             {value: 'Multicast', label: 'multicast'},
@@ -151,8 +149,6 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
         $http.get('/models/clusters.json')
             .success(function (data) {
                 $scope.screenTip = data.screenTip;
-                $scope.templateTip = data.templateTip;
-
                 $scope.general = data.general;
                 $scope.advanced = data.advanced;
             })
@@ -326,7 +322,11 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
                 $common.ensureActivePanel($scope.panels, "general", 'clusterName');
             });
 
-            var newItem = angular.copy($scope.template);
+            var newItem = {
+                discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}},
+                deploymentMode: 'SHARED'
+            };
+
             newItem.caches = [];
             newItem.space = $scope.spaces[0]._id;
 

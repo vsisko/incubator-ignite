@@ -247,13 +247,13 @@ controlCenterModule.controller('cachesController', [
 
                     if (restoredItem) {
                         restoredItem.queryMetadata = _.filter(restoredItem.queryMetadata, function (metaId) {
-                            return _.findIndex($scope.metadatas, function (scopeMeta) {
+                            return _.findIndex(metadatas, function (scopeMeta) {
                                     return scopeMeta.value == metaId;
                                 }) >= 0;
                         });
 
                         restoredItem.storeMetadata = _.filter(restoredItem.storeMetadata, function (metaId) {
-                            return _.findIndex($scope.metadatas, function (scopeMeta) {
+                            return _.findIndex(metadatas, function (scopeMeta) {
                                     return scopeMeta.value == metaId;
                                 }) >= 0;
                         });
