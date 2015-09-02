@@ -26,6 +26,7 @@ controlCenterModule.controller('cachesController', [
             $scope.getModel = $common.getModel;
             $scope.javaBuildInClasses = $common.javaBuildInClasses;
             $scope.compactJavaName = $common.compactJavaName;
+            $scope.saveBtnTipText = $common.saveBtnTipText;
 
             $scope.tableReset = $table.tableReset;
             $scope.tableNewItem = $table.tableNewItem;

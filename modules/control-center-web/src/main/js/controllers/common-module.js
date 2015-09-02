@@ -709,6 +709,12 @@ controlCenterModule.service('$common', [
                 else
                     selectFunc();
 
+            },
+            saveBtnTipText: function (form, objectName) {
+                if (formChanged(form))
+                    return 'Save ' + objectName;
+
+                return 'Nothing to save';
             }
         }
     }]);
