@@ -29,7 +29,7 @@ block content
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Caches:', 'caches', 'cacheName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.cacheMode | displayValue:cacheModes:"Cache mode not set"}}, {{row.atomicityMode | displayValue:atomicities:"Cache atomicity not set"}}')
         .padding-top-dflt(bs-affix)
-            .panel-tip-container(data-placement='bottom' bs-tooltip data-title='Create new caches')
+            .panel-tip-container(data-placement='bottom' bs-tooltip data-title='Create new caches' data-delay='150')
                 button.btn.btn-primary(id='new-item' ng-click='createItem()') New
             +save-remove-buttons('cache')
             //label {{ui.formTitle}}
