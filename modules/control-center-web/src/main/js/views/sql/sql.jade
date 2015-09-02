@@ -20,6 +20,9 @@ append scripts
     script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/theme-chrome.js')
     script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-sql.js')
     script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-language_tools.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js')
+    link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.css')
 
 block container
     .row
@@ -51,7 +54,7 @@ block container
 
                                     .btn-group(ng-model='paragraph.result' ng-click='$event.stopPropagation();' style='float: right' )
                                         i.btn.btn-default.fa.fa-table(ng-click='paragraph.result="table"' ng-class="{'active': resultMode(paragraph, 'table')}" bs-tooltip data-title='Show table' data-trigger='hover')
-                                        i.btn.btn-default.fa.fa-bar-chart(ng-click='paragraph.result="bar"' ng-class="{'active': resultMode(paragraph, 'bar')}" bs-tooltip data-title='Show bar chart' data-trigger='hover')
+                                        i.btn.btn-default.fa.fa-bar-chart(ng-click='showBarChart(paragraph)' ng-class="{'active': resultMode(paragraph, 'bar')}" bs-tooltip data-title='Show bar chart' data-trigger='hover')
                                 div(ng-show='paragraph.edit')
                                     input.sql-name-input(ng-model='paragraph.edit_name' ng-click='$event.stopPropagation();' on-enter='renameParagraph(paragraph, paragraph.edit_name)' on-escape='renameParagraph(paragraph, paragraph.name)')
                                     i.tipLabel.fa.fa-floppy-o(ng-click='renameParagraph(paragraph, paragraph.edit_name); $event.stopPropagation();' bs-tooltip data-title='Save paragraph name' data-trigger='hover')
@@ -104,3 +107,8 @@ block container
                                             //    tr
                                             //        td.text-right(colspan='{{paragraph.meta.length}}')
                                             //            div(st-pagination st-items-by-page='10' st-displayed-pages='5')
+                                .panel-body(ng-show='paragraph.result === "bar"')
+                                    label Bar chart
+                                    #chart
+                                        svg
+
