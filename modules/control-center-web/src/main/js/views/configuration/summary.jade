@@ -33,7 +33,7 @@ mixin hard-link(ref, txt)
     a(style='color:#ec1c24' href=ref target='_blank') #{txt}
 
 mixin btn-download(side)
-    .panel-tip-container(style='float: right;' data-placement='bottom' bs-tooltip='"Download #{side} configurations in ZIP archive"')
+    .panel-tip-container(style='float: right;' data-placement='bottom' bs-tooltip='"Download #{side} configuration"')
         button.btn.btn-primary.pull-right(type='submit' ng-click='$event.stopPropagation()') Download
 
 block content
