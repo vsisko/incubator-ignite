@@ -20,6 +20,10 @@ var router = require('express').Router();
 var db = require('../db');
 var utils = require('./../helpers/common-utils');
 
+router.get('/new', function (req, res) {
+    res.render('templates/notebook-new', {});
+});
+
 /**
  * Get notebooks names accessed for user account.
  *
@@ -111,12 +115,27 @@ router.post('/save', function (req, res) {
 });
 
 /**
+ * Remove notebook by ._id.
+ *
+ * @param req Request.
+ * @param res Response.
+ */
+router.post('/remove', function (req, res) {
+    db.Notebook.remove(req.body, function (err) {
+        if (err)
+            return res.status(500).send(err.message);
+
+        res.sendStatus(200);
+    });
+});
+
+/**
  * Create new notebook for user account.
  *
  * @param req Request.
  * @param res Response.
  */
-router.get('/new', function (req, res) {
+router.post('/new', function (req, res) {
     var user_id = req.currentUserId();
 
     // Get owned space and all accessed space.
@@ -124,13 +143,11 @@ router.get('/new', function (req, res) {
         if (err)
             return res.status(500).send(err.message);
 
-        var name = 'Notebook' + ' ' + utils.randomValueHex(8);
-
-        (new db.Notebook({space: space.id, name: name, paragraphs: []})).save(function (err, notebook) {
+        (new db.Notebook({space: space.id, name: req.body.name, paragraphs: []})).save(function (err, note) {
             if (err)
                 return res.status(500).send(err.message);
 
-            return res.redirect('/sql/' + notebook._id);
+            return res.send(note._id);
         });
     });
 });

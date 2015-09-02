@@ -16,8 +16,8 @@
  */
 
 // Controller for SQL notebook screen.
-controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http', '$common',
-    function ($scope, $controller, $http, $common) {
+controlCenterModule.controller('sqlController', ['$scope', '$window','$controller', '$http', '$common',
+    function ($scope, $window, $controller, $http, $common) {
     // Initialize the super class and extend it.
     angular.extend(this, $controller('agent-download', {$scope: $scope}));
     $scope.agentGoal = 'execute sql statements';
@@ -53,6 +53,9 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     loadNotebook();
 
     $scope.renameNotebook = function (name) {
+        if (!name)
+            return;
+
         if ($scope.notebook.name != name) {
             $scope.notebook.name = name;
 
@@ -91,9 +94,21 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     };
 
     $scope.removeNotebook = function () {
-        $http.post('/notebooks/remove', $scope.notebook)
+        $http.post('/notebooks/remove', {_id: $scope.notebook._id})
             .success(function () {
-                $common.showInfo("Notebook successfully removed.");
+                var idx = _.findIndex($scope.$root.notebooks, function (item) {
+                    return item._id == $scope.notebook._id;
+                });
+
+                if (idx >= 0) {
+                    $scope.$root.notebooks.splice(idx, 1);
+
+                    if ($scope.$root.notebooks.length > 0)
+                        $window.location = "/sql/" +
+                            $scope.$root.notebooks[Math.min(idx,  $scope.$root.notebooks.length - 1)]._id;
+                    else
+                        $scope.inputNotebookName();
+                }
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);
@@ -101,6 +116,9 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     };
 
     $scope.renameParagraph = function (paragraph, newName) {
+        if (!newName)
+            return;
+
         if (paragraph.name != newName) {
             paragraph.name = newName;
 
@@ -132,7 +150,15 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
         $scope.notebook.paragraphs.push(paragraph);
     };
 
-    $scope.removeParagraph = function (paragraph) {
+    $scope.setResult = function (paragraph, new_result) {
+        paragraph.result = paragraph.result === new_result ? '' : new_result;
+    };
+
+    $scope.resultEq = function(paragraph, result) {
+        return (paragraph.result === result);
+    };
+
+    $scope.removeParagraph = function(paragraph) {
         var paragraph_idx = _.findIndex($scope.notebook.paragraphs, function (item) {
             return paragraph == item;
         });
@@ -216,11 +242,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     $scope.explain = function (item) {
         _appendOnLast(item);
 
-        $http.post('/agent/query', {
-            query: 'EXPLAIN ' + item.query,
-            pageSize: item.pageSize,
-            cacheName: item.cache.name
-        })
+        $http.post('/agent/query', {query: 'EXPLAIN ' + item.query, pageSize: item.pageSize, cacheName: item.cache.name})
             .success(_processQueryResult(item))
             .error(function (errMsg) {
                 $common.showError(errMsg);
@@ -237,12 +259,8 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
             });
     };
 
-    $scope.nextPage = function (item) {
-        $http.post('/agent/query/fetch', {
-            queryId: item.queryId,
-            pageSize: item.pageSize,
-            cacheName: item.cache.name
-        })
+    $scope.nextPage = function(item) {
+        $http.post('/agent/query/fetch', {queryId: item.queryId, pageSize: item.pageSize, cacheName: item.cache.name})
             .success(function (res) {
                 item.page++;
 

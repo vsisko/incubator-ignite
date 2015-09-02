@@ -19,13 +19,13 @@
         .modal-content
             .modal-header
                 button.close(type='button' ng-click='$hide()') &times;
-                h4.modal-title Copy
+                h4.modal-title New notebook
             form.form-horizontal(name='ui.inputForm' novalidate)
                 .modal-body.row
                     .col-sm-9.login.col-sm-offset-1
-                        label.required.labelFormField New name:&nbsp;
+                        label.required.labelFormField Name:&nbsp;
                         .col-sm-9
-                            input.form-control(id='copy-new-name' type='text' ng-model='newName' required)
+                            input.form-control(id='create-notebook' type='text' ng-model='name' required)
             .modal-footer
                 button.btn.btn-default(id='copy-btn-cancel' type='button' ng-click='$hide()') Cancel
-                button.btn.btn-primary(id='copy-btn-confirm' type='button' ng-disabled='ui.inputForm.$invalid' ng-click='ok(newName)') Confirm
+                button.btn.btn-primary(id='copy-btn-confirm' type='button' ng-disabled='ui.inputForm.$invalid' ng-click='createNewNotebook(name)') Create

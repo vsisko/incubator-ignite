@@ -36,8 +36,8 @@ block container
                             i.btn.btn-default.fa.fa-floppy-o(ng-click='saveNotebook()' bs-tooltip data-title='Save notebook' data-trigger='hover')
                             i.btn.btn-default.fa.fa-remove(ng-click='removeNotebook()' bs-tooltip data-title='Remove notebook' data-trigger='hover')
                     h1.col-sm-6(ng-show='notebook.edit')
-                        input.sql-name-input(ng-model='notebook.edit_name' on-enter='renameNotebook(notebook.edit_name)' on-escape='notebook.edit = false;')
-                        i.tipLabel.fa.fa-floppy-o(ng-click='renameNotebook(notebook.edit_name)' bs-tooltip data-title='Save notebook name' data-trigger='hover')
+                        input.sql-name-input(ng-model='notebook.edit_name' required on-enter='renameNotebook(notebook.edit_name)' on-escape='notebook.edit = false;')
+                        i.tipLabel.fa.fa-floppy-o(ng-show='notebook.edit_name' ng-click='renameNotebook(notebook.edit_name)' bs-tooltip data-title='Save notebook name' data-trigger='hover')
                     h1.col-sm-6
                         i.tipField.fa.fa-plus(ng-click='addParagraph()' bs-tooltip data-title='Add new paragraph' data-trigger='hover')
                 .docs-body(style='margin-top: 20px;')
@@ -53,11 +53,11 @@ block container
                                         i.btn.btn-default.fa.fa-remove(ng-click='removeParagraph(paragraph)' bs-tooltip data-title='Remove paragraph' data-trigger='hover')
 
                                     .btn-group(ng-model='paragraph.result' ng-click='$event.stopPropagation();' style='float: right' )
-                                        i.btn.btn-default.fa.fa-table(ng-click='paragraph.result="table"' ng-class="{'active': resultMode(paragraph, 'table')}" bs-tooltip data-title='Show table' data-trigger='hover')
-                                        i.btn.btn-default.fa.fa-bar-chart(ng-click='showBarChart(paragraph)' ng-class="{'active': resultMode(paragraph, 'bar')}" bs-tooltip data-title='Show bar chart' data-trigger='hover')
+                                        i.btn.btn-default.fa.fa-table(ng-click='setResult(paragraph, "table")' ng-class="{'active': resultEq(paragraph, 'table')}" bs-tooltip data-title='Show table' data-trigger='hover')
+                                        i.btn.btn-default.fa.fa-bar-chart(ng-click='showBarChart(paragraph)' ng-class="{'active': resultEq(paragraph, 'bar')}" bs-tooltip data-title='Show bar chart' data-trigger='hover')
                                 div(ng-show='paragraph.edit')
-                                    input.sql-name-input(ng-model='paragraph.edit_name' ng-click='$event.stopPropagation();' on-enter='renameParagraph(paragraph, paragraph.edit_name)' on-escape='renameParagraph(paragraph, paragraph.name)')
-                                    i.tipLabel.fa.fa-floppy-o(ng-click='renameParagraph(paragraph, paragraph.edit_name); $event.stopPropagation();' bs-tooltip data-title='Save paragraph name' data-trigger='hover')
+                                    input.sql-name-input(ng-model='paragraph.edit_name' required ng-click='$event.stopPropagation();' on-enter='renameParagraph(paragraph, paragraph.edit_name)' on-escape='paragraph.edit = false')
+                                    i.tipLabel.fa.fa-floppy-o(ng-show='paragraph.edit_name' ng-click='renameParagraph(paragraph, paragraph.edit_name); $event.stopPropagation();' bs-tooltip data-title='Save paragraph name' data-trigger='hover')
                             .panel-collapse(role='tabpanel' bs-collapse-target)
                                 .panel-body(ng-show='paragraph.editor')
                                     .row
@@ -83,7 +83,7 @@ block container
                                         .pull-right
                                             label Page Size:&nbsp;
                                             button.btn.btn-default.base-control(ng-model='paragraph.pageSize' bs-options='item for item in pageSizes' bs-select)
-                                .panel-body(ng-show='paragraph.result === "table"')
+                                .panel-body(ng-show='paragraph.result === "table" && !paragraph.rows')
                                     .row
                                         .col-sm-8
                                             lable Page #:&nbsp;
@@ -111,4 +111,3 @@ block container
                                     label Bar chart
                                     #chart
                                         svg
-
