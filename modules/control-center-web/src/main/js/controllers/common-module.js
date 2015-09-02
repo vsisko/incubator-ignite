@@ -1006,12 +1006,17 @@ controlCenterModule.service('$preview', ['$timeout', function ($timeout) {
 
     var previewPrevContent = [];
 
+    var clearPromise = null;
+
     function previewChanged (ace) {
         var content = ace[0];
 
         if (content.action == 'remove')
             previewPrevContent = content.lines;
         else {
+            if (clearPromise)
+                $timeout.cancel(clearPromise);
+
             var previewNewContent = content.lines;
 
             var start = -1;
@@ -1019,20 +1024,23 @@ controlCenterModule.service('$preview', ['$timeout', function ($timeout) {
             var prevLen = previewPrevContent.length;
             var newLen = previewNewContent.length;
 
-            for (var i = 0; i < newLen || i < prevLen; i++) {
+            for (var i = 0; (i < newLen || i < prevLen) && start < 0; i++) {
                 if (previewNewContent[i] != previewPrevContent[i]) {
-                    if (start < 0)
-                        start = i;
-                    else {
-                        end = i;
-                        break;
-                    }
+                    start = i;
+
+                    break;
                 }
             }
 
-            previewPrevContent = [];
-
             if (start >= 0) {
+                for (i = 1; (i <= newLen || i <= prevLen) && end < 0; i++) {
+                    if (previewNewContent[newLen - i] != previewPrevContent[prevLen - i]) {
+                        end = newLen - i + 1;
+
+                        break;
+                    }
+                }
+
                 if (end < 0)
                     end = start + 1;
 
@@ -1040,10 +1048,14 @@ controlCenterModule.service('$preview', ['$timeout', function ($timeout) {
 
                 editor.selection.setSelectionRange(new Range(start, 0, end, 0), false);
 
-                $timeout(function() {
+                clearPromise = $timeout(function () {
                     editor.clearSelection();
+
+                    clearPromise = null;
                 }, 3000);
             }
+
+            previewPrevContent = [];
         }
     }
 
