@@ -24,9 +24,12 @@ append scripts
     script(src='//cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js')
     link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.css')
 
+mixin btn-toolbar(btn, kind, tip)
+    i.btn.btn-default.fa(class=btn ng-click='setResult(paragraph, "#{kind}")' ng-class='{active: resultEq(paragraph, "#{kind}")}' bs-tooltip data-title=tip data-trigger='hover')
+
 block container
     .row
-        .col-sm-12(ng-init='noteId = "#{noteId}";')
+        .col-sm-12(ng-init='noteId = "#{noteId}"')
             .docs-content(ng-controller='sqlController' )
                 .docs-header.notebook-header
                     h1.col-sm-6(ng-hide='notebook.edit')
@@ -55,8 +58,11 @@ block container
                                     i.btn.btn-default.fa.fa-pencil.margin-left-dflt(ng-hide='notebook.paragraphs.length > 1' ng-click='paragraph.edit = true; paragraph.edit_name = paragraph.name;$event.stopPropagation();' bs-tooltip data-title='Rename paragraph' data-trigger='hover')
 
                                     .btn-group(ng-model='paragraph.result' ng-click='$event.stopPropagation();' style='float: right' )
-                                        i.btn.btn-default.fa.fa-table(ng-click='setResult(paragraph, "table")' ng-class="{'active': resultEq(paragraph, 'table')}" bs-tooltip data-title='Show table' data-trigger='hover')
-                                        i.btn.btn-default.fa.fa-bar-chart(ng-click='showBarChart(paragraph)' ng-class="{'active': resultEq(paragraph, 'bar')}" bs-tooltip data-title='Show bar chart' data-trigger='hover')
+                                        +btn-toolbar('fa-table', 'table', 'Show table')
+                                        +btn-toolbar('fa-bar-chart', 'bar', 'Show bar chart')
+                                        +btn-toolbar('fa-pie-chart', 'pie', 'Show pie chart')
+                                        +btn-toolbar('fa-line-chart', 'line', 'Show line chart')
+                                        +btn-toolbar('fa-area-chart', 'area', 'Show area chart')
                                 div(ng-show='paragraph.edit')
                                     input.sql-name-input(ng-model='paragraph.edit_name' required ng-click='$event.stopPropagation();' on-enter='renameParagraph(paragraph, paragraph.edit_name)' on-escape='paragraph.edit = false')
                                     i.tipLabel.fa.fa-floppy-o(ng-show='paragraph.edit_name' ng-click='renameParagraph(paragraph, paragraph.edit_name); $event.stopPropagation();' bs-tooltip data-title='Save paragraph name' data-trigger='hover')
@@ -64,10 +70,11 @@ block container
                                 .panel-body(ng-show='paragraph.editor')
                                     .row
                                         .col-xs-8.col-sm-9(style='border-right: 1px solid #eee')
-                                            .sql-editor(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
-                                            'require: ["ace/ext/language_tools"],' +
-                                            'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
-                                            'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='paragraph.query'
+                                            .sql-editor(ui-ace='{ theme: "chrome", mode: "sql",' +
+                                                'require: ["ace/ext/language_tools"],' +
+                                                'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
+                                                'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}'
+                                            ng-model='paragraph.query'
                                             ng-class='{"disable": paragraph.status == "RUNNING" || paragraph.status == "PENDING" }')
                                         .col-xs-4.col-sm-3
                                             div(ng-hide='caches.length == 0' style='padding-left:10px')
@@ -110,7 +117,7 @@ block container
                                             //    tr
                                             //        td.text-right(colspan='{{paragraph.meta.length}}')
                                             //            div(st-pagination st-items-by-page='10' st-displayed-pages='5')
-                                .panel-body(ng-show='paragraph.result === "bar"')
+                                .panel-body(ng-show='paragraph.result != "table"')
                                     label Bar chart
                                     #chart
                                         svg
