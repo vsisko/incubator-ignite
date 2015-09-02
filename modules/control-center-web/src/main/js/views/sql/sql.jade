@@ -45,7 +45,7 @@ block container
                         i.tipField.fa.fa-plus(ng-click='addParagraph()' bs-tooltip data-title='Add new paragraph' data-trigger='hover')
                 .docs-body(style='margin-top: 20px;')
                     hr
-                    .panel-group(bs-collapse ng-model='notebook.activeIdx' data-allow-multiple='true' data-start-collapsed='false')
+                    .panel-group(bs-collapse ng-model='notebook.expandedParagraphs' data-allow-multiple='true' data-start-collapsed='false')
                         .panel.panel-default(ng-repeat='paragraph in notebook.paragraphs')
                             .panel-heading(bs-collapse-toggle)
                                 div(ng-hide='paragraph.edit')
@@ -73,7 +73,7 @@ block container
                                             .sql-editor(ui-ace='{ theme: "chrome", mode: "sql",' +
                                                 'require: ["ace/ext/language_tools"],' +
                                                 'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
-                                                'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}'
+                                                'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, autoScrollEditorIntoView: true, minLines: 3, maxLines: 15}}'
                                             ng-model='paragraph.query'
                                             ng-class='{"disable": paragraph.status == "RUNNING" || paragraph.status == "PENDING" }')
                                         .col-xs-4.col-sm-3
@@ -111,7 +111,6 @@ block container
                                                 tr(ng-repeat='row in displayedCollection track by $index')
                                                     td(ng-repeat='val in row track by $index') {{ val }}
                                 .panel-body(ng-show='paragraph.result != "table" && paragraph.result != "none"')
-                                    label Bar chart
                                     #chart
                                         svg
                                 .panel-body(ng-show='paragraph.result === "table" && !paragraph.rows')

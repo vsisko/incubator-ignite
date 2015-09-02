@@ -464,8 +464,8 @@ mixin preview(preview, id)
 
     .preview-panel
         .preview-legend(ng-show='!preview[#{preview}].allDefaults')
-            a(ng-class='{active: !#{previewState}}' ng-click='#{previewState} = false') XML&nbsp;
-            a(ng-class='{active: #{previewState}}' ng-click='#{previewState} = true') Java
+            a(ng-class='{active: !#{previewState}, inactive: #{previewState}}' ng-click='#{previewState} = false') XML&nbsp;
+            a(ng-class='{active: #{previewState}, inactive: !#{previewState}}' ng-click='#{previewState} = true') Java
         .preview-content(ng-if='!preview[#{preview}].allDefaults && !#{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, onChange: previewChanged, mode: "xml"}' ng-model='preview[#{preview}].xml' min-height='{{::group.minHeight}}')
         .preview-content(ng-if='!preview[#{preview}].allDefaults && #{previewState}' id='#{id}' ui-ace='{onLoad: previewInit, onChange: previewChanged, mode: "java"}' ng-model='preview[#{preview}].java' min-height='{{::group.minHeight}}')
         .preview-content-empty(ng-if='preview[#{preview}].allDefaults' id='#{id}')

@@ -40,8 +40,6 @@ controlCenterModule.controller('sqlController', ['$scope', '$window','$controlle
 
                 $scope.notebook_name = notebook.name;
 
-                $scope.notebook.activeIdx = [];
-
                 if (!notebook.paragraphs || notebook.paragraphs.length == 0)
                     $scope.addParagraph();
             })
@@ -140,12 +138,12 @@ controlCenterModule.controller('sqlController', ['$scope', '$window','$controlle
 
         var sz = $scope.notebook.paragraphs.length;
 
-        var paragraph = {name: 'Query' + (sz ==0 ? '' : sz), editor: true, query: '', pageSize: $scope.pageSizes[0]};
+        var paragraph = {name: 'Query' + (sz ==0 ? '' : sz), editor: true, query: '', pageSize: $scope.pageSizes[0], result: 'none'};
 
         if ($scope.caches && $scope.caches.length > 0)
             paragraph.cache = $scope.caches[0];
 
-        $scope.notebook.activeIdx.push($scope.notebook.paragraphs.length);
+        $scope.notebook.expandedParagraphs.push($scope.notebook.paragraphs.length);
 
         $scope.notebook.paragraphs.push(paragraph);
     };
@@ -187,14 +185,14 @@ controlCenterModule.controller('sqlController', ['$scope', '$window','$controlle
             return paragraph == item;
         });
 
-        var panel_idx = _.findIndex($scope.notebook.activeIdx, function (item) {
+        var panel_idx = _.findIndex($scope.notebook.expandedParagraphs, function (item) {
             console.log(item);
 
             return paragraph_idx == item;
         });
 
         if (panel_idx >= 0)
-            $scope.notebook.activeIdx.splice(panel_idx, 1);
+            $scope.notebook.expandedParagraphs.splice(panel_idx, 1);
 
         $scope.notebook.paragraphs.splice(paragraph_idx, 1);
     };

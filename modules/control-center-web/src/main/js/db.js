@@ -345,11 +345,12 @@ exports.Cluster = mongoose.model('Cluster', ClusterSchema);
 var NotebookSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
+    expandedParagraphs: [Number],
     paragraphs: [{
         name: String,
         query: String,
         editor: Boolean,
-        result: {type: String, enum: ['none', 'table', 'bar']},
+        result: {type: String, enum: ['none', 'table', 'bar', 'pie', 'line', 'area']},
         pageSize: Number
     }]
 });
