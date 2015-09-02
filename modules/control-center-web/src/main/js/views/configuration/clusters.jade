@@ -29,7 +29,7 @@ block content
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Clusters:', 'clusters', 'clusterName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:"Discovery not set"}}')
         .padding-top-dflt(bs-affix)
-            .panel-tip-container(data-placement='bottom' bs-tooltip data-title='Create new cluster')
+            .panel-tip-container(data-placement='bottom' bs-tooltip data-title='Create new cluster' data-delay='150')
                 button.btn.btn-primary(id='new-item' ng-click='createItem()') New
             +save-remove-buttons('cluster')
             //label {{ui.formTitle}}
