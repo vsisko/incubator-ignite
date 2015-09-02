@@ -32,7 +32,7 @@ header#header.header
                 li(ng-controller='notebooks')
                     a.dropdown-toggle(ng-hide='$root.notebooks.length == 0' ng-class='{active: isActive("/sql")}' data-toggle='dropdown' bs-dropdown='notebookDropdown' data-placement='bottom-right') SQL
                         span.caret
-                    a(ng-hide='$root.notebooks.length > 0' href='/notebooks/new') SQL
+                    a(ng-hide='$root.notebooks.length > 0' ng-click='inputNotebookName()') SQL
                 //+header-item('/deploy', '/deploy', 'Deploy')
             ul.nav.navbar-nav.pull-right
                 li(ng-if='user')

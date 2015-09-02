@@ -24,6 +24,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$controller', '
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
         $scope.compactJavaName = $common.compactJavaName;
+        $scope.saveBtnTipText = $common.saveBtnTipText;
 
         $scope.tableReset = $table.tableReset;
         $scope.tableNewItem = $table.tableNewItem;

@@ -414,10 +414,8 @@ table tr:hover {
 }
 
 .theme-line .notebook-header {
-    color: black;
     border-color: $ignite-background-dark-color;
 
-    font-size: 22px;
     line-height: 44px;
     height: 44px;
 
@@ -1151,6 +1149,8 @@ a {
 }
 
 .sql-editor {
+    height: 200px;
+
     .ace_cursor {
         opacity: 1;
     }

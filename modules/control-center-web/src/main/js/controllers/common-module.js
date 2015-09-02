@@ -671,7 +671,7 @@ controlCenterModule.service('$common', [
                 })
             },
             initPreview: function () {
-                MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+                MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
 
                 $('.panel-collapse').each(function (ix, el) {
                     var observer = new MutationObserver(function(mutations, observer) {
@@ -709,6 +709,12 @@ controlCenterModule.service('$common', [
                 else
                     selectFunc();
 
+            },
+            saveBtnTipText: function (form, objectName) {
+                if (formChanged(form))
+                    return 'Save ' + objectName;
+
+                return 'Nothing to save';
             }
         }
     }]);
@@ -1358,12 +1364,16 @@ controlCenterModule.controller('agent-download', [
 }]);
 
 // Navigation bar controller.
-controlCenterModule.controller('notebooks', ['$scope', '$http', '$common', function ($scope, $http, $common) {
+controlCenterModule.controller('notebooks', ['$scope', '$modal', '$window', '$http', '$common',
+    function ($scope, $modal, $window, $http, $common) {
     $scope.$root.notebooks = [];
 
-    $scope.$root.rebuildDropdown = function () {
+    // Pre-fetch modal dialogs.
+    var _notebookNewModal = $modal({scope: $scope, templateUrl: '/notebooks/new', show: false});
+
+    $scope.$root.rebuildDropdown = function() {
         $scope.notebookDropdown = [
-            {text: 'Create new notebook', href: '/notebooks/new', target: '_self'},
+            {text: 'Create new notebook', click: 'inputNotebookName()'},
             {divider: true}
         ];
 
@@ -1376,7 +1386,7 @@ controlCenterModule.controller('notebooks', ['$scope', '$http', '$common', funct
         });
     };
 
-    $scope.$root.reloadNotebooks = function () {
+    $scope.$root.reloadNotebooks = function() {
         // When landing on the page, get clusters and show them.
         $http.post('/notebooks/list')
             .success(function (data) {
@@ -1386,6 +1396,22 @@ controlCenterModule.controller('notebooks', ['$scope', '$http', '$common', funct
             })
             .error(function (errMsg) {
                 $common.showError(errMsg);
+            });
+    };
+
+    $scope.$root.inputNotebookName = function() {
+        _notebookNewModal.$promise.then(_notebookNewModal.show);
+    };
+
+    $scope.$root.createNewNotebook = function(name) {
+        $http.post('/notebooks/new', {name: name})
+            .success(function (id) {
+                _notebookNewModal.hide();
+
+                $window.location = '/sql/' + id;
+            })
+            .error(function (message, state) {
+                $common.showError(message);
             });
     };
 
