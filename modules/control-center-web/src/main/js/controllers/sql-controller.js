@@ -151,7 +151,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$window','$controlle
     };
 
     $scope.setResult = function (paragraph, new_result) {
-        paragraph.result = paragraph.result === new_result ? '' : new_result;
+        paragraph.result = paragraph.result === new_result ? 'none' : new_result;
 
         switch (new_result) {
             case 'table':

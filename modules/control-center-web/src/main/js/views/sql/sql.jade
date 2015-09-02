@@ -41,7 +41,7 @@ block container
                     h1.col-sm-6(ng-show='notebook.edit')
                         input.sql-name-input(ng-model='notebook.edit_name' required on-enter='renameNotebook(notebook.edit_name)' on-escape='notebook.edit = false;')
                         i.tipLabel.fa.fa-floppy-o(ng-show='notebook.edit_name' ng-click='renameNotebook(notebook.edit_name)' bs-tooltip data-title='Save notebook name' data-trigger='hover')
-                    h1.col-sm-6
+                    .pull-right
                         i.tipField.fa.fa-plus(ng-click='addParagraph()' bs-tooltip data-title='Add new paragraph' data-trigger='hover')
                 .docs-body(style='margin-top: 20px;')
                     hr
@@ -93,7 +93,7 @@ block container
                                             i.btn.btn-default.fa.fa-clock-o(style='margin-right: 20px' bs-tooltip data-title='Refresh rate' data-trigger='hover')
                                             label Page Size:&nbsp;
                                             button.btn.btn-default.base-control(ng-model='paragraph.pageSize' bs-options='item for item in pageSizes' bs-select)
-                                .panel-body(ng-show='paragraph.result === "table" && !paragraph.rows')
+                                .panel-body(ng-show='paragraph.result === "table" && paragraph.rows')
                                     .row
                                         .col-sm-8
                                             lable Page #:&nbsp;
@@ -108,15 +108,12 @@ block container
                                                 tr
                                                     th(ng-repeat='col in paragraph.meta track by $index' st-sort='getter' data-ng-bind='::col.fieldName' bs-tooltip='columnToolTip(col)')
                                             tbody
-                                                    //tr
-                                                    //    td(colspan='{{#{tab}.cols.length}}')
-                                                    //        .loading-indicator
-                                                    tr(ng-repeat='row in displayedCollection track by $index')
-                                                        td(ng-repeat='val in row track by $index') {{ val }}
-                                            //tfoot
-                                            //    tr
-                                            //        td.text-right(colspan='{{paragraph.meta.length}}')
-                                            //            div(st-pagination st-items-by-page='10' st-displayed-pages='5')
-                                .panel-body(ng-show='paragraph.result != "table"')
+                                                tr(ng-repeat='row in displayedCollection track by $index')
+                                                    td(ng-repeat='val in row track by $index') {{ val }}
+                                .panel-body(ng-show='paragraph.result != "table" && paragraph.result != "none"')
+                                    label Bar chart
                                     #chart
                                         svg
+                                .panel-body(ng-show='paragraph.result === "table" && !paragraph.rows')
+                                    div(style='text-align: center;')
+                                        label ResultSet is empty.
