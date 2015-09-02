@@ -706,7 +706,7 @@ div.affix.padding-top-dflt {
 }
 
 .group-content-empty {
-    color: $ignite-placeholder-color;
+    color: $input-color-placeholder;
 
     padding-top: 5px;
     position: relative;
@@ -717,6 +717,10 @@ div.affix.padding-top-dflt {
 
 .tooltip.right .tooltip-arrow {
     border-right-color: $brand-primary;
+}
+
+.tooltip.bottom .tooltip-arrow {
+    border-bottom-color: $brand-primary;
 }
 
 .tooltip > .tooltip-inner {
@@ -966,6 +970,14 @@ input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
     }
 }
 
+.form-control-feedback {
+    display: inline-block;
+    color: $brand-primary;
+    right: 18px;
+    line-height: $input-height;
+    pointer-events: initial;
+}
+
 .theme-line .nav-tabs > li > a {
     padding: 5px 5px;
     color: $ignite-header-color;
@@ -1168,7 +1180,7 @@ a {
 }
 
 .preview-content-empty {
-    color: $ignite-placeholder-color;
+    color: $input-color-placeholder;
     display: table;
     width: 100%;
 
@@ -1230,4 +1242,14 @@ a {
 
 .theme-line .dropdown-menu {
     min-width: 75px;
+}
+
+.panel-tip-container {
+    display: inline-block;
+    margin: -3px -3px -3px -3px;
+    padding: 3px 3px 3px 3px;
+}
+
+button.dropdown-toggle {
+    margin-right: 5px;
 }

@@ -471,13 +471,17 @@ mixin preview(preview, id)
         .preview-content-empty(ng-if='preview[#{preview}].allDefaults' id='#{id}')
             label All Defaults
 
-mixin save-remove-buttons
-    button.btn.btn-primary(ng-hide='backupItem._id' ng-disabled='!formChanged(ui.inputForm)' ng-click='saveItem()') Save
-    .btn-group(ng-show='backupItem._id')
+mixin save-remove-buttons(objectName)
+    -var saveTip = '"Save current ' + objectName + '"'
+    -var removeTip = '"Remove current ' + objectName+ '"'
+
+    .panel-tip-container(ng-hide='backupItem._id' bs-tooltip=saveTip data-placement='bottom')
+        button.btn.btn-primary(ng-disabled='!formChanged(ui.inputForm)' ng-click='saveItem()' ) Save
+    .btn-group.panel-tip-container(ng-show='backupItem._id' data-placement='bottom' bs-tooltip=saveTip)
         button.btn.btn-primary(id='save-item' ng-disabled='!formChanged(ui.inputForm)' ng-click='saveItem()') Save
         button.btn.dropdown-toggle.btn-primary(id='save-item-dropdown' ng-disabled='!backupItem._id' data-toggle='dropdown' bs-dropdown='saveDropdown' data-placement='bottom-center')
             span.caret
-    .btn-group(ng-show='backupItem._id')
-        button.btn.btn-primary(id='remove-item' ng-click='removeItem()') Remove
+    .btn-group.panel-tip-container(ng-show='backupItem._id' data-placement='bottom' bs-tooltip=removeTip)
+        button.btn.btn-primary(id='remove-item' ng-click='removeItem()' ) Remove
         button.btn.dropdown-toggle.btn-primary(id='remove-item-dropdown' data-toggle='dropdown' bs-dropdown='removeDropdown' data-placement='bottom-center')
             span.caret

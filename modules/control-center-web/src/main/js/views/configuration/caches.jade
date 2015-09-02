@@ -29,9 +29,11 @@ block content
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
         +main-table('Caches:', 'caches', 'cacheName', 'selectItem(row)', '{{$index + 1}}) {{row.name}}, {{row.cacheMode | displayValue:cacheModes:"Cache mode not set"}}, {{row.atomicityMode | displayValue:atomicities:"Cache atomicity not set"}}')
         .padding-top-dflt(bs-affix)
-            button.btn.btn-primary(id='new-item' ng-click='createItem()') New
-            +save-remove-buttons
+            .panel-tip-container(data-placement='bottom' bs-tooltip data-title='Create new caches')
+                button.btn.btn-primary(id='new-item' ng-click='createItem()') New
+            +save-remove-buttons('cache')
             //label {{ui.formTitle}}
+            br
             hr
         form.form-horizontal(name='ui.inputForm' ng-if='backupItem' novalidate)
             .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true')
@@ -41,4 +43,4 @@ block content
                     +groups('advanced', 'backupItem')
             +advanced-options-top
             .section(ng-if='ui.expanded')
-                +save-remove-buttons
+                +save-remove-buttons('cache')
