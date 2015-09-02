@@ -45,7 +45,7 @@ block container
                         i.tipField.fa.fa-plus(ng-click='addParagraph()' bs-tooltip data-title='Add new paragraph' data-trigger='hover')
                 .docs-body(style='margin-top: 20px;')
                     hr
-                    .panel-group(bs-collapse ng-model='notebook.activeIdx' data-allow-multiple='true' data-start-collapsed='false')
+                    .panel-group(bs-collapse ng-model='notebook.expandedParagraphs' data-allow-multiple='true' data-start-collapsed='false')
                         .panel.panel-default(ng-repeat='paragraph in notebook.paragraphs')
                             .panel-heading(bs-collapse-toggle)
                                 div(ng-hide='paragraph.edit')
