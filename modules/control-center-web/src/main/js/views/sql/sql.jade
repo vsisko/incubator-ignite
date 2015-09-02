@@ -111,7 +111,6 @@ block container
                                                 tr(ng-repeat='row in displayedCollection track by $index')
                                                     td(ng-repeat='val in row track by $index') {{ val }}
                                 .panel-body(ng-show='paragraph.result != "table" && paragraph.result != "none"')
-                                    label Bar chart
                                     #chart
                                         svg
                                 .panel-body(ng-show='paragraph.result === "table" && !paragraph.rows')

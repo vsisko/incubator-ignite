@@ -1168,7 +1168,8 @@ a {
 
 .preview-legend {
     top: 0;
-    overflow: visible;
+    right: 0;
+    margin-right: 10px;
     position: absolute;
     z-index: 900;
 
@@ -1176,6 +1177,10 @@ a {
         background-color: white;
         margin-left: 5px;
         font-size: 0.9em;
+    }
+
+    .inactive {
+        color: $input-color-placeholder;
     }
 }
 
