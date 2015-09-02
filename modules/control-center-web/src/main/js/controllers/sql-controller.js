@@ -360,6 +360,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$window','$controlle
                 return d3.time.format('%x')(new Date(d))
             }).showMaxMin(false);
 
+            d3.selectAll("#chart svg > *").remove();
             var z = d3.select('#chart svg');
 
             z.datum(testdata)
@@ -404,6 +405,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$window','$controlle
                 .width(width)
                 .height(height);
 
+            d3.selectAll("#chart svg > *").remove();
             var z = d3.select('#chart svg');
 
             z.datum(testdata)
@@ -451,6 +453,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$window','$controlle
                 })
             ;
             data = sinAndCos();
+            d3.selectAll("#chart svg > *").remove();
             d3.select('#chart svg')
                 .datum(data)
                 .call(chart);
@@ -568,6 +571,7 @@ controlCenterModule.controller('sqlController', ['$scope', '$window','$controlle
             });
             chart.yAxis.tickFormat(d3.format(',.4f'));
             chart.legend.vers('furious');
+            d3.selectAll("#chart svg > *").remove();
             d3.select('#chart svg')
                 .datum(histcatexplong)
                 .transition().duration(1000)
