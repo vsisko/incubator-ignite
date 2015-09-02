@@ -47,10 +47,12 @@ block container
                             .panel-heading(bs-collapse-toggle)
                                 div(ng-hide='paragraph.edit')
                                     a {{paragraph.name}}
-                                    .btn-group(ng-click='$event.stopPropagation();')
+
+                                    .btn-group(ng-show='notebook.paragraphs.length > 1' ng-click='$event.stopPropagation();')
                                         i.btn.btn-default.fa.fa-pencil(ng-click='paragraph.edit = true; paragraph.edit_name = paragraph.name;' bs-tooltip data-title='Rename paragraph' data-trigger='hover')
-                                        i.btn.btn-default.fa.fa-clock-o(ng-click='paragraph.edit = true; paragraph.edit_name = paragraph.name;' bs-tooltip data-title='Refresh rate' data-trigger='hover')
-                                        i.btn.btn-default.fa.fa-remove(ng-click='removeParagraph(paragraph)' bs-tooltip data-title='Remove paragraph' data-trigger='hover')
+                                        i.btn.btn-default.fa.fa-remove( ng-click='removeParagraph(paragraph)' bs-tooltip data-title='Remove paragraph' data-trigger='hover')
+
+                                    i.btn.btn-default.fa.fa-pencil.margin-left-dflt(ng-hide='notebook.paragraphs.length > 1' ng-click='paragraph.edit = true; paragraph.edit_name = paragraph.name;$event.stopPropagation();' bs-tooltip data-title='Rename paragraph' data-trigger='hover')
 
                                     .btn-group(ng-model='paragraph.result' ng-click='$event.stopPropagation();' style='float: right' )
                                         i.btn.btn-default.fa.fa-table(ng-click='setResult(paragraph, "table")' ng-class="{'active': resultEq(paragraph, 'table')}" bs-tooltip data-title='Show table' data-trigger='hover')
@@ -81,6 +83,7 @@ block container
                                         button.btn.btn-primary(ng-click='execute(paragraph)' ng-disabled='!paragraph.query || !paragraph.cache') Execute
                                         button.btn.btn-primary(ng-click='scan(paragraph)' ng-disabled='!paragraph.cache') Scan
                                         .pull-right
+                                            i.btn.btn-default.fa.fa-clock-o(style='margin-right: 20px' bs-tooltip data-title='Refresh rate' data-trigger='hover')
                                             label Page Size:&nbsp;
                                             button.btn.btn-default.base-control(ng-model='paragraph.pageSize' bs-options='item for item in pageSizes' bs-select)
                                 .panel-body(ng-show='paragraph.result === "table" && !paragraph.rows')
