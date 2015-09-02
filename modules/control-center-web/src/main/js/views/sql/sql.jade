@@ -30,7 +30,7 @@ block container
             .docs-content(ng-controller='sqlController' )
                 .docs-header.notebook-header
                     h1.col-sm-6(ng-hide='notebook.edit')
-                        a {{notebook.name}}
+                        label {{notebook.name}}
                         .btn-group
                             i.btn.btn-default.fa.fa-pencil(ng-click='notebook.edit = true;notebook.edit_name = notebook.name' bs-tooltip data-title='Rename notebook' data-trigger='hover')
                             i.btn.btn-default.fa.fa-floppy-o(ng-click='saveNotebook()' bs-tooltip data-title='Save notebook' data-trigger='hover')
